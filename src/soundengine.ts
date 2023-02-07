@@ -4,6 +4,7 @@ Howler.autoSuspend = false;
 
 export class InvalidTrack extends Error { };
 export class VolumeOutOfRange extends Error { };
+export class VolumeStepOutOfRange extends VolumeOutOfRange { };
 
 class Track extends Howl {
   private src: string;
@@ -25,16 +26,26 @@ class Track extends Howl {
     return this.src;
   }
 
-  public fader(newVolume: number, fading?: number): void {
+  public setVolume(newVolume: number): void {
     if (newVolume < 0 || newVolume > 1) {
-      throw new VolumeOutOfRange(`fader: Target volume value=${newVolume} must be [0, 1]`);
+      throw new VolumeOutOfRange(`setVolume: New volume value=${newVolume} must be [0, 1]`);
     }
 
-    this.fade(this.volume(), newVolume, fading || this.fadingDuration);
+    this.fade(this.volume(), newVolume, 0);
+  }
+
+  public fader(step: number, fading?: number): number {
+    if (Math.abs(step) < 0 || Math.abs(step) > 1) {
+      throw new VolumeStepOutOfRange(`fader: Step absolute value=${step} must be [0, 1]`);
+    }
+
+    const newVolume = this.volume() + step < 0 ? 0 :
+      (this.volume() + step > 1 ? 1 : this.volume() + step)
+    return this.fade(this.volume(), newVolume, fading || this.fadingDuration).volume();
   }
 }
 
-class SoundEngine {
+class Mixer {
   private sounds: Map<string, Track>;
 
   constructor() {
@@ -45,8 +56,16 @@ class SoundEngine {
     return Array.from(this.sounds.values());
   }
 
-  public load(src: string): void {
-    this.sounds.set(src, new Track(src));
+  public load(id: string, src: string): void {
+    this.sounds.set(id, new Track(src));
+  }
+
+  public remove(id: string): void {
+    const track = this.sounds.get(id);
+    if (track) {
+      track.unload();
+      this.sounds.delete(id);
+    }
   }
 
   public track(id: string): Track {
@@ -55,8 +74,8 @@ class SoundEngine {
       return t
     }
 
-    throw new InvalidTrack(`fader: Track with id=${id} was not loaded`);
+    throw new InvalidTrack(`track: Track with id=${id} was not loaded`);
   }
 }
 
-export default SoundEngine;
+export default Mixer;
