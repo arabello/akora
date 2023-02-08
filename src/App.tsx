@@ -1,36 +1,28 @@
 import { useState } from "react";
-import Mixer from "./soundengine";
+import Mixer from "./mixer";
 
 const BASE_PATH = "assets";
 
 const mixer = new Mixer();
 
-const App = () => {
-  const [loadedSources, setLoadedSources] = useState<Array<string>>([]);
-  const sources = [
-    `beep.mp3`,
-    `beep2.mp3`
-  ];
-  const onSourceAdd = (src: string) => {
-    mixer.load(src, `${BASE_PATH}/${src}`);
-    setLoadedSources(loadedSources.concat(src));
-  }
+const library: Map<string, string> = new Map();
+[`beep.mp3`, `beep2.mp3`].map(id => library.set(id, `${BASE_PATH}/id`));
 
-  const onSourceDelete = (src: string) => {
-    mixer.remove(`${BASE_PATH}/${src}`);
-    setLoadedSources(loadedSources.filter(x => x !== src));
-  }
+const App = () => {
+  const [pool, setPool] = useState<Array<string>>([]);
+  mixer.on('load', (id) => setPool(pool.concat(id)));
+  mixer.on('remove', (id) => setPool(pool.filter(x => x != id)));
 
   return (
     <div>
       <h1>Night Focus</h1>
       <div>
         <ul>
-          {sources.map(src =>
-            <li key={src}>
-              {loadedSources.includes(src) ?
-                <span>{src}</span> :
-                <a href="#" onClick={() => onSourceAdd(src)}>{src}</a>}
+          {Array.from(library.entries()).map(([id, url]) =>
+            <li key={id}>
+              {pool.includes(id) ?
+                <span>{id}</span> :
+                <a href="#" onClick={() => mixer.load(id, url)}>{id}</a>}
             </li>
           )}
         </ul>
@@ -38,12 +30,13 @@ const App = () => {
       <hr />
       <div>
         <ul>
-          {loadedSources.map(src =>
-            <li key={src}>
-              <button onClick={() => mixer.track(src).fader(0.2)}>+</button>{` `}
-              <button onClick={() => mixer.track(src).fader(-0.2)}>-</button>{` `}
-              <button onClick={() => onSourceDelete(src)}>x</button>{` `}
-              <span>{src}</span>{` `}
+          {pool.map(id =>
+            <li key={id}>
+              <button onClick={() => mixer.track(id).fader(0.2)}>+</button>{` `}
+              <button onClick={() => mixer.track(id).fader(-0.2)}>-</button>{` `}
+              <button onClick={() => mixer.remove(id)}>x</button>{` `}
+              <span>{id}</span>{` `}
+              <span>{`-`.repeat(mixer.track(id).volume())}</span>
             </li>
           )}
         </ul>
