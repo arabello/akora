@@ -6,6 +6,12 @@ export class InvalidTrack extends Error { };
 export class VolumeOutOfRange extends Error { };
 export class VolumeStepOutOfRange extends VolumeOutOfRange { };
 
+export type TrackInfo = {
+  id: string;
+  url: string;
+  volume: number;
+}
+
 class Track extends Howl {
   private _url: string;
   private _fadingDuration: number;
@@ -19,19 +25,11 @@ class Track extends Howl {
     });
 
     this._url = url;
-    this._fadingDuration = 1500;
+    this._fadingDuration = 0;
   }
 
   public url(): string {
     return this._url;
-  }
-
-  public setVolume(newVolume: number): void {
-    if (newVolume < 0 || newVolume > 1) {
-      throw new VolumeOutOfRange(`setVolume: New volume value=${newVolume} must be [0, 1]`);
-    }
-
-    this.fade(this.volume(), newVolume, 0);
   }
 
   public fader(step: number, fading?: number): number {
@@ -45,30 +43,33 @@ class Track extends Howl {
   }
 }
 
-export type Event = "load" | "remove";
+export type Event = "load" | "remove" | "volume";
 export type EventCallback = (id: string) => void;
 
 class Mixer {
   private _tracks: Map<string, Track>;
-  private _callbacks: {
-    load: EventCallback,
-    remove: EventCallback
-  }
+  private _callbacks: { [k in Event]: EventCallback }
 
   constructor() {
     this._tracks = new Map();
     this._callbacks = {
       load: () => { },
-      remove: () => { }
+      remove: () => { },
+      volume: () => { },
     }
   }
 
-  public tracks(): Array<Track> {
-    return Array.from(this._tracks.values());
+  public tracks(): Array<TrackInfo> {
+    return Array.from(this._tracks.entries()).map(([id, track]) => ({
+      id,
+      url: track.url(),
+      volume: track.volume()
+    }));
   }
 
   public track(id: string): Track {
     const t = this._tracks.get(id);
+
     if (t) {
       return t
     }
@@ -79,6 +80,7 @@ class Mixer {
   public load(id: string, src: string): void {
     const track = new Track(src);
     this._tracks.set(id, track);
+    track.on('fade', () => this._callbacks.volume(id));
     this._callbacks.load(id);
   }
 
