@@ -2,15 +2,15 @@ import { Howl } from "howler";
 
 Howler.autoSuspend = false;
 
-export class InvalidTrack extends Error { };
-export class VolumeOutOfRange extends Error { };
-export class VolumeStepOutOfRange extends VolumeOutOfRange { };
+export class InvalidTrack extends Error { }
+export class VolumeOutOfRange extends Error { }
+export class VolumeStepOutOfRange extends VolumeOutOfRange { }
 
 export type TrackInfo = {
   id: string;
   url: string;
   volume: number;
-}
+};
 
 class Track extends Howl {
   private _url: string;
@@ -34,15 +34,25 @@ class Track extends Howl {
 
   public fader(step: number, fading?: number): number {
     if (Math.abs(step) < 0 || Math.abs(step) > 1) {
-      throw new VolumeStepOutOfRange(`fader: Step absolute value=${step} must be [0, 1]`);
+      throw new VolumeStepOutOfRange(
+        `fader: Step absolute value=${step} must be [0, 1]`
+      );
     }
-    console.log('volume', this.volume());
-    const newVolume = this.volume() + step < 0 ? 0 :
-      (this.volume() + step > 1 ? 1 : this.volume() + step)
-    console.log('newVolume', newVolume);
+
+    const newVolume =
+      this.volume() + step < 0
+        ? 0
+        : this.volume() + step > 1
+          ? 1
+          : this.volume() + step;
+    console.log("newVolume", newVolume);
 
     // Fading duration can't be 0 https://github.com/goldfire/howler.js/issues/1549
-    return this.fade(this.volume(), newVolume, fading || this._fadingDuration || 1).volume();
+    return this.fade(
+      this.volume(),
+      newVolume,
+      fading || this._fadingDuration || 1
+    ).volume();
   }
 }
 
@@ -51,7 +61,7 @@ export type EventCallback = (id: string) => void;
 
 class Mixer {
   private _tracks: Map<string, Track>;
-  private _callbacks: { [k in Event]: EventCallback }
+  private _callbacks: { [k in Event]: EventCallback };
 
   constructor() {
     this._tracks = new Map();
@@ -59,14 +69,14 @@ class Mixer {
       load: () => { },
       remove: () => { },
       volume: () => { },
-    }
+    };
   }
 
   public tracks(): Array<TrackInfo> {
     return Array.from(this._tracks.entries()).map(([id, track]) => ({
       id,
       url: track.url(),
-      volume: track.volume()
+      volume: track.volume(),
     }));
   }
 
@@ -74,7 +84,7 @@ class Mixer {
     const t = this._tracks.get(id);
 
     if (t) {
-      return t
+      return t;
     }
 
     throw new InvalidTrack(`track: Track with id=${id} was not loaded`);
@@ -83,7 +93,7 @@ class Mixer {
   public load(id: string, src: string): void {
     const track = new Track(src);
     this._tracks.set(id, track);
-    track.on('fade', () => this._callbacks.volume(id));
+    track.on("fade", () => this._callbacks.volume(id));
     this._callbacks.load(id);
   }
 
@@ -101,7 +111,7 @@ class Mixer {
   }
 
   public off(event: Event): void {
-    this._callbacks[event] = () => { }
+    this._callbacks[event] = () => { };
   }
 }
 
