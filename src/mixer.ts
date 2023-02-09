@@ -36,10 +36,13 @@ class Track extends Howl {
     if (Math.abs(step) < 0 || Math.abs(step) > 1) {
       throw new VolumeStepOutOfRange(`fader: Step absolute value=${step} must be [0, 1]`);
     }
-
+    console.log('volume', this.volume());
     const newVolume = this.volume() + step < 0 ? 0 :
       (this.volume() + step > 1 ? 1 : this.volume() + step)
-    return this.fade(this.volume(), newVolume, fading || this._fadingDuration).volume();
+    console.log('newVolume', newVolume);
+
+    // Fading duration can't be 0 https://github.com/goldfire/howler.js/issues/1549
+    return this.fade(this.volume(), newVolume, fading || this._fadingDuration || 1).volume();
   }
 }
 
