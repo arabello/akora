@@ -1,32 +1,59 @@
-import { useState } from "react";
-import Mixer, { TrackInfo } from "./mixer";
-
-const BASE_PATH = "assets";
+import { useEffect, useState } from "react";
+import { fetchLibrary, Source } from "./library";
+import Mixer, { ChannelInfo } from "./mixer";
 
 const mixer = new Mixer();
 
-const library: Map<string, string> = new Map();
-[`beep.mp3`, `beep2.mp3`].map((id) => library.set(id, `${BASE_PATH}/${id}`));
+type Track = Source & ChannelInfo;
 
 const App = () => {
-  const [tracksInfo, setTracksInfo] = useState<Array<TrackInfo>>([]);
+  const [library, setLibrary] = useState<Array<Source>>([]);
+  useEffect(() => {
+    fetchLibrary()
+      .then((x) => setLibrary(x))
+      .catch(console.error);
+  }, []);
 
-  mixer.on("load", () => setTracksInfo(mixer.tracks()));
-  mixer.on("remove", () => setTracksInfo(mixer.tracks()));
-  mixer.on("volume", () => setTracksInfo(mixer.tracks()));
+  const [tracks, setTracks] = useState<Array<Track>>([]);
+
+  const loadTrack = (source: Source) => {
+    const chInfo = mixer.load(source.id, source.url);
+    setTracks(
+      tracks.concat({
+        ...source,
+        ...chInfo,
+      })
+    );
+  };
+
+  const removeTrack = (id: string) => {
+    mixer.remove(id);
+    setTracks(tracks.filter((t) => t.id !== id));
+  };
+
+  const fadeTrackVolume = (id: string, step: number) => {
+    try {
+      const updatedVolume = mixer.channel(id).fader(step);
+      setTracks(
+        tracks.map((t) => (t.id === id ? { ...t, volume: updatedVolume } : t))
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <div>
       <h1>Night Focus</h1>
       <div>
         <ul>
-          {Array.from(library.entries()).map(([id, url]) => (
-            <li key={id}>
-              {tracksInfo.map((x) => x.id).includes(id) ? (
-                <span>{id}</span>
+          {library.map((source) => (
+            <li key={source.id}>
+              {tracks.map((x) => x.id).includes(source.id) ? (
+                <span>{source.name}</span>
               ) : (
-                <a href="#" onClick={() => mixer.load(id, url)}>
-                  {id}
+                <a href="#" onClick={() => loadTrack(source)}>
+                  {source.name}
                 </a>
               )}
             </li>
@@ -36,19 +63,15 @@ const App = () => {
       <hr />
       <div>
         <ul>
-          {tracksInfo.map((track) => (
+          {tracks.map((track) => (
             <li key={track.id}>
-              <button onClick={() => mixer.track(track.id).fader(0.2)}>
-                +
-              </button>
+              <button onClick={() => fadeTrackVolume(track.id, 0.2)}>+</button>
               {` `}
-              <button onClick={() => mixer.track(track.id).fader(-0.2)}>
-                -
-              </button>
+              <button onClick={() => fadeTrackVolume(track.id, -0.2)}>-</button>
               {` `}
-              <button onClick={() => mixer.remove(track.id)}>x</button>
+              <button onClick={() => removeTrack(track.id)}>x</button>
               {` `}
-              <span>{track.id}</span>
+              <span>{track.name}</span>
               {` `}
               {track.volume > 0 && <span>|</span>}
               <span>{`-`.repeat(Math.round(track.volume * 10))}</span>

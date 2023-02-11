@@ -2,17 +2,17 @@ import { Howl } from "howler";
 
 Howler.autoSuspend = false;
 
-export class InvalidTrack extends Error { }
-export class VolumeOutOfRange extends Error { }
-export class VolumeStepOutOfRange extends VolumeOutOfRange { }
+export class InvalidTrack extends Error {}
+export class VolumeOutOfRange extends Error {}
+export class VolumeStepOutOfRange extends VolumeOutOfRange {}
 
-export type TrackInfo = {
+export type ChannelInfo = {
   id: string;
   url: string;
   volume: number;
 };
 
-class Track extends Howl {
+class Channel extends Howl {
   private _url: string;
   private _fadingDuration: number;
   constructor(url: string) {
@@ -43,36 +43,24 @@ class Track extends Howl {
       this.volume() + step < 0
         ? 0
         : this.volume() + step > 1
-          ? 1
-          : this.volume() + step;
-    console.log("newVolume", newVolume);
+        ? 1
+        : this.volume() + step;
 
     // Fading duration can't be 0 https://github.com/goldfire/howler.js/issues/1549
-    return this.fade(
-      this.volume(),
-      newVolume,
-      fading || this._fadingDuration || 1
-    ).volume();
+    this.fade(this.volume(), newVolume, fading || this._fadingDuration || 1);
+
+    return newVolume;
   }
 }
 
-export type Event = "load" | "remove" | "volume";
-export type EventCallback = (id: string) => void;
-
 class Mixer {
-  private _tracks: Map<string, Track>;
-  private _callbacks: { [k in Event]: EventCallback };
+  private _tracks: Map<string, Channel>;
 
   constructor() {
     this._tracks = new Map();
-    this._callbacks = {
-      load: () => { },
-      remove: () => { },
-      volume: () => { },
-    };
   }
 
-  public tracks(): Array<TrackInfo> {
+  public channels(): Array<ChannelInfo> {
     return Array.from(this._tracks.entries()).map(([id, track]) => ({
       id,
       url: track.url(),
@@ -80,7 +68,7 @@ class Mixer {
     }));
   }
 
-  public track(id: string): Track {
+  public channel(id: string): Channel {
     const t = this._tracks.get(id);
 
     if (t) {
@@ -90,28 +78,21 @@ class Mixer {
     throw new InvalidTrack(`track: Track with id=${id} was not loaded`);
   }
 
-  public load(id: string, src: string): void {
-    const track = new Track(src);
+  public load(id: string, url: string): ChannelInfo {
+    const track = new Channel(url);
     this._tracks.set(id, track);
-    track.on("fade", () => this._callbacks.volume(id));
-    this._callbacks.load(id);
+    return {
+      id,
+      url,
+      volume: track.volume(),
+    };
   }
 
   public remove(id: string): void {
     const track = this._tracks.get(id);
     if (track) {
       track.unload();
-      this._tracks.delete(id);
-      this._callbacks.remove(id);
     }
-  }
-
-  public on(event: Event, callback: EventCallback): void {
-    this._callbacks[event] = callback;
-  }
-
-  public off(event: Event): void {
-    this._callbacks[event] = () => { };
   }
 }
 
