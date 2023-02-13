@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { fetchLibrary, Source } from "./library";
 import Mixer, { ChannelInfo } from "./mixer";
-import useKeyPress from "./useKeyPress";
+import useKeyPress, { KeyBinding } from "./useKeyPress";
 
 const mixer = new Mixer();
 
-const VOLUME_UP_KEYS: Array<string> = ['a', 's', 'd', 'f', 'j', 'k', 'l', ';'];
-const VOLUME_DOWN_KEYS: Array<string> = ['A', 'S', 'D', 'F', 'J', 'K', 'L', ':'];
-
-type Track = Source & ChannelInfo & { volumeKey?: string };
+type Track = Source & ChannelInfo & Partial<KeyBinding>;
 
 const App = () => {
   /**
@@ -24,7 +21,6 @@ const App = () => {
   /**
    * Tracks
    */
-  const [unusedVolumeKeys, setUnusedVolumeKeys] = useState<Array<string>>(VOLUME_UP_KEYS);
   const [tracks, setTracks] = useState<Array<Track>>([]);
   const loadTrack = (source: Source) => {
     const chInfo = mixer.load(source.id, source.url);
@@ -32,21 +28,13 @@ const App = () => {
       tracks.concat({
         ...source,
         ...chInfo,
-        volumeKey: unusedVolumeKeys[0] // if empty, undefined
       })
     );
-    setUnusedVolumeKeys(unusedVolumeKeys.slice(1, unusedVolumeKeys.length));
   };
   const removeTrack = (id: string) => {
     mixer.remove(id);
-    const trackKey = tracks.find((t) => t.id == id)?.volumeKey;
     setTracks(tracks.filter((t) => t.id !== id));
-    trackKey && setUnusedVolumeKeys(unusedVolumeKeys.concat(trackKey));
   };
-
-  /**
-   * Keyboard
-   */
   const fadeTrackVolume = (id: string, step: number) => {
     try {
       const updatedVolume = mixer.channel(id).fader(step);
@@ -58,21 +46,29 @@ const App = () => {
     }
   };
 
-  const pressedVolumeKey = useKeyPress(VOLUME_UP_KEYS.concat(VOLUME_DOWN_KEYS));
+  /**
+   * Keyboard
+   */
+  const pressKeyEvent = useKeyPress();
+  const [recordKeyBindingFor, setRecordKeyBindingFor] = useState<string>();
 
   useEffect(() => {
-    if (!pressedVolumeKey) {
-      return
+    if (!pressKeyEvent) {
+      return;
     }
 
-    const id = tracks.find(t => t.volumeKey === pressedVolumeKey.toLowerCase())?.id;
-    if (!id) {
-      return
+    if (recordKeyBindingFor) {
+      setTracks(
+        tracks.map((t) =>
+          t.id === recordKeyBindingFor ? { ...t, event: pressKeyEvent } : t
+        )
+      );
+      setRecordKeyBindingFor(undefined);
+    } else {
+      const id = tracks.find((t) => t.event?.code === pressKeyEvent.code)?.id;
+      id && fadeTrackVolume(id, (pressKeyEvent.shiftKey ? -1 : 1) * 0.2);
     }
-
-    const upDown = VOLUME_UP_KEYS.includes(pressedVolumeKey) ? 1 : -1;
-    fadeTrackVolume(id, upDown * 0.2);
-  }, [pressedVolumeKey])
+  }, [pressKeyEvent]);
 
   return (
     <div>
@@ -97,12 +93,16 @@ const App = () => {
         <ul>
           {tracks.map((track) => (
             <li key={track.id}>
-              {track.volumeKey ?? <span>{track.volumeKey}</span>}
+              {track.event ? <span>{track.event.key}</span> : <></>}
               <button onClick={() => fadeTrackVolume(track.id, 0.2)}>+</button>
               {` `}
               <button onClick={() => fadeTrackVolume(track.id, -0.2)}>-</button>
               {` `}
               <button onClick={() => removeTrack(track.id)}>x</button>
+              {` `}
+              <button onClick={() => setRecordKeyBindingFor(track.id)}>
+                Bind
+              </button>
               {` `}
               <span>{track.name}</span>
               {` `}

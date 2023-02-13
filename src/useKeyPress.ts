@@ -1,30 +1,28 @@
 import { useState, useEffect } from "react";
 
+export type KeyBinding = {
+  event: KeyboardEvent;
+};
+
 // https://usehooks.com/useKeyPress/
-const useKeyPress = (listeningKeys: string[]) => {
-  const [pressedKey, setPressedKey] = useState<string>();
+// https://keyjs.dev/
+const useKeyPress = () => {
+  const [event, setEvent] = useState<KeyboardEvent>();
 
-  const downHandler = (event: KeyboardEvent) => {
-    if (listeningKeys.includes(event.key)) {
-      setPressedKey(event.key);
-    }
-  }
-
-  const upHandler = () => {
-    setPressedKey(undefined);
-  }
+  const downHandler = (e: KeyboardEvent) => setEvent(e);
+  const upHandler = () => setEvent(undefined);
 
   useEffect(() => {
     window.addEventListener("keydown", downHandler);
     window.addEventListener("keyup", upHandler);
-
+    // Remove event listeners on cleanup
     return () => {
       window.removeEventListener("keydown", downHandler);
       window.removeEventListener("keyup", upHandler);
     };
   }, []);
 
-  return pressedKey;
-}
+  return event;
+};
 
 export default useKeyPress;
