@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchLibrary, Source } from "./library";
+import { fetchLibrary, SearchSources, Source } from "./library";
 import Mixer, { ChannelInfo } from "./mixer";
 import useKeyBindings from "./useKeyBinding";
 import useKeyPress from "./useKeyPress";
@@ -8,16 +8,53 @@ const mixer = new Mixer();
 
 type Track = Source & ChannelInfo;
 
+const ItemList = (props: {
+  items: Array<{ id: string, label: string }>,
+  isClickable?: (item: { id: string, label: string }) => boolean,
+  onClick?: (item: { id: string, label: string }) => void
+}) => (
+  <ul>
+    {props.items.map((item) => (
+      <li key={item.id}>
+        {props.isClickable && props.isClickable(item) ? (
+          <a href="#" onClick={() => props.onClick && props.onClick(item)}>
+            {item.label}
+          </a>
+        ) : (
+          <span>{item.label}</span>
+        )}
+      </li>
+    ))}
+  </ul>
+)
+
+const searchSources = new SearchSources([]);
+
 const App = () => {
   /**
    * Library
    */
-  const [library, setLibrary] = useState<Array<Source>>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [displayedSource, setDisplayedSources] = useState<Array<Source>>([]);
+
   useEffect(() => {
     fetchLibrary()
-      .then((x) => setLibrary(x))
+      .then(x => {
+        searchSources.setCollection(x);
+        setDisplayedSources(x);
+      })
       .catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (searchQuery === "") {
+      return setDisplayedSources(searchSources.getCollection());
+    }
+
+    searchSources
+      .search(searchQuery)
+      .then(setDisplayedSources)
+  }, [searchQuery])
 
   /**
    * Tracks
@@ -66,19 +103,15 @@ const App = () => {
     <div>
       <h1>Night Focus</h1>
       <div>
-        <ul>
-          {library.map((source) => (
-            <li key={source.id}>
-              {tracks.map((x) => x.id).includes(source.id) ? (
-                <span>{source.name}</span>
-              ) : (
-                <a href="#" onClick={() => loadTrack(source)}>
-                  {source.name}
-                </a>
-              )}
-            </li>
-          ))}
-        </ul>
+        <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+        <ItemList
+          items={displayedSource.map(({ id, name }) => ({ id, label: name }))}
+          isClickable={({ id }) => !tracks.map(x => x.id).includes(id)}
+          onClick={({ id }) => {
+            const s = displayedSource.find(s => s.id === id);
+            s && loadTrack(s);
+          }}
+        />
       </div>
       <hr />
       <div>
