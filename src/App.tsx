@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { fetchLibrary, Source } from "./library";
 import Mixer, { ChannelInfo } from "./mixer";
-import useKeyPress, { KeyBinding } from "./useKeyPress";
+import useKeyBindings from "./useKeyBinding";
+import useKeyPress from "./useKeyPress";
 
 const mixer = new Mixer();
 
-type Track = Source & ChannelInfo & Partial<KeyBinding>;
+type Track = Source & ChannelInfo;
 
 const App = () => {
   /**
@@ -49,26 +50,17 @@ const App = () => {
   /**
    * Keyboard
    */
-  const pressKeyEvent = useKeyPress();
-  const [recordKeyBindingFor, setRecordKeyBindingFor] = useState<string>();
+  const [keyBindings, setKeyBindingTarget] = useKeyBindings<string>();
+  const keyPress = useKeyPress();
 
   useEffect(() => {
-    if (!pressKeyEvent) {
+    if (!keyPress) {
       return;
     }
 
-    if (recordKeyBindingFor) {
-      setTracks(
-        tracks.map((t) =>
-          t.id === recordKeyBindingFor ? { ...t, event: pressKeyEvent } : t
-        )
-      );
-      setRecordKeyBindingFor(undefined);
-    } else {
-      const id = tracks.find((t) => t.event?.code === pressKeyEvent.code)?.id;
-      id && fadeTrackVolume(id, (pressKeyEvent.shiftKey ? -1 : 1) * 0.2);
-    }
-  }, [pressKeyEvent]);
+    const id = keyBindings.byCode.get(keyPress.code)?.target;
+    id && fadeTrackVolume(id, (keyPress.shiftKey ? -1 : 1) * 0.2);
+  }, [keyPress]);
 
   return (
     <div>
@@ -93,14 +85,14 @@ const App = () => {
         <ul>
           {tracks.map((track) => (
             <li key={track.id}>
-              {track.event ? <span>{track.event.key}</span> : <></>}
+              <span>{keyBindings.byTarget.get(track.id)?.key}</span>
               <button onClick={() => fadeTrackVolume(track.id, 0.2)}>+</button>
               {` `}
               <button onClick={() => fadeTrackVolume(track.id, -0.2)}>-</button>
               {` `}
               <button onClick={() => removeTrack(track.id)}>x</button>
               {` `}
-              <button onClick={() => setRecordKeyBindingFor(track.id)}>
+              <button onClick={() => setKeyBindingTarget(track.id)}>
                 Bind
               </button>
               {` `}
