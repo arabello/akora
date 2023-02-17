@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
 
-export type KeyBinding = {
-  event: KeyboardEvent;
-};
-
 // https://usehooks.com/useKeyPress/
 // https://keyjs.dev/
 const useKeyPress = () => {

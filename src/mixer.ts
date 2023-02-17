@@ -2,11 +2,11 @@ import { Howl } from "howler";
 
 Howler.autoSuspend = false;
 
-export class InvalidTrack extends Error {}
-export class VolumeOutOfRange extends Error {}
-export class VolumeStepOutOfRange extends VolumeOutOfRange {}
+export class InvalidTrack extends Error { }
+export class VolumeOutOfRange extends Error { }
+export class VolumeStepOutOfRange extends VolumeOutOfRange { }
 
-export type ChannelInfo = {
+type ChannelInfo = {
   id: string;
   url: string;
   volume: number;
@@ -43,8 +43,8 @@ class Channel extends Howl {
       this.volume() + step < 0
         ? 0
         : this.volume() + step > 1
-        ? 1
-        : this.volume() + step;
+          ? 1
+          : this.volume() + step;
 
     // Fading duration can't be 0 https://github.com/goldfire/howler.js/issues/1549
     this.fade(this.volume(), newVolume, fading || this._fadingDuration || 1);

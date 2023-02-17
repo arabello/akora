@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { ItemList } from "./ItemList";
-import { fetchLibrary, SearchSources, Source } from "./library";
-import Mixer, { ChannelInfo } from "./mixer";
+import { fetchLibrary, SearchSources } from "./library";
+import Mixer from "./mixer";
+import { Source, Track } from "./model";
 import useKeyBindings from "./useKeyBinding";
 import useKeyPress from "./useKeyPress";
 
 const mixer = new Mixer();
-
-type Track = Source & ChannelInfo;
 
 const searchSources = new SearchSources([]);
 

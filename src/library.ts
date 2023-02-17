@@ -1,11 +1,6 @@
 import { default as sources } from "./sources.json";
 import Fuse from "fuse.js";
-
-export type Source = {
-  id: string;
-  name: string;
-  url: string;
-};
+import { Source } from "./model";
 
 export const fetchLibrary: () => Promise<Array<Source>> = () =>
   new Promise((res) => res(sources));

@@ -1,13 +1,8 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { KeyBinding } from "./model";
 import useKeyPress from "./useKeyPress";
 
-type KeyBinding<T> = {
-  key: string;
-  code: string;
-  target: T;
-};
-
-type KeyBindings<T> = {
+type UseKeyBindings<T> = {
   byCode: {
     get: (code: string) => KeyBinding<T> | undefined;
     delete: (code: string) => void;
@@ -19,7 +14,7 @@ type KeyBindings<T> = {
 };
 
 const useKeyBindings: <T>() => [
-  KeyBindings<T>,
+  UseKeyBindings<T>,
   Dispatch<SetStateAction<T | undefined>>
 ] = <T>() => {
   const pressKeyEvent = useKeyPress();
@@ -45,7 +40,7 @@ const useKeyBindings: <T>() => [
     }
   }, [pressKeyEvent]);
 
-  const ctrls: KeyBindings<T> = {
+  const ctrls: UseKeyBindings<T> = {
     byCode: {
       get: (code: string) => keyBindings.find((x) => x.code === code),
       delete: (code: string) =>
