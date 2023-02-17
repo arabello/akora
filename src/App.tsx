@@ -19,6 +19,8 @@ const sessionRepository: SessionRepository =
   new LocalStorageSessionRepository();
 const sourcesRepository: SourcesRepository = new StaticSourcesRepository();
 
+const VOLUME_STEP = 0.2;
+
 const App = () => {
   /**
    * Library
@@ -83,35 +85,83 @@ const App = () => {
     useKeyBindings<string>();
   const keyPress = useKeyPress();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [trackFocusIndex, setTrackFocusIndex] = useState<number>();
+
+  const trackFocus = (action: "next" | "prev") => {
+    if (tracks.length == 0) {
+      return setTrackFocusIndex(undefined);
+    }
+
+    switch (action) {
+      case "next":
+        return setTrackFocusIndex(
+          trackFocusIndex === undefined ||
+            trackFocusIndex + 1 > tracks.length - 1
+            ? 0
+            : trackFocusIndex + 1
+        );
+      case "prev":
+        return setTrackFocusIndex(
+          trackFocusIndex === undefined || trackFocusIndex - 1 < 0
+            ? tracks.length - 1
+            : trackFocusIndex - 1
+        );
+    }
+  };
+
+  useEffect(() => {
+    tracks.length === 0 && setTrackFocusIndex(undefined);
+  }, [tracks]);
 
   useEffect(() => {
     if (!keyPress) {
       return;
     }
 
-    // Global key binding
-    if ((keyPress.metaKey || keyPress.ctrlKey) && keyPress.code === "KeyK") {
-      searchInputRef.current?.focus();
-    }
+    switch (keyPress.code) {
+      // Global
+      case "Escape":
+        (document.activeElement as HTMLElement).blur();
+        setTrackFocusIndex(undefined);
+        return;
+      case "KeyK":
+        (keyPress.metaKey || keyPress.ctrlKey) &&
+          searchInputRef.current?.focus();
+        return;
+      case "Enter":
+        document.activeElement === searchInputRef.current &&
+          displayedSource.length > 0 &&
+          tracks.find((x) => x.id === displayedSource[0].id) === undefined &&
+          loadTrack(displayedSource[0]);
+        return;
 
-    if (
-      keyPress.code === "Enter" &&
-      document.activeElement === searchInputRef.current &&
-      displayedSource.length > 0 &&
-      tracks.find((x) => x.id === displayedSource[0].id) === undefined
-    ) {
-      loadTrack(displayedSource[0]);
-    }
+      // Tracks navigation
+      case "ArrowUp":
+        return trackFocus("prev");
+      case "ArrowDown":
+        return trackFocus("next");
+      case "ArrowRight":
+        trackFocusIndex !== undefined &&
+          fadeTrackVolume(tracks[trackFocusIndex].id, VOLUME_STEP);
+        return;
+      case "ArrowLeft":
+        console.log(trackFocusIndex);
+        trackFocusIndex !== undefined &&
+          fadeTrackVolume(tracks[trackFocusIndex].id, -VOLUME_STEP);
+        return;
+      case "KeyX":
+        trackFocusIndex !== undefined &&
+          removeTrack(tracks[trackFocusIndex].id);
+        return;
 
-    if (keyPress.code === "Escape") {
-      (document.activeElement as HTMLElement).blur();
+      // Control volume if a key was bounded
+      default:
+        const id = keyBindings.find((x) => x.code === keyPress.code)?.target;
+        id &&
+          document.activeElement !== searchInputRef.current &&
+          fadeTrackVolume(id, (keyPress.shiftKey ? -1 : 1) * VOLUME_STEP);
+        return;
     }
-
-    // Control volume if a key was bounded
-    const id = keyBindings.find((x) => x.code === keyPress.code)?.target;
-    id &&
-      document.activeElement !== searchInputRef.current &&
-      fadeTrackVolume(id, (keyPress.shiftKey ? -1 : 1) * 0.2);
   }, [keyPress]);
 
   /**
@@ -156,12 +206,21 @@ const App = () => {
       <hr />
       <div>
         <ul>
-          {tracks.map((track) => (
-            <li key={track.id}>
+          {tracks.map((track, index) => (
+            <li
+              key={track.id}
+              style={
+                index == trackFocusIndex ? { background: "lightgray" } : {}
+              }
+            >
               <span>{keyBindings.find((x) => x.target === track.id)?.key}</span>
-              <button onClick={() => fadeTrackVolume(track.id, 0.2)}>+</button>
+              <button onClick={() => fadeTrackVolume(track.id, VOLUME_STEP)}>
+                +
+              </button>
               {` `}
-              <button onClick={() => fadeTrackVolume(track.id, -0.2)}>-</button>
+              <button onClick={() => fadeTrackVolume(track.id, -VOLUME_STEP)}>
+                -
+              </button>
               {` `}
               <button onClick={() => removeTrack(track.id)}>x</button>
               {` `}
