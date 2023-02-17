@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchLibrary, SearchSources, Source } from "./library";
 import Mixer, { ChannelInfo } from "./mixer";
 import useKeyBindings from "./useKeyBinding";
@@ -89,21 +89,44 @@ const App = () => {
    */
   const [keyBindings, setKeyBindingTarget] = useKeyBindings<string>();
   const keyPress = useKeyPress();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!keyPress) {
       return;
     }
 
+    // Global key binding
+    if ((keyPress.metaKey || keyPress.ctrlKey) && keyPress.code === "KeyK") {
+      searchInputRef.current?.focus();
+    }
+
+    if (keyPress.code === "Enter"
+      && document.activeElement === searchInputRef.current
+      && displayedSource.length > 0
+      && tracks.find(x => x.id === displayedSource[0].id) === undefined) {
+      loadTrack(displayedSource[0])
+    }
+
+    if (keyPress.code === "Escape") {
+      (document.activeElement as HTMLElement).blur();
+    }
+
+    // Control volume if a key was bounded
     const id = keyBindings.byCode.get(keyPress.code)?.target;
-    id && fadeTrackVolume(id, (keyPress.shiftKey ? -1 : 1) * 0.2);
+    id &&
+      document.activeElement !== searchInputRef.current &&
+      fadeTrackVolume(id, (keyPress.shiftKey ? -1 : 1) * 0.2);
   }, [keyPress]);
 
   return (
     <div>
       <h1>Night Focus</h1>
       <div>
-        <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+        <input
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          ref={searchInputRef} />
         <ItemList
           items={displayedSource.map(({ id, name }) => ({ id, label: name }))}
           isClickable={({ id }) => !tracks.map(x => x.id).includes(id)}
