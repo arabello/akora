@@ -2,9 +2,9 @@ import { Howl } from "howler";
 
 Howler.autoSuspend = false;
 
-export class InvalidTrack extends Error { }
-export class VolumeOutOfRange extends Error { }
-export class VolumeStepOutOfRange extends VolumeOutOfRange { }
+export class InvalidTrack extends Error {}
+export class VolumeOutOfRange extends Error {}
+export class VolumeStepOutOfRange extends VolumeOutOfRange {}
 
 type ChannelInfo = {
   id: string;
@@ -15,13 +15,17 @@ type ChannelInfo = {
 class Channel extends Howl {
   private _url: string;
   private _fadingDuration: number;
-  constructor(url: string) {
+  constructor(url: string, volume: number = 0) {
+    if (volume < 0 || volume > 1) {
+      throw new VolumeOutOfRange();
+    }
+
     super({
       src: [url],
       preload: true,
       autoplay: true,
       loop: true,
-      volume: 0,
+      volume,
     });
 
     this._url = url;
@@ -43,8 +47,8 @@ class Channel extends Howl {
       this.volume() + step < 0
         ? 0
         : this.volume() + step > 1
-          ? 1
-          : this.volume() + step;
+        ? 1
+        : this.volume() + step;
 
     // Fading duration can't be 0 https://github.com/goldfire/howler.js/issues/1549
     this.fade(this.volume(), newVolume, fading || this._fadingDuration || 1);
@@ -78,8 +82,8 @@ class Mixer {
     throw new InvalidTrack(`track: Track with id=${id} was not loaded`);
   }
 
-  public load(id: string, url: string): ChannelInfo {
-    const track = new Channel(url);
+  public load(id: string, url: string, volume: number = 0): ChannelInfo {
+    const track = new Channel(url, volume);
     this._tracks.set(id, track);
     return {
       id,

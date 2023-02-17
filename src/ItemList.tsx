@@ -1,8 +1,8 @@
 type Props = {
-  items: Array<{ id: string, label: string }>,
-  isClickable?: (item: { id: string, label: string }) => boolean,
-  onClick?: (item: { id: string, label: string }) => void
-}
+  items: Array<{ id: string; label: string }>;
+  isClickable?: (item: { id: string; label: string }) => boolean;
+  onClick?: (item: { id: string; label: string }) => void;
+};
 
 export const ItemList = (props: Props) => (
   <ul>
@@ -18,4 +18,4 @@ export const ItemList = (props: Props) => (
       </li>
     ))}
   </ul>
-)
+);

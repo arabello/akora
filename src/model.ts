@@ -11,5 +11,5 @@ export type KeyBinding<T> = {
 };
 
 export type Track = Source & {
-  volume: number
-}
+  volume: number;
+};

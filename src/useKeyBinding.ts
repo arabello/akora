@@ -2,19 +2,9 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { KeyBinding } from "./model";
 import useKeyPress from "./useKeyPress";
 
-type UseKeyBindings<T> = {
-  byCode: {
-    get: (code: string) => KeyBinding<T> | undefined;
-    delete: (code: string) => void;
-  };
-  byTarget: {
-    get: (target: T) => KeyBinding<T> | undefined;
-    delete: (target: T) => void;
-  };
-};
-
 const useKeyBindings: <T>() => [
-  UseKeyBindings<T>,
+  Array<KeyBinding<T>>,
+  Dispatch<SetStateAction<Array<KeyBinding<T>>>>,
   Dispatch<SetStateAction<T | undefined>>
 ] = <T>() => {
   const pressKeyEvent = useKeyPress();
@@ -40,20 +30,7 @@ const useKeyBindings: <T>() => [
     }
   }, [pressKeyEvent]);
 
-  const ctrls: UseKeyBindings<T> = {
-    byCode: {
-      get: (code: string) => keyBindings.find((x) => x.code === code),
-      delete: (code: string) =>
-        setKeyBindings(keyBindings.filter((x) => x.code !== code)),
-    },
-    byTarget: {
-      get: (target: T) => keyBindings.find((x) => x.target === target),
-      delete: (target: T) =>
-        setKeyBindings(keyBindings.filter((x) => x.target !== target)),
-    },
-  };
-
-  return [ctrls, setTarget];
+  return [keyBindings, setKeyBindings, setTarget];
 };
 
 export default useKeyBindings;
