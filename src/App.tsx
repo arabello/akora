@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ItemList } from "./ItemList";
 import { fetchLibrary, SearchSources, Source } from "./library";
 import Mixer, { ChannelInfo } from "./mixer";
 import useKeyBindings from "./useKeyBinding";
@@ -7,26 +8,6 @@ import useKeyPress from "./useKeyPress";
 const mixer = new Mixer();
 
 type Track = Source & ChannelInfo;
-
-const ItemList = (props: {
-  items: Array<{ id: string, label: string }>,
-  isClickable?: (item: { id: string, label: string }) => boolean,
-  onClick?: (item: { id: string, label: string }) => void
-}) => (
-  <ul>
-    {props.items.map((item) => (
-      <li key={item.id}>
-        {props.isClickable && props.isClickable(item) ? (
-          <a href="#" onClick={() => props.onClick && props.onClick(item)}>
-            {item.label}
-          </a>
-        ) : (
-          <span>{item.label}</span>
-        )}
-      </li>
-    ))}
-  </ul>
-)
 
 const searchSources = new SearchSources([]);
 
