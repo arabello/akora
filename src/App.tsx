@@ -118,49 +118,54 @@ const App = () => {
       return;
     }
 
-    switch (keyPress.code) {
-      // Global
-      case "Escape":
-        (document.activeElement as HTMLElement).blur();
-        setTrackFocusIndex(undefined);
-        return;
-      case "KeyK":
-        (keyPress.metaKey || keyPress.ctrlKey) &&
-          searchInputRef.current?.focus();
-        return;
-      case "Enter":
-        document.activeElement === searchInputRef.current &&
-          displayedSource.length > 0 &&
-          tracks.find((x) => x.id === displayedSource[0].id) === undefined &&
-          loadTrack(displayedSource[0]);
-        return;
+    if (keyPress.code === "Escape") {
+      setSearchQuery("");
+      (document.activeElement as HTMLElement).blur();
+      setTrackFocusIndex(undefined);
+      return;
+    }
 
-      // Tracks navigation
-      case "ArrowUp":
-        return trackFocus("prev");
-      case "ArrowDown":
-        return trackFocus("next");
-      case "ArrowRight":
-        trackFocusIndex !== undefined &&
-          fadeTrackVolume(tracks[trackFocusIndex].id, VOLUME_STEP);
-        return;
-      case "ArrowLeft":
-        console.log(trackFocusIndex);
-        trackFocusIndex !== undefined &&
-          fadeTrackVolume(tracks[trackFocusIndex].id, -VOLUME_STEP);
-        return;
-      case "KeyX":
-        trackFocusIndex !== undefined &&
-          removeTrack(tracks[trackFocusIndex].id);
-        return;
+    if (document.activeElement == searchInputRef.current) {
+      switch (keyPress.code) {
+        case "Enter":
+          document.activeElement === searchInputRef.current &&
+            displayedSource.length > 0 &&
+            tracks.find((x) => x.id === displayedSource[0].id) === undefined &&
+            loadTrack(displayedSource[0]);
+          return;
+      }
+    } else {
+      switch (keyPress.code) {
+        case "KeyK":
+          (keyPress.metaKey || keyPress.ctrlKey) &&
+            searchInputRef.current?.focus();
+          return;
 
-      // Control volume if a key was bounded
-      default:
-        const id = keyBindings.find((x) => x.code === keyPress.code)?.target;
-        id &&
-          document.activeElement !== searchInputRef.current &&
-          fadeTrackVolume(id, (keyPress.shiftKey ? -1 : 1) * VOLUME_STEP);
-        return;
+        // Tracks navigation
+        case "ArrowUp":
+          return trackFocus("prev");
+        case "ArrowDown":
+          return trackFocus("next");
+        case "ArrowRight":
+          trackFocusIndex !== undefined &&
+            fadeTrackVolume(tracks[trackFocusIndex].id, VOLUME_STEP);
+          return;
+        case "ArrowLeft":
+          console.log(trackFocusIndex);
+          trackFocusIndex !== undefined &&
+            fadeTrackVolume(tracks[trackFocusIndex].id, -VOLUME_STEP);
+          return;
+        case "KeyX":
+          trackFocusIndex !== undefined &&
+            removeTrack(tracks[trackFocusIndex].id);
+          return;
+
+        // Control volume if a key was bounded
+        default:
+          const id = keyBindings.find((x) => x.code === keyPress.code)?.target;
+          id && fadeTrackVolume(id, (keyPress.shiftKey ? -1 : 1) * VOLUME_STEP);
+          return;
+      }
     }
   }, [keyPress]);
 
