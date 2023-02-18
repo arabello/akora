@@ -11,6 +11,7 @@ import {
 } from "./repository";
 import useKeyBindings from "./useKeyBinding";
 import useKeyPress from "./useKeyPress";
+import { useFocus } from "./useFocus";
 
 const mixer = new Mixer();
 
@@ -85,33 +86,7 @@ const App = () => {
     useKeyBindings<string>();
   const keyPress = useKeyPress();
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const [trackFocusIndex, setTrackFocusIndex] = useState<number>();
-
-  const trackFocus = (action: "next" | "prev") => {
-    if (tracks.length == 0) {
-      return setTrackFocusIndex(undefined);
-    }
-
-    switch (action) {
-      case "next":
-        return setTrackFocusIndex(
-          trackFocusIndex === undefined ||
-            trackFocusIndex + 1 > tracks.length - 1
-            ? 0
-            : trackFocusIndex + 1
-        );
-      case "prev":
-        return setTrackFocusIndex(
-          trackFocusIndex === undefined || trackFocusIndex - 1 < 0
-            ? tracks.length - 1
-            : trackFocusIndex - 1
-        );
-    }
-  };
-
-  useEffect(() => {
-    tracks.length === 0 && setTrackFocusIndex(undefined);
-  }, [tracks]);
+  const [trackFocus, setTrackFocus] = useFocus(tracks);
 
   useEffect(() => {
     if (!keyPress) {
@@ -121,7 +96,7 @@ const App = () => {
     if (keyPress.code === "Escape") {
       setSearchQuery("");
       (document.activeElement as HTMLElement).blur();
-      setTrackFocusIndex(undefined);
+      setTrackFocus();
       return;
     }
 
@@ -143,21 +118,19 @@ const App = () => {
 
         // Tracks navigation
         case "ArrowUp":
-          return trackFocus("prev");
+          return setTrackFocus("prev");
         case "ArrowDown":
-          return trackFocus("next");
+          return setTrackFocus("next");
         case "ArrowRight":
-          trackFocusIndex !== undefined &&
-            fadeTrackVolume(tracks[trackFocusIndex].id, VOLUME_STEP);
+          trackFocus !== undefined &&
+            fadeTrackVolume(tracks[trackFocus].id, VOLUME_STEP);
           return;
         case "ArrowLeft":
-          console.log(trackFocusIndex);
-          trackFocusIndex !== undefined &&
-            fadeTrackVolume(tracks[trackFocusIndex].id, -VOLUME_STEP);
+          trackFocus !== undefined &&
+            fadeTrackVolume(tracks[trackFocus].id, -VOLUME_STEP);
           return;
         case "KeyX":
-          trackFocusIndex !== undefined &&
-            removeTrack(tracks[trackFocusIndex].id);
+          trackFocus !== undefined && removeTrack(tracks[trackFocus].id);
           return;
 
         // Control volume if a key was bounded
@@ -214,9 +187,7 @@ const App = () => {
           {tracks.map((track, index) => (
             <li
               key={track.id}
-              style={
-                index == trackFocusIndex ? { background: "lightgray" } : {}
-              }
+              style={index == trackFocus ? { background: "lightgray" } : {}}
             >
               <span>{keyBindings.find((x) => x.target === track.id)?.key}</span>
               <button onClick={() => fadeTrackVolume(track.id, VOLUME_STEP)}>
