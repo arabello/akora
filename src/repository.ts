@@ -1,4 +1,5 @@
-import { KeyBinding, Source, Track } from "./model";
+import { KeyBinding } from "./keybinding";
+import { Source, Track } from "./model";
 import { default as sources } from "./sources.json";
 
 export interface SourcesRepository {

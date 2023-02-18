@@ -9,9 +9,7 @@ import {
   SourcesRepository,
   StaticSourcesRepository,
 } from "./repository";
-import useKeyBindings from "./useKeyBinding";
-import useKeyPress from "./useKeyPress";
-import { useFocus } from "./useFocus";
+import { useFocus, useKeyBinding, useKeyPress } from "./keybinding";
 
 const mixer = new Mixer();
 
@@ -83,7 +81,7 @@ const App = () => {
    * Keyboard
    */
   const [keyBindings, setKeyBindings, setKeyBindingTarget] =
-    useKeyBindings<string>();
+    useKeyBinding<string>();
   const keyPress = useKeyPress();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [trackFocus, setTrackFocus] = useFocus(tracks);
