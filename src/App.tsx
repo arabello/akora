@@ -2,21 +2,32 @@ import { useEffect, useRef, useState } from "react";
 import { ItemList } from "./ItemList";
 import { SearchSources } from "./search";
 import Mixer from "./mixer";
-import { Source, Track } from "./model";
+import { isKeyBinding, isTrack, KeyBinding, Source, Track } from "./model";
 import {
   LocalStorageSessionRepository,
   SessionRepository,
   SourcesRepository,
   StaticSourcesRepository,
 } from "./repository";
-import { useFocus, useKeyBinding, useKeyPress } from "./keybinding";
+import { useKeyBinding, useKeyPress } from "./keybinding";
+import { useFocus } from "./useFocus";
 
 const mixer = new Mixer();
 
 const searchSources = new SearchSources([]);
-const sessionRepository: SessionRepository =
-  new LocalStorageSessionRepository();
-const sourcesRepository: SourcesRepository = new StaticSourcesRepository();
+const tracksSessionRepo: SessionRepository<Array<Track>> =
+  new LocalStorageSessionRepository<Array<Track>>(
+    "tracks",
+    (tracks: Array<Track>): tracks is Array<Track> =>
+      (tracks as Array<Track>).every(isTrack)
+  );
+const keybindingsSessionRepo: SessionRepository<Array<KeyBinding<string>>> =
+  new LocalStorageSessionRepository(
+    "keyBindings",
+    (tracks: Array<KeyBinding<string>>): tracks is Array<KeyBinding<string>> =>
+      (tracks as Array<KeyBinding<string>>).every(isKeyBinding)
+  );
+const sourcesRepo: SourcesRepository = new StaticSourcesRepository();
 
 const VOLUME_STEP = 0.2;
 
@@ -28,8 +39,8 @@ const App = () => {
   const [displayedSource, setDisplayedSources] = useState<Array<Source>>([]);
 
   useEffect(() => {
-    sourcesRepository
-      .getSources()
+    sourcesRepo
+      .fetchSources()
       .then((x) => {
         searchSources.setCollection(x);
         setDisplayedSources(x);
@@ -144,21 +155,21 @@ const App = () => {
    * Session storage
    */
   useEffect(() => {
-    sessionRepository.getTracks().then((x) => {
+    tracksSessionRepo.fetch().then((x) => {
       x.map((x) => {
         mixer.load(x.id, x.url, x.volume);
       });
       setTracks(x);
     });
-    sessionRepository.getKeyBindings().then((x) => setKeyBindings(x));
+    keybindingsSessionRepo.fetch().then((x) => setKeyBindings(x));
   }, []);
 
   useEffect(() => {
-    sessionRepository.setTracks(tracks);
+    tracksSessionRepo.persist(tracks);
   }, [tracks]);
 
   useEffect(() => {
-    sessionRepository.setKeyBindings(keyBindings);
+    keybindingsSessionRepo.persist(keyBindings);
   }, [keyBindings]);
 
   return (

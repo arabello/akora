@@ -1,61 +1,47 @@
-import { KeyBinding } from "./keybinding";
-import { Source, Track } from "./model";
+import { Source } from "./model";
 import { default as sources } from "./sources.json";
 
 export interface SourcesRepository {
-  getSources: () => Promise<Array<Source>>;
+  fetchSources: () => Promise<Array<Source>>;
 }
 
 export class StaticSourcesRepository implements SourcesRepository {
-  public getSources(): Promise<Source[]> {
+  public fetchSources(): Promise<Source[]> {
     return new Promise((res) => res(sources));
   }
 }
 
-export interface SessionRepository {
-  setKeyBindings: (keyBindings: Array<KeyBinding<string>>) => Promise<void>;
-  setTracks: (tracks: Array<Track>) => Promise<void>;
-  getKeyBindings: () => Promise<Array<KeyBinding<string>>>;
-  getTracks: () => Promise<Array<Track>>;
+export interface SessionRepository<T> {
+  is: (item: T) => item is T;
+  persist: (item: T) => Promise<void>;
+  fetch: () => Promise<T>;
 }
 
-export class LocalStorageSessionRepository implements SessionRepository {
-  constructor() {}
+export class LocalStorageSessionRepository<T> implements SessionRepository<T> {
+  private _key: string;
+  is: (item: T) => item is T;
 
-  private set(key: string, obj: Object) {
-    window.localStorage.setItem(key, JSON.stringify(obj));
+  constructor(key: string, is: (item: T) => item is T) {
+    this._key = key;
+    this.is = is;
   }
 
-  private get<T>(key: string): T | undefined {
-    const obj = window.localStorage.getItem(key);
+  public persist(item: T): Promise<void> {
+    window.localStorage.setItem(this._key, JSON.stringify(item));
+    return Promise.resolve();
+  }
+
+  public fetch(): Promise<T> {
+    const obj = window.localStorage.getItem(this._key);
     if (!obj) {
-      return undefined;
+      return Promise.reject();
     }
 
     try {
-      return JSON.parse(obj);
+      const o = JSON.parse(obj);
+      return this.is(o) ? Promise.resolve(o) : Promise.reject();
     } catch (_) {
-      return undefined;
+      return Promise.reject();
     }
-  }
-
-  public setKeyBindings(keyBindings: Array<KeyBinding<string>>): Promise<void> {
-    this.set("keyBindings", keyBindings);
-    return Promise.resolve();
-  }
-
-  public getKeyBindings(): Promise<Array<KeyBinding<string>>> {
-    const keyBindings = this.get<Array<KeyBinding<string>>>("keyBindings");
-    return keyBindings ? Promise.resolve(keyBindings) : Promise.reject();
-  }
-
-  public setTracks(tracks: Array<Track>): Promise<void> {
-    this.set("tracks", tracks);
-    return Promise.resolve();
-  }
-
-  public getTracks(): Promise<Array<Track>> {
-    const tracks = this.get<Array<Track>>("tracks");
-    return tracks ? Promise.resolve(tracks) : Promise.reject();
   }
 }
