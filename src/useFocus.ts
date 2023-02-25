@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const useFocus: <T>(
   items: Array<T>
@@ -7,6 +7,9 @@ export const useFocus: <T>(
   (actionOrIndex?: "next" | "prev" | number) => void
 ] = <T>(items: Array<T>) => {
   const [focus, setFocus] = useState<number>();
+  useEffect(() => {
+    focus !== undefined && focus >= items.length && setFocus(undefined);
+  }, [items]);
 
   const move = (action: "next" | "prev") => {
     if (items.length == 0) {
@@ -37,7 +40,7 @@ export const useFocus: <T>(
           actionOrIndex > items.length ||
           items.length === 0
         ) {
-          return;
+          return setFocus(undefined);
         }
         return setFocus(actionOrIndex);
       default:

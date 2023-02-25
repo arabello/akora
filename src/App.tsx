@@ -50,10 +50,14 @@ const App = () => {
 
   useEffect(() => {
     if (searchQuery === "") {
+      setSourceFocus();
       return setDisplayedSources(searchSources.getCollection());
     }
 
-    searchSources.search(searchQuery).then(setDisplayedSources);
+    searchSources
+      .search(searchQuery)
+      .then(setDisplayedSources)
+      .then(() => setSourceFocus(0));
   }, [searchQuery]);
 
   /**
@@ -96,6 +100,7 @@ const App = () => {
   const keyPress = useKeyPress();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [trackFocus, setTrackFocus] = useFocus(tracks);
+  const [sourceFocus, setSourceFocus] = useFocus(displayedSource);
 
   useEffect(() => {
     if (!keyPress) {
@@ -106,6 +111,7 @@ const App = () => {
       setSearchQuery("");
       (document.activeElement as HTMLElement).blur();
       setTrackFocus();
+      setSourceFocus();
       return;
     }
 
@@ -113,10 +119,16 @@ const App = () => {
       switch (keyPress.code) {
         case "Enter":
           document.activeElement === searchInputRef.current &&
-            displayedSource.length > 0 &&
-            tracks.find((x) => x.id === displayedSource[0].id) === undefined &&
-            loadTrack(displayedSource[0]);
+            sourceFocus !== undefined &&
+            tracks.find((x) => x.id === displayedSource[sourceFocus].id) ===
+              undefined &&
+            loadTrack(displayedSource[sourceFocus]);
           return;
+        // Sources navigation
+        case "ArrowUp":
+          return setSourceFocus("prev");
+        case "ArrowDown":
+          return setSourceFocus("next");
       }
     } else {
       switch (keyPress.code) {
@@ -183,6 +195,7 @@ const App = () => {
         />
         <ItemList
           items={displayedSource.map(({ id, name }) => ({ id, label: name }))}
+          isFocused={(_, index) => index == sourceFocus}
           isClickable={({ id }) => !tracks.map((x) => x.id).includes(id)}
           onClick={({ id }) => {
             const s = displayedSource.find((s) => s.id === id);
