@@ -29,7 +29,7 @@ const keybindingsSessionRepo: SessionRepository<Array<KeyBinding<string>>> =
   );
 const sourcesRepo: SourcesRepository = new StaticSourcesRepository();
 
-const VOLUME_STEP = 0.2;
+const VOLUME_STEP = 0.1;
 
 const App = () => {
   /**
