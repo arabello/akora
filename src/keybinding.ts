@@ -25,6 +25,7 @@ export const useKeyPress = () => {
 export const useKeyBinding: <T>() => [
   Array<KeyBinding<T>>,
   Dispatch<SetStateAction<Array<KeyBinding<T>>>>,
+  T | undefined,
   Dispatch<SetStateAction<T | undefined>>
 ] = <T>() => {
   const pressKeyEvent = useKeyPress();
@@ -44,11 +45,18 @@ export const useKeyBinding: <T>() => [
     );
 
   useEffect(() => {
-    if (target && pressKeyEvent) {
+    if (
+      target &&
+      pressKeyEvent &&
+      !pressKeyEvent.metaKey &&
+      !pressKeyEvent.ctrlKey &&
+      !pressKeyEvent.altKey &&
+      !pressKeyEvent.shiftKey
+    ) {
       put(pressKeyEvent.key, pressKeyEvent.code, target);
       setTarget(undefined);
     }
   }, [pressKeyEvent]);
 
-  return [keyBindings, setKeyBindings, setTarget];
+  return [keyBindings, setKeyBindings, target, setTarget];
 };

@@ -95,7 +95,7 @@ const App = () => {
   /**
    * Keyboard
    */
-  const [keyBindings, setKeyBindings, setKeyBindingTarget] =
+  const [keyBindings, setKeyBindings, keyBindingTarget, setKeyBindingTarget] =
     useKeyBinding<string>();
   const keyPress = useKeyPress();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -222,9 +222,13 @@ const App = () => {
               {` `}
               <button onClick={() => removeTrack(track.id)}>x</button>
               {` `}
-              <button onClick={() => setKeyBindingTarget(track.id)}>
-                Bind
-              </button>
+              {keyBindingTarget == track.id ? (
+                <button disabled>Binding...</button>
+              ) : (
+                <button onClick={() => setKeyBindingTarget(track.id)}>
+                  Bind
+                </button>
+              )}
               {` `}
               <span>{track.name}</span>
               {` `}
