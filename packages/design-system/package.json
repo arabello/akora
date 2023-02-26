@@ -1,0 +1,18 @@
+{
+  "name": "@night-focus/design-system",
+  "version": "0.1.0",
+  "private": true,
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsup --minify --clean",
+    "start": "tsup --watch"
+  },
+  "devDependencies": {
+    "@vanilla-extract/esbuild-plugin": "^2.2.1",
+    "tsup": "^6.6.3"
+  },
+  "dependencies": {
+    "@buildo/bento-design-system": "^0.16.3",
+    "cross-env": "^7.0.3"
+  }
+}

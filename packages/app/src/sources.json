@@ -1,0 +1,162 @@
+[
+  {
+    "id": "ext/alien-ship",
+    "name": "ext/alien ship",
+    "url": "./assets/library/ext/alien-ship.mp3"
+  },
+  {
+    "id": "ext/barn-animals",
+    "name": "ext/barn animals",
+    "url": "./assets/library/ext/barn-animals.mp3"
+  },
+  {
+    "id": "ext/beehive",
+    "name": "ext/beehive",
+    "url": "./assets/library/ext/beehive.mp3"
+  },
+  {
+    "id": "ext/campfire",
+    "name": "ext/campfire",
+    "url": "./assets/library/ext/campfire.mp3"
+  },
+  {
+    "id": "ext/carnival",
+    "name": "ext/carnival",
+    "url": "./assets/library/ext/carnival.mp3"
+  },
+  {
+    "id": "ext/casino",
+    "name": "ext/casino",
+    "url": "./assets/library/ext/casino.mp3"
+  },
+  {
+    "id": "ext/church-bells",
+    "name": "ext/church bells",
+    "url": "./assets/library/ext/church-bells.mp3"
+  },
+  {
+    "id": "ext/coffee-shop",
+    "name": "ext/coffee shop",
+    "url": "./assets/library/ext/coffee-shop.mp3"
+  },
+  {
+    "id": "ext/construction",
+    "name": "ext/construction",
+    "url": "./assets/library/ext/construction.mp3"
+  },
+  {
+    "id": "ext/couple-arguing",
+    "name": "ext/couple arguing",
+    "url": "./assets/library/ext/couple-arguing.mp3"
+  },
+  {
+    "id": "ext/crime-scene",
+    "name": "ext/crime scene",
+    "url": "./assets/library/ext/crime-scene.mp3"
+  },
+  {
+    "id": "ext/dentist",
+    "name": "ext/dentist",
+    "url": "./assets/library/ext/dentist.mp3"
+  },
+  {
+    "id": "ext/fireworks",
+    "name": "ext/fireworks",
+    "url": "./assets/library/ext/fireworks.mp3"
+  },
+  {
+    "id": "ext/forest",
+    "name": "ext/forest",
+    "url": "./assets/library/ext/forest.mp3"
+  },
+  {
+    "id": "ext/haunted-dungeon",
+    "name": "ext/haunted dungeon",
+    "url": "./assets/library/ext/haunted-dungeon.mp3"
+  },
+  {
+    "id": "ext/highway",
+    "name": "ext/highway",
+    "url": "./assets/library/ext/highway.mp3"
+  },
+  {
+    "id": "ext/hospital",
+    "name": "ext/hospital",
+    "url": "./assets/library/ext/hospital.mp3"
+  },
+  {
+    "id": "ext/lawnmower",
+    "name": "ext/lawnmower",
+    "url": "./assets/library/ext/lawnmower.mp3"
+  },
+  {
+    "id": "ext/lofi-beats",
+    "name": "ext/lofi beats",
+    "url": "./assets/library/ext/lofi-beats.mp3"
+  },
+  {
+    "id": "ext/marching-band",
+    "name": "ext/marching band",
+    "url": "./assets/library/ext/marching-band.mp3"
+  },
+  {
+    "id": "ext/medieval-battle",
+    "name": "ext/medieval battle",
+    "url": "./assets/library/ext/medieval-battle.mp3"
+  },
+  {
+    "id": "ext/nuclear-siren",
+    "name": "ext/nuclear siren",
+    "url": "./assets/library/ext/nuclear-siren.mp3"
+  },
+  {
+    "id": "ext/office",
+    "name": "ext/office",
+    "url": "./assets/library/ext/office.mp3"
+  },
+  {
+    "id": "ext/playground",
+    "name": "ext/playground",
+    "url": "./assets/library/ext/playground.mp3"
+  },
+  {
+    "id": "ext/rain",
+    "name": "ext/rain",
+    "url": "./assets/library/ext/rain.mp3"
+  },
+  {
+    "id": "ext/train-station",
+    "name": "ext/train station",
+    "url": "./assets/library/ext/train-station.mp3"
+  },
+  {
+    "id": "ext/volcano",
+    "name": "ext/volcano",
+    "url": "./assets/library/ext/volcano.mp3"
+  },
+  {
+    "id": "ext/waves",
+    "name": "ext/waves",
+    "url": "./assets/library/ext/waves.mp3"
+  },
+  {
+    "id": "ext/wind",
+    "name": "ext/wind",
+    "url": "./assets/library/ext/wind.mp3"
+  },
+  {
+    "id": "ext/zombies",
+    "name": "ext/zombies",
+    "url": "./assets/library/ext/zombies.mp3"
+  },
+  {
+    "id": "night-wildlife",
+    "name": "Night Wildlife",
+    "url": "./assets/library/night-wildlife.mp3"
+  },
+  {
+    "id": "rain-moderate",
+    "name": "Rain Moderate",
+    "url": "./assets/library/rain-moderate.mp3"
+  }
+]

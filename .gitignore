@@ -1,5 +1,7 @@
 build
 public/assets/library
+lib
+.turbo
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,node,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,node,react
