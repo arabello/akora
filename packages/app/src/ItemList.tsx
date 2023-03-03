@@ -1,3 +1,5 @@
+import { Body, Stack } from "@night-focus/design-system";
+
 type Props = {
   items: Array<{ id: string; label: string }>;
   isClickable?: (item: { id: string; label: string }) => boolean;
@@ -6,9 +8,9 @@ type Props = {
 };
 
 export const ItemList = (props: Props) => (
-  <ul>
+  <Stack space={4}>
     {props.items.map((item, index) => (
-      <li
+      <div
         key={item.id}
         style={
           props.isFocused && props.isFocused(item, index)
@@ -18,12 +20,12 @@ export const ItemList = (props: Props) => (
       >
         {props.isClickable && props.isClickable(item) ? (
           <a href="#" onClick={() => props.onClick && props.onClick(item)}>
-            {item.label}
+            <Body size="small">{item.label}</Body>
           </a>
         ) : (
-          <span>{item.label}</span>
+          <Body size="small">{item.label}</Body>
         )}
-      </li>
+      </div>
     ))}
-  </ul>
+  </Stack>
 );

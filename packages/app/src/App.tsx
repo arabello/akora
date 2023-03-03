@@ -11,7 +11,7 @@ import {
 } from "./repository";
 import { useKeyBinding, useKeyPress } from "./keybinding";
 import { useFocus } from "./useFocus";
-import { Headline } from "@night-focus/design-system";
+import { Columns, Headline, Stack, Column, ContentBlock } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
 
 const mixer = new Mixer();
@@ -187,61 +187,64 @@ const App = () => {
   }, [keyBindings]);
 
   return (
-    <div>
-      <Headline size="large">Night Focus</Headline>
-      <div>
-        <input
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          ref={searchInputRef}
-        />
-        <ItemList
-          items={displayedSource.map(({ id, name }) => ({ id, label: name }))}
-          isFocused={(_, index) => index == sourceFocus}
-          isClickable={({ id }) => !tracks.map((x) => x.id).includes(id)}
-          onClick={({ id }) => {
-            const s = displayedSource.find((s) => s.id === id);
-            s && loadTrack(s);
-          }}
-        />
-      </div>
-      <hr />
-      <div>
-        <ul>
-          {tracks.map((track, index) => (
-            <li
-              key={track.id}
-              style={index == trackFocus ? { background: "lightgray" } : {}}
-            >
-              <span>{keyBindings.find((x) => x.target === track.id)?.key}</span>
-              <button onClick={() => fadeTrackVolume(track.id, VOLUME_STEP)}>
-                +
-              </button>
-              {` `}
-              <button onClick={() => fadeTrackVolume(track.id, -VOLUME_STEP)}>
-                -
-              </button>
-              {` `}
-              <button onClick={() => removeTrack(track.id)}>x</button>
-              {` `}
-              {keyBindingTarget == track.id ? (
-                <button disabled>Binding...</button>
-              ) : (
-                <button onClick={() => setKeyBindingTarget(track.id)}>
-                  Bind
+    <Columns space={24}>
+      <Column width="1/5">
+        <Stack space={0}>
+          <Headline size="large">Night Focus</Headline>
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            ref={searchInputRef}
+          />
+          <ItemList
+            items={displayedSource.map(({ id, name }) => ({ id, label: name }))}
+            isFocused={(_, index) => index == sourceFocus}
+            isClickable={({ id }) => !tracks.map((x) => x.id).includes(id)}
+            onClick={({ id }) => {
+              const s = displayedSource.find((s) => s.id === id);
+              s && loadTrack(s);
+            }}
+          />
+        </Stack>
+      </Column>
+      <ContentBlock maxWidth={700} alignSelf="center">
+        <Stack space={0}>
+          <Stack space={4}>
+            {tracks.map((track, index) => (
+              <li
+                key={track.id}
+                style={index == trackFocus ? { background: "lightgray" } : {}}
+              >
+                <span>{keyBindings.find((x) => x.target === track.id)?.key}</span>
+                <button onClick={() => fadeTrackVolume(track.id, VOLUME_STEP)}>
+                  +
                 </button>
-              )}
-              {` `}
-              <span>{track.name}</span>
-              {` `}
-              {track.volume > 0 && <span>|</span>}
-              <span>{`-`.repeat(Math.round(track.volume * 10))}</span>
-              {track.volume == 1 && <span>|</span>}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+                {` `}
+                <button onClick={() => fadeTrackVolume(track.id, -VOLUME_STEP)}>
+                  -
+                </button>
+                {` `}
+                <button onClick={() => removeTrack(track.id)}>x</button>
+                {` `}
+                {keyBindingTarget == track.id ? (
+                  <button disabled>Binding...</button>
+                ) : (
+                  <button onClick={() => setKeyBindingTarget(track.id)}>
+                    Bind
+                  </button>
+                )}
+                {` `}
+                <span>{track.name}</span>
+                {` `}
+                {track.volume > 0 && <span>|</span>}
+                <span>{`-`.repeat(Math.round(track.volume * 10))}</span>
+                {track.volume == 1 && <span>|</span>}
+              </li>
+            ))}
+          </Stack>
+        </Stack>
+      </ContentBlock>
+    </Columns>
   );
 };
 
