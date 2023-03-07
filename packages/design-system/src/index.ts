@@ -8,6 +8,8 @@ export {
   Column,
   Columns,
   Body,
-  ContentBlock
+  ContentBlock,
+  DesignSystemProvider
 } from "@buildo/bento-design-system";
 export const BentoProvider = createBentoProvider();
+export { SearchBar } from "./components"

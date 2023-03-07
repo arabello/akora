@@ -9,10 +9,12 @@ import {
   SourcesRepository,
   StaticSourcesRepository,
 } from "./repository";
-import { useKeyBinding, useKeyPress } from "./keybinding";
+import { useKeyBinding, useKeyPress } from "./useKeyPress";
 import { useFocus } from "./useFocus";
-import { Columns, Headline, Stack, Column, ContentBlock } from "@night-focus/design-system";
+import { Columns, Headline, Stack, Column, ContentBlock, SearchBar } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
+import { useFocusManager } from "@react-aria/focus";
+import { Focusable } from "./keybinding";
 
 const mixer = new Mixer();
 
@@ -104,6 +106,8 @@ const App = () => {
   const [trackFocus, setTrackFocus] = useFocus(tracks);
   const [sourceFocus, setSourceFocus] = useFocus(displayedSource);
 
+  const { focusFirst } = useFocusManager();
+
   useEffect(() => {
     if (!keyPress) {
       return;
@@ -136,7 +140,13 @@ const App = () => {
       switch (keyPress.code) {
         case "KeyK":
           (keyPress.metaKey || keyPress.ctrlKey) &&
-            searchInputRef.current?.focus();
+            // searchInputRef.current?.focus();
+            focusFirst({
+              accept: (n) => {
+                console.log(n.id);
+                return n.id === "searchbar"
+              }
+            })
           return;
 
         // Tracks navigation
@@ -191,11 +201,12 @@ const App = () => {
       <Column width="1/5">
         <Stack space={0}>
           <Headline size="large">Night Focus</Headline>
-          <input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            ref={searchInputRef}
-          />
+          <Focusable id="searchbar">
+            <SearchBar
+              placeholder="Type here..."
+              value={searchQuery}
+              onChange={setSearchQuery} />
+          </Focusable>
           <ItemList
             items={displayedSource.map(({ id, name }) => ({ id, label: name }))}
             isFocused={(_, index) => index == sourceFocus}
