@@ -90,15 +90,3 @@ const defaultMatch: CodeMatch<void> = Object.assign({}, ...codes.map(c => ({ [c]
 export const match: <R>(match: Partial<CodeMatch<R>>) => (target: KeyBinding) => R | void = m => t =>
   Object.assign(defaultMatch, m)[t.code]();
 
-export const Focusable = (props: { id: string, children: JSX.Element }) => (
-  <div
-    id={props.id}
-    tabIndex={0}
-    onFocus={e =>
-      (e.target.querySelector(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      ) as HTMLElement | null
-      )?.focus()}>
-    {props.children}
-  </div>
-)

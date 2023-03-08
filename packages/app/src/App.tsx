@@ -11,10 +11,8 @@ import {
 } from "./repository";
 import { useKeyBinding, useKeyPress } from "./useKeyPress";
 import { useFocus } from "./useFocus";
-import { Columns, Headline, Stack, Column, ContentBlock, SearchBar } from "@night-focus/design-system";
+import { Columns, Headline, Stack, Column, ContentBlock, SearchBar, Focusable } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
-import { useFocusManager } from "@react-aria/focus";
-import { Focusable } from "./keybinding";
 
 const mixer = new Mixer();
 
@@ -102,11 +100,9 @@ const App = () => {
   const [keyBindings, setKeyBindings, keyBindingTarget, setKeyBindingTarget] =
     useKeyBinding<string>();
   const keyPress = useKeyPress();
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchBarFocusRef = useRef<HTMLDivElement>(null);
   const [trackFocus, setTrackFocus] = useFocus(tracks);
   const [sourceFocus, setSourceFocus] = useFocus(displayedSource);
-
-  const { focusFirst } = useFocusManager();
 
   useEffect(() => {
     if (!keyPress) {
@@ -121,10 +117,10 @@ const App = () => {
       return;
     }
 
-    if (document.activeElement == searchInputRef.current) {
+    if (document.activeElement == searchBarFocusRef.current) {
       switch (keyPress.code) {
         case "Enter":
-          document.activeElement === searchInputRef.current &&
+          document.activeElement === searchBarFocusRef.current &&
             sourceFocus !== undefined &&
             tracks.find((x) => x.id === displayedSource[sourceFocus].id) ===
             undefined &&
@@ -140,13 +136,7 @@ const App = () => {
       switch (keyPress.code) {
         case "KeyK":
           (keyPress.metaKey || keyPress.ctrlKey) &&
-            // searchInputRef.current?.focus();
-            focusFirst({
-              accept: (n) => {
-                console.log(n.id);
-                return n.id === "searchbar"
-              }
-            })
+            searchBarFocusRef.current?.focus();
           return;
 
         // Tracks navigation
@@ -201,7 +191,7 @@ const App = () => {
       <Column width="1/5">
         <Stack space={0}>
           <Headline size="large">Night Focus</Headline>
-          <Focusable id="searchbar">
+          <Focusable ref={searchBarFocusRef}>
             <SearchBar
               placeholder="Type here..."
               value={searchQuery}
