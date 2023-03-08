@@ -12,4 +12,5 @@ root.render(
     <FocusScope>
       <App />
     </FocusScope>
-  </BentoProvider>);
+  </BentoProvider>
+);

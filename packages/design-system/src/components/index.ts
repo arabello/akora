@@ -1,2 +1,2 @@
-export * from "./SearchBar"
-export * from "./Focusable"
+export * from "./SearchBar";
+export * from "./Focusable";

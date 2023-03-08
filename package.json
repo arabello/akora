@@ -5,6 +5,8 @@
   ],
   "scripts": {
     "start": "turbo run start",
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "prettier-write": "turbo run prettier-write",
+    "prettier-check": "turbo run prettier-check"
   }
 }

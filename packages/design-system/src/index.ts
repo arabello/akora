@@ -9,7 +9,7 @@ export {
   Columns,
   Body,
   ContentBlock,
-  DesignSystemProvider
+  DesignSystemProvider,
 } from "@buildo/bento-design-system";
 export const BentoProvider = createBentoProvider();
-export { SearchBar, Focusable } from "./components"
+export { SearchBar, Focusable } from "./components";

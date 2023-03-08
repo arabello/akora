@@ -5,10 +5,13 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsup --minify --clean",
-    "start": "tsup --watch"
+    "start": "tsup --watch",
+    "prettier-write": "prettier --write src",
+    "prettier-check": "prettier --check src"
   },
   "devDependencies": {
     "@vanilla-extract/esbuild-plugin": "^2.2.1",
+    "prettier": "^2.8.4",
     "tsup": "^6.6.3"
   },
   "dependencies": {

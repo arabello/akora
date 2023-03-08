@@ -11,7 +11,15 @@ import {
 } from "./repository";
 import { useKeyBinding, useKeyPress } from "./useKeyPress";
 import { useFocus } from "./useFocus";
-import { Columns, Headline, Stack, Column, ContentBlock, SearchBar, Focusable } from "@night-focus/design-system";
+import {
+  Columns,
+  Headline,
+  Stack,
+  Column,
+  ContentBlock,
+  SearchBar,
+  Focusable,
+} from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
 
 const mixer = new Mixer();
@@ -123,7 +131,7 @@ const App = () => {
           document.activeElement === searchBarFocusRef.current &&
             sourceFocus !== undefined &&
             tracks.find((x) => x.id === displayedSource[sourceFocus].id) ===
-            undefined &&
+              undefined &&
             loadTrack(displayedSource[sourceFocus]);
           return;
         // Sources navigation
@@ -195,7 +203,8 @@ const App = () => {
             <SearchBar
               placeholder="Type here..."
               value={searchQuery}
-              onChange={setSearchQuery} />
+              onChange={setSearchQuery}
+            />
           </Focusable>
           <ItemList
             items={displayedSource.map(({ id, name }) => ({ id, label: name }))}
@@ -216,7 +225,9 @@ const App = () => {
                 key={track.id}
                 style={index == trackFocus ? { background: "lightgray" } : {}}
               >
-                <span>{keyBindings.find((x) => x.target === track.id)?.key}</span>
+                <span>
+                  {keyBindings.find((x) => x.target === track.id)?.key}
+                </span>
                 <button onClick={() => fadeTrackVolume(track.id, VOLUME_STEP)}>
                   +
                 </button>

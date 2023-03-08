@@ -1,7 +1,9 @@
 import { DesignSystemProvider } from "@night-focus/design-system";
 import { ComponentProps } from "react";
 
-export const defaultMessages: ComponentProps<typeof DesignSystemProvider>["defaultMessages"] = {
+export const defaultMessages: ComponentProps<
+  typeof DesignSystemProvider
+>["defaultMessages"] = {
   Chip: {
     dismissButtonLabel: "Remove",
   },
@@ -25,7 +27,8 @@ export const defaultMessages: ComponentProps<typeof DesignSystemProvider>["defau
   },
   Table: {
     noResultsTitle: "No results found",
-    noResultsDescription: "Try adjusting your search filters to find what you're looking for.",
+    noResultsDescription:
+      "Try adjusting your search filters to find what you're looking for.",
     missingValue: "-",
   },
   Loader: {
