@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ItemList } from "./ItemList";
 import { SearchSources } from "./search";
 import Mixer from "./mixer";
@@ -18,7 +18,6 @@ import {
   Column,
   ContentBlock,
   SearchBar,
-  Focusable,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
 
@@ -60,14 +59,12 @@ const App = () => {
 
   useEffect(() => {
     if (searchQuery === "") {
-      setSourceFocus();
+      // setSourceFocus();
       return setDisplayedSources(searchSources.getCollection());
     }
 
-    searchSources
-      .search(searchQuery)
-      .then(setDisplayedSources)
-      .then(() => setSourceFocus(0));
+    searchSources.search(searchQuery).then(setDisplayedSources);
+    // .then(() => setSourceFocus(0));
   }, [searchQuery]);
 
   /**
@@ -108,9 +105,8 @@ const App = () => {
   const [keyBindings, setKeyBindings, keyBindingTarget, setKeyBindingTarget] =
     useKeyBinding<string>();
   const keyPress = useKeyPress();
-  const searchBarFocusRef = useRef<HTMLDivElement>(null);
-  const [trackFocus, setTrackFocus] = useFocus(tracks);
-  const [sourceFocus, setSourceFocus] = useFocus(displayedSource);
+  const { currentFocusId, focusFirst, focusNext, focusPrevious, focusClear } =
+    useFocus();
 
   useEffect(() => {
     if (!keyPress) {
@@ -119,50 +115,60 @@ const App = () => {
 
     if (keyPress.code === "Escape") {
       setSearchQuery("");
-      (document.activeElement as HTMLElement).blur();
-      setTrackFocus();
-      setSourceFocus();
+      focusClear();
       return;
     }
 
-    if (document.activeElement == searchBarFocusRef.current) {
-      switch (keyPress.code) {
+    if (
+      currentFocusId?.includes("source") ||
+      currentFocusId?.includes("searchbar")
+    ) {
+      switch (keyPress?.code) {
         case "Enter":
-          document.activeElement === searchBarFocusRef.current &&
-            sourceFocus !== undefined &&
-            tracks.find((x) => x.id === displayedSource[sourceFocus].id) ===
-              undefined &&
-            loadTrack(displayedSource[sourceFocus]);
+          // TODO
+          // document.activeElement === searchBarFocusRef.current &&
+          // sourceFocus !== undefined &&
+          // tracks.find((x) => x.id === displayedSource[sourceFocus].id) ===
+          // undefined &&
+          // loadTrack(displayedSource[sourceFocus]);
           return;
         // Sources navigation
         case "ArrowUp":
-          return setSourceFocus("prev");
+          focusPrevious({ find: (id) => id.includes("source"), wrap: true });
+          return;
         case "ArrowDown":
-          return setSourceFocus("next");
+          focusNext({ find: (id) => id.includes("source"), wrap: true });
+          return;
+        case "KeyK":
+          (keyPress.metaKey || keyPress.ctrlKey) &&
+            focusFirst({ find: (id) => id.includes("searchbar") });
+          return;
       }
     } else {
       switch (keyPress.code) {
         case "KeyK":
           (keyPress.metaKey || keyPress.ctrlKey) &&
-            searchBarFocusRef.current?.focus();
+            focusFirst({ find: (id) => id.includes("searchbar") });
           return;
 
         // Tracks navigation
         case "ArrowUp":
-          return setTrackFocus("prev");
+          focusPrevious({ find: (id) => id.includes("track"), wrap: true });
+          return;
         case "ArrowDown":
-          return setTrackFocus("next");
-        case "ArrowRight":
-          trackFocus !== undefined &&
-            fadeTrackVolume(tracks[trackFocus].id, VOLUME_STEP);
+          focusNext({ find: (id) => id.includes("track"), wrap: true });
           return;
-        case "ArrowLeft":
-          trackFocus !== undefined &&
-            fadeTrackVolume(tracks[trackFocus].id, -VOLUME_STEP);
-          return;
-        case "KeyX":
-          trackFocus !== undefined && removeTrack(tracks[trackFocus].id);
-          return;
+        // case "ArrowRight":
+        //   trackFocus !== undefined &&
+        //     fadeTrackVolume(tracks[trackFocus].id, VOLUME_STEP);
+        //   return;
+        // case "ArrowLeft":
+        //   trackFocus !== undefined &&
+        //     fadeTrackVolume(tracks[trackFocus].id, -VOLUME_STEP);
+        //   return;
+        // case "KeyX":
+        //   trackFocus !== undefined && removeTrack(tracks[trackFocus].id);
+        //   return;
 
         // Control volume if a key was bounded
         default:
@@ -199,16 +205,15 @@ const App = () => {
       <Column width="1/5">
         <Stack space={0}>
           <Headline size="large">Night Focus</Headline>
-          <Focusable ref={searchBarFocusRef}>
-            <SearchBar
-              placeholder="Type here..."
-              value={searchQuery}
-              onChange={setSearchQuery}
-            />
-          </Focusable>
+          <SearchBar
+            data-focus-id="searchbar"
+            placeholder="Type here..."
+            value={searchQuery}
+            onChange={setSearchQuery}
+          />
           <ItemList
             items={displayedSource.map(({ id, name }) => ({ id, label: name }))}
-            isFocused={(_, index) => index == sourceFocus}
+            // isFocused={(_, index) => index == sourceFocus}
             isClickable={({ id }) => !tracks.map((x) => x.id).includes(id)}
             onClick={({ id }) => {
               const s = displayedSource.find((s) => s.id === id);
@@ -222,8 +227,10 @@ const App = () => {
           <Stack space={4}>
             {tracks.map((track, index) => (
               <li
+                tabIndex={0}
+                data-focus-id={`track-${index}`}
                 key={track.id}
-                style={index == trackFocus ? { background: "lightgray" } : {}}
+                // style={index == trackFocus ? { background: "lightgray" } : {}}
               >
                 <span>
                   {keyBindings.find((x) => x.target === track.id)?.key}

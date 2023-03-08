@@ -1,52 +1,120 @@
-import { useEffect, useState } from "react";
+import { useFocusManager, FocusManagerOptions as FMO } from "@react-aria/focus";
+import { FocusableElement } from "@react-types/shared";
+import { useMemo, useState } from "react";
 
-export const useFocus: <T>(
-  items: Array<T>
-) => [
-  number | undefined,
-  (actionOrIndex?: "next" | "prev" | number) => void
-] = <T>(items: Array<T>) => {
-  const [focus, setFocus] = useState<number>();
-  useEffect(() => {
-    focus !== undefined && focus >= items.length && setFocus(undefined);
-  }, [items]);
+export interface FocusManagerOptions extends FMO {
+  find?: (focusId: string) => boolean;
+}
 
-  const move = (action: "next" | "prev") => {
-    if (items.length == 0) {
-      return setFocus(undefined);
-    }
+export interface FocusManager {
+  focusNext(opts?: FocusManagerOptions): FocusableElement;
+  focusPrevious(opts?: FocusManagerOptions): FocusableElement;
+  focusFirst(opts?: FocusManagerOptions): FocusableElement;
+  focusLast(opts?: FocusManagerOptions): FocusableElement;
+  focusClear(): void;
+  currentFocusId?: string;
+}
 
-    switch (action) {
-      case "next":
-        return setFocus(
-          focus === undefined || focus + 1 > items.length - 1 ? 0 : focus + 1
-        );
-      case "prev":
-        return setFocus(
-          focus === undefined || focus - 1 < 0 ? items.length - 1 : focus - 1
-        );
-    }
+/**
+ * @param dataAttrName A valid [data-*](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/data-*) attribute used to specify focus ids. Default is 'data-focus-id'.
+ * @returns
+ */
+export const useFocus: (dataAttrName?: string) => FocusManager = (
+  dataAttrName = "data-focus-id"
+) => {
+  const overrideAccept: (
+    f: (focusId: string) => boolean
+  ) => (n: Element) => boolean = (f) => (n) => {
+    const attr = n.getAttribute(dataAttrName);
+    return attr ? f(attr) : false;
   };
 
-  const externalSetFocus = (
-    actionOrIndex?: "next" | "prev" | number | undefined
-  ) => {
-    switch (typeof actionOrIndex) {
-      case "string":
-        return move(actionOrIndex);
-      case "number":
-        if (
-          actionOrIndex < 0 ||
-          actionOrIndex > items.length ||
-          items.length === 0
-        ) {
-          return setFocus(undefined);
+  const overrideOpts = (opts?: FocusManagerOptions) =>
+    opts && opts.find
+      ? {
+          ...opts,
+          accept: overrideAccept(opts.find),
         }
-        return setFocus(actionOrIndex);
-      default:
-        return setFocus(undefined);
-    }
-  };
+      : opts;
 
-  return [focus, externalSetFocus];
+  const [currentFocusId, setCurrentFocusId] = useState<string>();
+  const overrideFn =
+    (fn: (opts?: FocusManagerOptions) => FocusableElement) =>
+    (opts?: FocusManagerOptions) => {
+      const elem = fn(overrideOpts(opts));
+      if (!elem) {
+        return elem;
+      }
+      const focusId = elem.getAttribute(dataAttrName);
+      focusId && setCurrentFocusId(focusId);
+      return elem;
+    };
+
+  const manager = useFocusManager();
+  const override = useMemo<FocusManager>(
+    () => ({
+      focusFirst: overrideFn(manager.focusFirst),
+      focusNext: overrideFn(manager.focusNext),
+      focusPrevious: overrideFn(manager.focusPrevious),
+      focusLast: overrideFn(manager.focusLast),
+      focusClear: () => {
+        (document.activeElement as HTMLElement).blur();
+        setCurrentFocusId(undefined);
+      },
+    }),
+    []
+  );
+
+  return { ...override, currentFocusId };
 };
+
+// export const useFocus: <T>(
+//   items: Array<T>
+// ) => [
+//   number | undefined,
+//   (actionOrIndex?: "next" | "prev" | number) => void
+// ] = <T>(items: Array<T>) => {
+//   const [focus, setFocus] = useState<number>();
+//   useEffect(() => {
+//     focus !== undefined && focus >= items.length && setFocus(undefined);
+//   }, [items]);
+
+//   const move = (action: "next" | "prev") => {
+//     if (items.length == 0) {
+//       return setFocus(undefined);
+//     }
+
+//     switch (action) {
+//       case "next":
+//         return setFocus(
+//           focus === undefined || focus + 1 > items.length - 1 ? 0 : focus + 1
+//         );
+//       case "prev":
+//         return setFocus(
+//           focus === undefined || focus - 1 < 0 ? items.length - 1 : focus - 1
+//         );
+//     }
+//   };
+
+//   const externalSetFocus = (
+//     actionOrIndex?: "next" | "prev" | number | undefined
+//   ) => {
+//     switch (typeof actionOrIndex) {
+//       case "string":
+//         return move(actionOrIndex);
+//       case "number":
+//         if (
+//           actionOrIndex < 0 ||
+//           actionOrIndex > items.length ||
+//           items.length === 0
+//         ) {
+//           return setFocus(undefined);
+//         }
+//         return setFocus(actionOrIndex);
+//       default:
+//         return setFocus(undefined);
+//     }
+//   };
+
+//   return [focus, externalSetFocus];
+// };

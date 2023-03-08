@@ -19,7 +19,11 @@ export const ItemList = (props: Props) => (
         }
       >
         {props.isClickable && props.isClickable(item) ? (
-          <a href="#" onClick={() => props.onClick && props.onClick(item)}>
+          <a
+            href="#"
+            onClick={() => props.onClick && props.onClick(item)}
+            data-focus-id={`source-${index}`}
+          >
             <Body size="small">{item.label}</Body>
           </a>
         ) : (
