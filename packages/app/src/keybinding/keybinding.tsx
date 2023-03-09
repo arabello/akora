@@ -24,36 +24,24 @@ type KeyBindingId = string;
 export type KeyBinding = CodeBinding &
   ModifierBinding & {
     id: KeyBindingId;
-    is: (target: KeyBinding) => boolean;
   };
 
 export const isKeyBinding = (obj: any): obj is KeyBinding =>
   isCodeBinding(obj) &&
   isModifierBinding(obj) &&
-  typeof (obj as KeyBinding).is === "function" &&
-  typeof (obj as KeyBinding).id === "function";
-
-const compare = (
-  a: Pick<KeyBinding, keyof CodeBinding | ModifierKey>,
-  b: Pick<KeyBinding, keyof CodeBinding | ModifierKey>
-) =>
-  a.code === b.code &&
-  a.altKey === b.altKey &&
-  a.ctrlKey === b.ctrlKey &&
-  a.metaKey === b.metaKey &&
-  a.shiftKey === b.shiftKey;
+  typeof (obj as KeyBinding).id === "string";
 
 const makeModifierBinding: (
   modifiers?: Partial<ModifierBinding>
 ) => ModifierBinding = (m) =>
-  Object.assign(
-    {},
-    ...modifierKeys.map(
-      m == undefined
-        ? (k) => ({ [k]: false })
-        : (k) => ({ [k]: m[k] === undefined ? false : m[k] })
-    )
-  );
+    Object.assign(
+      {},
+      ...modifierKeys.map(
+        m == undefined
+          ? (k) => ({ [k]: false })
+          : (k) => ({ [k]: m[k] === undefined ? false : m[k] })
+      )
+    );
 
 const makeKeyBindingData: (
   code: Code,
@@ -70,8 +58,7 @@ const makeKeyBinding: (
   const kbd = makeKeyBindingData(code, modifiers);
   return {
     ...kbd,
-    id: `${code}${modifierKeys.map((m) => (kbd[m] ? `-${m}` : ""))}`,
-    is: (t) => isCodeBinding(t) && isModifierBinding(t) && compare(kbd, t),
+    id: [code, ...modifierKeys.filter((m) => kbd[m])].join("-"),
   };
 };
 
@@ -82,28 +69,71 @@ type FromKeyboarEvent = ModifierBinding & {
 export const keyBindingFrom: (
   input: FromKeyboarEvent
 ) => KeyBinding | undefined = (i) =>
-  isCodeBinding(i) && isModifierBinding(i)
-    ? makeKeyBinding(i.code, i)
-    : undefined;
+    isCodeBinding(i) && isModifierBinding(i)
+      ? makeKeyBinding(i.code, i)
+      : undefined;
 
-type Keys = { [C in (typeof codesNames)[number]]: KeyBinding };
-export const keys: Keys = Object.assign(
-  {},
-  ...codes.map((code) => ({
-    [code.replace("Key", "").replace("Digit", "")]: makeKeyBinding(code),
-  }))
-);
+type ExportedKeyBindingsSimple = {
+  [C in (typeof codesNames)[number]]: KeyBinding;
+};
 
-export const meta: Keys = keys;
+const makeExportedKeyBindings: (
+  modifiers?: Partial<ModifierBinding>
+) => ExportedKeyBindingsSimple = (m) =>
+    Object.assign(
+      {},
+      ...codes.map((code) => ({
+        [code.replace("Key", "").replace("Digit", "")]: makeKeyBinding(code, m),
+      }))
+    );
 
-export const command = meta;
-export const window = meta;
+const exportedKeyBindingsKeys: ExportedKeyBindingsSimple =
+  makeExportedKeyBindings();
+const simplerModifiers = ["alt", "ctrl", "meta", "shift"] as const;
+type SimplerModifier = (typeof simplerModifiers)[number];
+
+type Composable<T extends SimplerModifier> = {
+  [K in T]: ExportedKeyBindingsSimple & Composable<Exclude<T, K>>;
+};
+
+// I can't read it either
+const f: <T extends SimplerModifier>(
+  modifiers: Array<SimplerModifier>
+) => Composable<T> = (m) =>
+    m.length === 1
+      ? Object.assign(
+        {},
+        makeExportedKeyBindings(),
+        ...m.map((x) => ({
+          [x]: makeExportedKeyBindings({ [`${x}Key`]: true }),
+        }))
+      )
+      : Object.assign(
+        {},
+        makeExportedKeyBindings(
+          Object.assign(
+            {},
+            ...simplerModifiers
+              .filter((s) => !m.includes(s))
+              .map((x) => ({ [`${x}Key`]: true }))
+          )
+        ),
+        ...m.map((x) => ({
+          [x]: f(m.filter((y) => y != x)),
+        }))
+      );
+
+type ExportedKeyBindings = Composable<SimplerModifier>;
+export const KB: ExportedKeyBindingsSimple & ExportedKeyBindings = {
+  ...exportedKeyBindingsKeys,
+  ...f(Array.from(simplerModifiers)),
+};
 
 type CodeMatch<R> = Record<KeyBindingId, () => R | void>;
 
 const defaultMatch: CodeMatch<void> = Object.assign(
   {},
-  ...codes.map((c) => ({ [c]: () => {} }))
+  ...codes.map((c) => ({ [c]: () => { } }))
 );
 export const match: <R>(
   match: Partial<CodeMatch<R>>

@@ -20,6 +20,7 @@ import {
   SearchBar,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
+import { keyBindingFrom, match, KB } from "./keybinding";
 
 const mixer = new Mixer();
 
@@ -108,17 +109,27 @@ const App = () => {
   const { currentFocusId, focusFirst, focusNext, focusPrevious, focusClear } =
     useFocus();
 
+  const onKeyBindingPress = match({
+    [KB.Escape.id]: () => {
+      setSearchQuery("");
+      focusClear();
+    },
+    [KB.meta.K.id]: () =>
+      focusFirst({ find: (id) => id.includes("searchbar") }),
+  });
+
   useEffect(() => {
     if (!keyPress) {
       return;
     }
 
-    if (keyPress.code === "Escape") {
-      setSearchQuery("");
-      focusClear();
+    const keyBinding = keyBindingFrom(keyPress);
+
+    if (!keyBinding) {
       return;
     }
 
+    onKeyBindingPress(keyBinding);
     if (
       currentFocusId?.includes("source") ||
       currentFocusId?.includes("searchbar")
@@ -138,10 +149,6 @@ const App = () => {
           return;
         case "ArrowDown":
           focusNext({ find: (id) => id.includes("source"), wrap: true });
-          return;
-        case "KeyK":
-          (keyPress.metaKey || keyPress.ctrlKey) &&
-            focusFirst({ find: (id) => id.includes("searchbar") });
           return;
       }
     } else {
