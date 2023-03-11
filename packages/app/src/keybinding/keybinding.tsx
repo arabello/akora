@@ -34,14 +34,14 @@ export const isKeyBinding = (obj: any): obj is KeyBinding =>
 const makeModifierBinding: (
   modifiers?: Partial<ModifierBinding>
 ) => ModifierBinding = (m) =>
-    Object.assign(
-      {},
-      ...modifierKeys.map(
-        m == undefined
-          ? (k) => ({ [k]: false })
-          : (k) => ({ [k]: m[k] === undefined ? false : m[k] })
-      )
-    );
+  Object.assign(
+    {},
+    ...modifierKeys.map(
+      m == undefined
+        ? (k) => ({ [k]: false })
+        : (k) => ({ [k]: m[k] === undefined ? false : m[k] })
+    )
+  );
 
 const makeKeyBindingData: (
   code: Code,
@@ -69,9 +69,9 @@ type FromKeyboarEvent = ModifierBinding & {
 export const keyBindingFrom: (
   input: FromKeyboarEvent
 ) => KeyBinding | undefined = (i) =>
-    isCodeBinding(i) && isModifierBinding(i)
-      ? makeKeyBinding(i.code, i)
-      : undefined;
+  isCodeBinding(i) && isModifierBinding(i)
+    ? makeKeyBinding(i.code, i)
+    : undefined;
 
 type ExportedKeyBindingsSimple = {
   [C in (typeof codesNames)[number]]: KeyBinding;
@@ -80,12 +80,12 @@ type ExportedKeyBindingsSimple = {
 const makeExportedKeyBindings: (
   modifiers?: Partial<ModifierBinding>
 ) => ExportedKeyBindingsSimple = (m) =>
-    Object.assign(
-      {},
-      ...codes.map((code) => ({
-        [code.replace("Key", "").replace("Digit", "")]: makeKeyBinding(code, m),
-      }))
-    );
+  Object.assign(
+    {},
+    ...codes.map((code) => ({
+      [code.replace("Key", "").replace("Digit", "")]: makeKeyBinding(code, m),
+    }))
+  );
 
 const exportedKeyBindingsKeys: ExportedKeyBindingsSimple =
   makeExportedKeyBindings();
@@ -100,15 +100,15 @@ type Composable<T extends SimplerModifier> = {
 const f: <T extends SimplerModifier>(
   modifiers: Array<SimplerModifier>
 ) => Composable<T> = (m) =>
-    m.length === 1
-      ? Object.assign(
+  m.length === 1
+    ? Object.assign(
         {},
         makeExportedKeyBindings(),
         ...m.map((x) => ({
           [x]: makeExportedKeyBindings({ [`${x}Key`]: true }),
         }))
       )
-      : Object.assign(
+    : Object.assign(
         {},
         makeExportedKeyBindings(
           Object.assign(
@@ -131,11 +131,11 @@ export const KB: ExportedKeyBindingsSimple & ExportedKeyBindings = {
 
 type CodeMatch<R> = Record<KeyBindingId, () => R | void>;
 
-const defaultMatch: CodeMatch<void> = Object.assign(
-  {},
-  ...codes.map((c) => ({ [c]: () => { } }))
-);
 export const match: <R>(
   match: Partial<CodeMatch<R>>
-) => (target: KeyBinding) => R | void = (m) => (t) =>
-  Object.assign(defaultMatch, m)[t.code]();
+) => (target: KeyBinding) => R | void = (m) => (t) => {
+  const f = m[t.id];
+  if (typeof f === "function") {
+    return f();
+  }
+};

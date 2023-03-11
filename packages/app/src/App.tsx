@@ -109,13 +109,44 @@ const App = () => {
   const { currentFocusId, focusFirst, focusNext, focusPrevious, focusClear } =
     useFocus();
 
+  const navigationTarget =
+    currentFocusId?.includes("searchbar") || currentFocusId?.includes("source")
+      ? "source"
+      : "track";
+  const doWithFocusedTrack =
+    (fn: (trackId: string) => unknown) => (focusId: string) => {
+      const trackId = focusId.replace("track-", "");
+      const track = tracks.find((t) => t.id === trackId);
+      track && fn(track.id);
+    };
   const onKeyBindingPress = match({
     [KB.Escape.id]: () => {
       setSearchQuery("");
       focusClear();
     },
-    [KB.meta.K.id]: () =>
-      focusFirst({ find: (id) => id.includes("searchbar") }),
+    [KB.meta.K.id]: () => focusFirst({ find: (id) => id === "searchbar" }),
+    [KB.ArrowUp.id]: () =>
+      focusPrevious({
+        find: (id) => id.includes(navigationTarget),
+        wrap: true,
+      }),
+    [KB.ArrowDown.id]: () =>
+      focusNext({
+        find: (id) => id.includes(navigationTarget),
+        wrap: true,
+      }),
+    [KB.X.id]: () =>
+      currentFocusId && doWithFocusedTrack(removeTrack)(currentFocusId),
+    [KB.ArrowLeft.id]: () =>
+      currentFocusId &&
+      doWithFocusedTrack((trackId) => fadeTrackVolume(trackId, -VOLUME_STEP))(
+        currentFocusId
+      ),
+    [KB.ArrowRight.id]: () =>
+      currentFocusId &&
+      doWithFocusedTrack((trackId) => fadeTrackVolume(trackId, VOLUME_STEP))(
+        currentFocusId
+      ),
   });
 
   useEffect(() => {
@@ -130,60 +161,11 @@ const App = () => {
     }
 
     onKeyBindingPress(keyBinding);
-    if (
-      currentFocusId?.includes("source") ||
-      currentFocusId?.includes("searchbar")
-    ) {
-      switch (keyPress?.code) {
-        case "Enter":
-          // TODO
-          // document.activeElement === searchBarFocusRef.current &&
-          // sourceFocus !== undefined &&
-          // tracks.find((x) => x.id === displayedSource[sourceFocus].id) ===
-          // undefined &&
-          // loadTrack(displayedSource[sourceFocus]);
-          return;
-        // Sources navigation
-        case "ArrowUp":
-          focusPrevious({ find: (id) => id.includes("source"), wrap: true });
-          return;
-        case "ArrowDown":
-          focusNext({ find: (id) => id.includes("source"), wrap: true });
-          return;
-      }
-    } else {
-      switch (keyPress.code) {
-        case "KeyK":
-          (keyPress.metaKey || keyPress.ctrlKey) &&
-            focusFirst({ find: (id) => id.includes("searchbar") });
-          return;
 
-        // Tracks navigation
-        case "ArrowUp":
-          focusPrevious({ find: (id) => id.includes("track"), wrap: true });
-          return;
-        case "ArrowDown":
-          focusNext({ find: (id) => id.includes("track"), wrap: true });
-          return;
-        // case "ArrowRight":
-        //   trackFocus !== undefined &&
-        //     fadeTrackVolume(tracks[trackFocus].id, VOLUME_STEP);
-        //   return;
-        // case "ArrowLeft":
-        //   trackFocus !== undefined &&
-        //     fadeTrackVolume(tracks[trackFocus].id, -VOLUME_STEP);
-        //   return;
-        // case "KeyX":
-        //   trackFocus !== undefined && removeTrack(tracks[trackFocus].id);
-        //   return;
-
-        // Control volume if a key was bounded
-        default:
-          const id = keyBindings.find((x) => x.code === keyPress.code)?.target;
-          id && fadeTrackVolume(id, (keyPress.shiftKey ? -1 : 1) * VOLUME_STEP);
-          return;
-      }
-    }
+    // TODO: Control volume if a key was bounded
+    // const id = keyBindings.find((x) => x.code === keyPress.code)?.target;
+    // id && fadeTrackVolume(id, (keyPress.shiftKey ? -1 : 1) * VOLUME_STEP);
+    // return;
   }, [keyPress]);
 
   /**
@@ -232,12 +214,12 @@ const App = () => {
       <ContentBlock maxWidth={700} alignSelf="center">
         <Stack space={0}>
           <Stack space={4}>
-            {tracks.map((track, index) => (
+            {tracks.map((track) => (
               <li
                 tabIndex={0}
-                data-focus-id={`track-${index}`}
+                data-focus-id={`track-${track.id}`}
                 key={track.id}
-                // style={index == trackFocus ? { background: "lightgray" } : {}}
+              // style={index == trackFocus ? { background: "lightgray" } : {}}
               >
                 <span>
                   {keyBindings.find((x) => x.target === track.id)?.key}
