@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import { ItemList } from "./ItemList";
 import { SearchSources } from "./search";
 import Mixer from "./mixer";
-import { isKeyBinding, isTrack, KeyBinding, Source, Track } from "./model";
+import { isTrack, Source, Track } from "./model";
 import {
   LocalStorageSessionRepository,
   SessionRepository,
   SourcesRepository,
   StaticSourcesRepository,
 } from "./repository";
-import { useKeyBinding, useKeyPress } from "./useKeyPress";
 import { useFocus } from "./useFocus";
 import {
   Columns,
@@ -20,7 +19,8 @@ import {
   SearchBar,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
-import { keyBindingFrom, match, KB } from "./keybinding";
+import { KB, KeyBinding, keyBindingFrom, useKeyBinding } from "./keybinding";
+import { useKeyPress } from "./useKeyPress";
 
 const mixer = new Mixer();
 
@@ -31,12 +31,12 @@ const tracksSessionRepo: SessionRepository<Array<Track>> =
     (tracks: Array<Track>): tracks is Array<Track> =>
       (tracks as Array<Track>).every(isTrack)
   );
-const keybindingsSessionRepo: SessionRepository<Array<KeyBinding<string>>> =
-  new LocalStorageSessionRepository(
-    "keyBindings",
-    (tracks: Array<KeyBinding<string>>): tracks is Array<KeyBinding<string>> =>
-      (tracks as Array<KeyBinding<string>>).every(isKeyBinding)
-  );
+// const keybindingsSessionRepo: SessionRepository<Array<KeyBinding<string>>> =
+//   new LocalStorageSessionRepository(
+//     "keyBindings",
+//     (tracks: Array<KeyBinding<string>>): tracks is Array<KeyBinding<string>> =>
+//       (tracks as Array<KeyBinding<string>>).every(isKeyBinding)
+//   );
 const sourcesRepo: SourcesRepository = new StaticSourcesRepository();
 
 const VOLUME_STEP = 0.1;
@@ -86,7 +86,7 @@ const App = () => {
   const removeTrack = (id: string) => {
     mixer.remove(id);
     setTracks(tracks.filter((t) => t.id !== id));
-    setKeyBindings(keyBindings.filter((k) => k.target !== id));
+    // setKeyBindings(keyBindings.filter((k) => k.target !== id));
   };
 
   const fadeTrackVolume = (id: string, step: number) => {
@@ -103,23 +103,22 @@ const App = () => {
   /**
    * Keyboard
    */
-  const [keyBindings, setKeyBindings, keyBindingTarget, setKeyBindingTarget] =
-    useKeyBinding<string>();
-  const keyPress = useKeyPress();
-  const { currentFocusId, focusFirst, focusNext, focusPrevious, focusClear } =
-    useFocus();
+  const { currentFocusId, focusFirst, focusNext, focusPrevious, focusClear } = useFocus();
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") || currentFocusId?.includes("source")
       ? "source"
       : "track";
+
   const doWithFocusedTrack =
     (fn: (trackId: string) => unknown) => (focusId: string) => {
       const trackId = focusId.replace("track-", "");
       const track = tracks.find((t) => t.id === trackId);
       track && fn(track.id);
     };
-  const onKeyBindingPress = match({
+
+  const [tracksKeyBindings, setTracksKeyBindings] = useState<Record<string, KeyBinding>>({})
+  const [addKeyBinding, removeKeyBinding] = useKeyBinding({
     [KB.Escape.id]: () => {
       setSearchQuery("");
       focusClear();
@@ -135,8 +134,18 @@ const App = () => {
         find: (id) => id.includes(navigationTarget),
         wrap: true,
       }),
-    [KB.X.id]: () =>
-      currentFocusId && doWithFocusedTrack(removeTrack)(currentFocusId),
+    [KB.X.id]: () => {
+      if (currentFocusId) {
+        doWithFocusedTrack((trackId) => {
+          removeTrack(trackId)
+          const { [trackId]: kb, ...remaining } = tracksKeyBindings
+          if (kb) {
+            removeKeyBinding(kb)
+            setTracksKeyBindings(remaining)
+          }
+        })(currentFocusId)
+      }
+    },
     [KB.ArrowLeft.id]: () =>
       currentFocusId &&
       doWithFocusedTrack((trackId) => fadeTrackVolume(trackId, -VOLUME_STEP))(
@@ -149,24 +158,28 @@ const App = () => {
       ),
   });
 
+  const [bindingTrackId, setBindingTrackId] = useState<string>()
+  const bindingEvent = useKeyPress();
+
   useEffect(() => {
-    if (!keyPress) {
+    if (!bindingEvent || !bindingTrackId) {
       return;
     }
 
-    const keyBinding = keyBindingFrom(keyPress);
-
-    if (!keyBinding) {
+    const volumeUpKeyBinding = keyBindingFrom(bindingEvent);
+    if (!volumeUpKeyBinding) {
       return;
     }
+    const volumeDownKeyBinding = KB.shift[KB.codeName(volumeUpKeyBinding.code)]
 
-    onKeyBindingPress(keyBinding);
+    addKeyBinding({
+      [volumeUpKeyBinding.id]: () => !currentFocusId?.includes("searchbar") && fadeTrackVolume(bindingTrackId, VOLUME_STEP),
+      [volumeDownKeyBinding.id]: () => !currentFocusId?.includes("searchbar") && fadeTrackVolume(bindingTrackId, -VOLUME_STEP)
+    })
 
-    // TODO: Control volume if a key was bounded
-    // const id = keyBindings.find((x) => x.code === keyPress.code)?.target;
-    // id && fadeTrackVolume(id, (keyPress.shiftKey ? -1 : 1) * VOLUME_STEP);
-    // return;
-  }, [keyPress]);
+    setBindingTrackId(undefined)
+  }, [bindingEvent, bindingTrackId])
+
 
   /**
    * Session storage
@@ -178,16 +191,16 @@ const App = () => {
       });
       setTracks(x);
     });
-    keybindingsSessionRepo.fetch().then((x) => setKeyBindings(x));
+    // keybindingsSessionRepo.fetch().then((x) => setKeyBindings(x));
   }, []);
 
   useEffect(() => {
     tracksSessionRepo.persist(tracks);
   }, [tracks]);
 
-  useEffect(() => {
-    keybindingsSessionRepo.persist(keyBindings);
-  }, [keyBindings]);
+  // useEffect(() => {
+  //   keybindingsSessionRepo.persist(keyBindings);
+  // }, [keyBindings]);
 
   return (
     <Columns space={24}>
@@ -222,7 +235,7 @@ const App = () => {
               // style={index == trackFocus ? { background: "lightgray" } : {}}
               >
                 <span>
-                  {keyBindings.find((x) => x.target === track.id)?.key}
+                  {/* {keyBindings.find((x) => x.target === track.id)?.key} */}
                 </span>
                 <button onClick={() => fadeTrackVolume(track.id, VOLUME_STEP)}>
                   +
@@ -234,10 +247,10 @@ const App = () => {
                 {` `}
                 <button onClick={() => removeTrack(track.id)}>x</button>
                 {` `}
-                {keyBindingTarget == track.id ? (
+                {bindingTrackId == track.id ? (
                   <button disabled>Binding...</button>
                 ) : (
-                  <button onClick={() => setKeyBindingTarget(track.id)}>
+                  <button onClick={() => setBindingTrackId(track.id)}>
                     Bind
                   </button>
                 )}

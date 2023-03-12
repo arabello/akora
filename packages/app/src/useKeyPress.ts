@@ -1,5 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { KeyBinding } from "./model";
+import { useEffect, useState } from "react";
 
 // https://usehooks.com/useKeyPress/
 // https://keyjs.dev/
@@ -20,43 +19,4 @@ export const useKeyPress = () => {
   }, []);
 
   return event;
-};
-
-export const useKeyBinding: <T>() => [
-  Array<KeyBinding<T>>,
-  Dispatch<SetStateAction<Array<KeyBinding<T>>>>,
-  T | undefined,
-  Dispatch<SetStateAction<T | undefined>>
-] = <T>() => {
-  const pressKeyEvent = useKeyPress();
-  const [target, setTarget] = useState<T>();
-  const [keyBindings, setKeyBindings] = useState<Array<KeyBinding<T>>>([]);
-
-  const put = (key: string, code: string, target: T) =>
-    setKeyBindings(
-      keyBindings
-        .filter((x) => x.code !== code)
-        .filter((x) => x.target !== target)
-        .concat({
-          key,
-          code,
-          target,
-        })
-    );
-
-  useEffect(() => {
-    if (
-      target &&
-      pressKeyEvent &&
-      !pressKeyEvent.metaKey &&
-      !pressKeyEvent.ctrlKey &&
-      !pressKeyEvent.altKey &&
-      !pressKeyEvent.shiftKey
-    ) {
-      put(pressKeyEvent.key, pressKeyEvent.code, target);
-      setTarget(undefined);
-    }
-  }, [pressKeyEvent]);
-
-  return [keyBindings, setKeyBindings, target, setTarget];
 };

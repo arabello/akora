@@ -1,4 +1,6 @@
-import { codes, codesNames } from "./consts";
+import { useEffect, useState } from "react";
+import { useKeyPress } from "../useKeyPress";
+import { codes, codeName } from "./consts";
 
 // https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values#code_values_on_mac
 type Code = (typeof codes)[number];
@@ -34,14 +36,14 @@ export const isKeyBinding = (obj: any): obj is KeyBinding =>
 const makeModifierBinding: (
   modifiers?: Partial<ModifierBinding>
 ) => ModifierBinding = (m) =>
-  Object.assign(
-    {},
-    ...modifierKeys.map(
-      m == undefined
-        ? (k) => ({ [k]: false })
-        : (k) => ({ [k]: m[k] === undefined ? false : m[k] })
-    )
-  );
+    Object.assign(
+      {},
+      ...modifierKeys.map(
+        m == undefined
+          ? (k) => ({ [k]: false })
+          : (k) => ({ [k]: m[k] === undefined ? false : m[k] })
+      )
+    );
 
 const makeKeyBindingData: (
   code: Code,
@@ -69,23 +71,24 @@ type FromKeyboarEvent = ModifierBinding & {
 export const keyBindingFrom: (
   input: FromKeyboarEvent
 ) => KeyBinding | undefined = (i) =>
-  isCodeBinding(i) && isModifierBinding(i)
-    ? makeKeyBinding(i.code, i)
-    : undefined;
+    isCodeBinding(i) && isModifierBinding(i)
+      ? makeKeyBinding(i.code, i)
+      : undefined;
 
+type CodeName = typeof codeName[Code]
 type ExportedKeyBindingsSimple = {
-  [C in (typeof codesNames)[number]]: KeyBinding;
+  [C in CodeName]: KeyBinding;
 };
 
 const makeExportedKeyBindings: (
   modifiers?: Partial<ModifierBinding>
 ) => ExportedKeyBindingsSimple = (m) =>
-  Object.assign(
-    {},
-    ...codes.map((code) => ({
-      [code.replace("Key", "").replace("Digit", "")]: makeKeyBinding(code, m),
-    }))
-  );
+    Object.assign(
+      {},
+      ...codes.map((code) => ({
+        [codeName[code]]: makeKeyBinding(code, m),
+      }))
+    );
 
 const exportedKeyBindingsKeys: ExportedKeyBindingsSimple =
   makeExportedKeyBindings();
@@ -100,15 +103,15 @@ type Composable<T extends SimplerModifier> = {
 const f: <T extends SimplerModifier>(
   modifiers: Array<SimplerModifier>
 ) => Composable<T> = (m) =>
-  m.length === 1
-    ? Object.assign(
+    m.length === 1
+      ? Object.assign(
         {},
         makeExportedKeyBindings(),
         ...m.map((x) => ({
           [x]: makeExportedKeyBindings({ [`${x}Key`]: true }),
         }))
       )
-    : Object.assign(
+      : Object.assign(
         {},
         makeExportedKeyBindings(
           Object.assign(
@@ -124,18 +127,51 @@ const f: <T extends SimplerModifier>(
       );
 
 type ExportedKeyBindings = Composable<SimplerModifier>;
-export const KB: ExportedKeyBindingsSimple & ExportedKeyBindings = {
+export const KB: ExportedKeyBindingsSimple &
+  ExportedKeyBindings & { codeName: (code: Code) => CodeName } = {
   ...exportedKeyBindingsKeys,
   ...f(Array.from(simplerModifiers)),
+  codeName: (c) => codeName[c],
 };
 
-type CodeMatch<R> = Record<KeyBindingId, () => R | void>;
+type Actions<R> = Record<KeyBindingId, () => R | void>;
 
 export const match: <R>(
-  match: Partial<CodeMatch<R>>
+  actions: Partial<Actions<R>>
 ) => (target: KeyBinding) => R | void = (m) => (t) => {
   const f = m[t.id];
   if (typeof f === "function") {
     return f();
   }
 };
+
+export const useKeyBinding:
+  <R>(initActions: Actions<R>) => [
+    (newActions: Actions<R>) => void,
+    (keyBinding: KeyBinding) => void
+  ]
+  = <R,>(initActions: Actions<R>) => {
+    const keyPress = useKeyPress();
+    const [actions, setActions] = useState(initActions);
+    const putAction = (newActions: Actions<R>) => setActions({ ...actions, ...newActions })
+    const removeAction = (keyBinding: KeyBinding) => {
+      const { [keyBinding.id]: _, ...remainingActions } = actions;
+      setActions(remainingActions);
+    };
+
+    useEffect(() => {
+      if (!keyPress) {
+        return;
+      }
+
+      const keyBinding = keyBindingFrom(keyPress);
+
+      if (!keyBinding) {
+        return;
+      }
+
+      match(actions)(keyBinding);
+    }, [keyPress]);
+
+    return [putAction, removeAction];
+  };
