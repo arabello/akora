@@ -19,7 +19,7 @@ import {
   SearchBar,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
-import { KB, KeyBinding, keyBindingFrom, useKeyBinding } from "./keybinding";
+import { KB, KeyBinding, keyBindingFrom, useKeyBinding } from "keybinding";
 import { useKeyPress } from "./useKeyPress";
 
 const mixer = new Mixer();

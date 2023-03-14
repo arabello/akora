@@ -12,4 +12,4 @@ export {
   DesignSystemProvider,
 } from "@buildo/bento-design-system";
 export const BentoProvider = createBentoProvider();
-export { SearchBar, Focusable } from "./components";
+export { SearchBar } from "./components";

@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useKeyPress } from "../useKeyPress";
+
 import { codes, codeName } from "./consts";
 
 // https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values#code_values_on_mac
@@ -134,7 +133,7 @@ export const KB: ExportedKeyBindingsSimple &
   codeName: (c) => codeName[c],
 };
 
-type Actions<R> = Record<KeyBindingId, () => R | void>;
+export type Actions<R> = Record<KeyBindingId, () => R | void>;
 
 export const match: <R>(
   actions: Partial<Actions<R>>
@@ -144,34 +143,3 @@ export const match: <R>(
     return f();
   }
 };
-
-export const useKeyBinding:
-  <R>(initActions: Actions<R>) => [
-    (newActions: Actions<R>) => void,
-    (keyBinding: KeyBinding) => void
-  ]
-  = <R,>(initActions: Actions<R>) => {
-    const keyPress = useKeyPress();
-    const [actions, setActions] = useState(initActions);
-    const putAction = (newActions: Actions<R>) => setActions({ ...actions, ...newActions })
-    const removeAction = (keyBinding: KeyBinding) => {
-      const { [keyBinding.id]: _, ...remainingActions } = actions;
-      setActions(remainingActions);
-    };
-
-    useEffect(() => {
-      if (!keyPress) {
-        return;
-      }
-
-      const keyBinding = keyBindingFrom(keyPress);
-
-      if (!keyBinding) {
-        return;
-      }
-
-      match(actions)(keyBinding);
-    }, [keyPress]);
-
-    return [putAction, removeAction];
-  };

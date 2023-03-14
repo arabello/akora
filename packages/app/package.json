@@ -2,6 +2,7 @@
   "name": "@night-focus/app",
   "version": "0.1.0",
   "private": true,
+  "author": "Matteo Pellegrino <matteo.pell.pellegrino@gmail.com> (https://matteopellegrino.dev)",
   "dependencies": {
     "@night-focus/design-system": "*",
     "@react-aria/focus": "^3.11.0",

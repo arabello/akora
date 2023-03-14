@@ -1,0 +1,22 @@
+{
+  "name": "keybinding",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Matteo Pellegrino <matteo.pell.pellegrino@gmail.com> (https://matteopellegrino.dev)",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsup --minify --clean",
+    "start": "tsup --watch",
+    "prettier-write": "prettier --write src",
+    "prettier-check": "prettier --check src"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "prettier": "^2.8.4",
+    "tsup": "^6.6.3"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
