@@ -103,13 +103,14 @@ const App = () => {
   /**
    * Keyboard
    */
-  const { currentFocusId, focusFirst, focusNext, focusPrevious, focusClear } = useFocus();
+  const { currentFocusId, focusFirst, focusNext, focusPrevious, focusClear } =
+    useFocus();
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") || currentFocusId?.includes("source")
       ? "source"
       : "track";
-      
+
   const doWithFocusedTrack =
     (fn: (trackId: string) => unknown) => (focusId: string) => {
       const trackId = focusId.replace("track-", "");
@@ -117,48 +118,53 @@ const App = () => {
       track && fn(track.id);
     };
 
-  const [tracksKeyBindings, setTracksKeyBindings] = useState<Record<string, KeyBinding>>({})
-  const [addKeyBinding, removeKeyBinding] = useKeyBinding({
-    [KB.Escape.id]: () => {
-      setSearchQuery("");
-      focusClear();
+  const [tracksKeyBindings, setTracksKeyBindings] = useState<
+    Record<string, KeyBinding>
+  >({});
+  const [addKeyBinding, removeKeyBinding] = useKeyBinding(
+    {
+      [KB.Escape.id]: () => {
+        setSearchQuery("");
+        focusClear();
+      },
+      [KB.meta.K.id]: () => focusFirst({ find: (id) => id === "searchbar" }),
+      [KB.ArrowUp.id]: () =>
+        focusPrevious({
+          find: (id) => id.includes(navigationTarget),
+          wrap: true,
+        }),
+      [KB.ArrowDown.id]: () =>
+        focusNext({
+          find: (id) => id.includes(navigationTarget),
+          wrap: true,
+        }),
+      [KB.X.id]: () => {
+        if (currentFocusId) {
+          doWithFocusedTrack((trackId) => {
+            removeTrack(trackId);
+            const { [trackId]: kb, ...remaining } = tracksKeyBindings;
+            if (kb) {
+              removeKeyBinding(kb);
+              setTracksKeyBindings(remaining);
+            }
+          })(currentFocusId);
+        }
+      },
+      [KB.ArrowLeft.id]: () =>
+        currentFocusId &&
+        doWithFocusedTrack((trackId) => fadeTrackVolume(trackId, -VOLUME_STEP))(
+          currentFocusId
+        ),
+      [KB.ArrowRight.id]: () =>
+        currentFocusId &&
+        doWithFocusedTrack((trackId) => fadeTrackVolume(trackId, VOLUME_STEP))(
+          currentFocusId
+        ),
     },
-    [KB.meta.K.id]: () => focusFirst({ find: (id) => id === "searchbar" }),
-    [KB.ArrowUp.id]: () =>
-      focusPrevious({
-        find: (id) => id.includes(navigationTarget),
-        wrap: true,
-      }),
-    [KB.ArrowDown.id]: () =>
-      focusNext({
-        find: (id) => id.includes(navigationTarget),
-        wrap: true,
-      }),
-    [KB.X.id]: () => {
-      if (currentFocusId) {
-        doWithFocusedTrack((trackId) => {
-          removeTrack(trackId)
-          const { [trackId]: kb, ...remaining } = tracksKeyBindings
-          if (kb) {
-            removeKeyBinding(kb)
-            setTracksKeyBindings(remaining)
-          }
-        })(currentFocusId)
-      }
-    },
-    [KB.ArrowLeft.id]: () =>
-      currentFocusId &&
-      doWithFocusedTrack((trackId) => fadeTrackVolume(trackId, -VOLUME_STEP))(
-        currentFocusId
-      ),
-    [KB.ArrowRight.id]: () =>
-      currentFocusId &&
-      doWithFocusedTrack((trackId) => fadeTrackVolume(trackId, VOLUME_STEP))(
-        currentFocusId
-      ),
-  }, [navigationTarget, currentFocusId]);
+    [navigationTarget, currentFocusId]
+  );
 
-  const [bindingTrackId, setBindingTrackId] = useState<string>()
+  const [bindingTrackId, setBindingTrackId] = useState<string>();
   const bindingEvent = useKeyPress();
 
   useEffect(() => {
@@ -170,16 +176,19 @@ const App = () => {
     if (!volumeUpKeyBinding) {
       return;
     }
-    const volumeDownKeyBinding = KB.shift[KB.codeName(volumeUpKeyBinding.code)]
+    const volumeDownKeyBinding = KB.shift[KB.codeName(volumeUpKeyBinding.code)];
 
     addKeyBinding({
-      [volumeUpKeyBinding.id]: () => !currentFocusId?.includes("searchbar") && fadeTrackVolume(bindingTrackId, VOLUME_STEP),
-      [volumeDownKeyBinding.id]: () => !currentFocusId?.includes("searchbar") && fadeTrackVolume(bindingTrackId, -VOLUME_STEP)
-    })
+      [volumeUpKeyBinding.id]: () =>
+        !currentFocusId?.includes("searchbar") &&
+        fadeTrackVolume(bindingTrackId, VOLUME_STEP),
+      [volumeDownKeyBinding.id]: () =>
+        !currentFocusId?.includes("searchbar") &&
+        fadeTrackVolume(bindingTrackId, -VOLUME_STEP),
+    });
 
-    setBindingTrackId(undefined)
-  }, [bindingEvent, bindingTrackId])
-
+    setBindingTrackId(undefined);
+  }, [bindingEvent, bindingTrackId]);
 
   /**
    * Session storage
@@ -232,7 +241,7 @@ const App = () => {
                 tabIndex={0}
                 data-focus-id={`track-${track.id}`}
                 key={track.id}
-              // style={index == trackFocus ? { background: "lightgray" } : {}}
+                // style={index == trackFocus ? { background: "lightgray" } : {}}
               >
                 <span>
                   {/* {keyBindings.find((x) => x.target === track.id)?.key} */}

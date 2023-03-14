@@ -1,4 +1,3 @@
-
 import { codes, codeName } from "./consts";
 
 // https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values#code_values_on_mac
@@ -35,14 +34,14 @@ export const isKeyBinding = (obj: any): obj is KeyBinding =>
 const makeModifierBinding: (
   modifiers?: Partial<ModifierBinding>
 ) => ModifierBinding = (m) =>
-    Object.assign(
-      {},
-      ...modifierKeys.map(
-        m == undefined
-          ? (k) => ({ [k]: false })
-          : (k) => ({ [k]: m[k] === undefined ? false : m[k] })
-      )
-    );
+  Object.assign(
+    {},
+    ...modifierKeys.map(
+      m == undefined
+        ? (k) => ({ [k]: false })
+        : (k) => ({ [k]: m[k] === undefined ? false : m[k] })
+    )
+  );
 
 const makeKeyBindingData: (
   code: Code,
@@ -70,11 +69,11 @@ type FromKeyboarEvent = ModifierBinding & {
 export const keyBindingFrom: (
   input: FromKeyboarEvent
 ) => KeyBinding | undefined = (i) =>
-    isCodeBinding(i) && isModifierBinding(i)
-      ? makeKeyBinding(i.code, i)
-      : undefined;
+  isCodeBinding(i) && isModifierBinding(i)
+    ? makeKeyBinding(i.code, i)
+    : undefined;
 
-type CodeName = typeof codeName[Code]
+type CodeName = (typeof codeName)[Code];
 type ExportedKeyBindingsSimple = {
   [C in CodeName]: KeyBinding;
 };
@@ -82,12 +81,12 @@ type ExportedKeyBindingsSimple = {
 const makeExportedKeyBindings: (
   modifiers?: Partial<ModifierBinding>
 ) => ExportedKeyBindingsSimple = (m) =>
-    Object.assign(
-      {},
-      ...codes.map((code) => ({
-        [codeName[code]]: makeKeyBinding(code, m),
-      }))
-    );
+  Object.assign(
+    {},
+    ...codes.map((code) => ({
+      [codeName[code]]: makeKeyBinding(code, m),
+    }))
+  );
 
 const exportedKeyBindingsKeys: ExportedKeyBindingsSimple =
   makeExportedKeyBindings();
@@ -102,15 +101,15 @@ type Composable<T extends SimplerModifier> = {
 const f: <T extends SimplerModifier>(
   modifiers: Array<SimplerModifier>
 ) => Composable<T> = (m) =>
-    m.length === 1
-      ? Object.assign(
+  m.length === 1
+    ? Object.assign(
         {},
         makeExportedKeyBindings(),
         ...m.map((x) => ({
           [x]: makeExportedKeyBindings({ [`${x}Key`]: true }),
         }))
       )
-      : Object.assign(
+    : Object.assign(
         {},
         makeExportedKeyBindings(
           Object.assign(
