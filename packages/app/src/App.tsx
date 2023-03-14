@@ -109,7 +109,7 @@ const App = () => {
     currentFocusId?.includes("searchbar") || currentFocusId?.includes("source")
       ? "source"
       : "track";
-
+      
   const doWithFocusedTrack =
     (fn: (trackId: string) => unknown) => (focusId: string) => {
       const trackId = focusId.replace("track-", "");
@@ -156,7 +156,7 @@ const App = () => {
       doWithFocusedTrack((trackId) => fadeTrackVolume(trackId, VOLUME_STEP))(
         currentFocusId
       ),
-  });
+  }, [navigationTarget, currentFocusId]);
 
   const [bindingTrackId, setBindingTrackId] = useState<string>()
   const bindingEvent = useKeyPress();
