@@ -2,14 +2,22 @@ import { createBentoProvider } from "@buildo/bento-design-system";
 import "@buildo/bento-design-system/lib/index.css";
 import "@buildo/bento-design-system/lib/defaultTheme.css";
 export {
-  Headline,
-  Stack,
-  TextField,
+  Body,
+  Box,
+  Card,
   Column,
   Columns,
-  Body,
   ContentBlock,
   DesignSystemProvider,
+  Headline,
+  IconButton,
+  IconChevronLeft,
+  IconChevronRight,
+  IconClose,
+  ProgressBar,
+  Stack,
+  TextField,
+  Title,
 } from "@buildo/bento-design-system";
 export const BentoProvider = createBentoProvider();
-export { SearchBar } from "./components";
+export * from "./components";

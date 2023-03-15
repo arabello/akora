@@ -17,9 +17,17 @@ import {
   Column,
   ContentBlock,
   SearchBar,
+  IconButton,
+  IconChevronLeft,
+  IconChevronRight,
+  IconClose,
+  ProgressBarCard,
+  Conceal,
+  Box,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
 import { KB, useKeyBinding } from "keybinding";
+import "./app.css";
 
 const mixer = new Mixer();
 
@@ -30,12 +38,6 @@ const tracksSessionRepo: SessionRepository<Array<Track>> =
     (tracks: Array<Track>): tracks is Array<Track> =>
       (tracks as Array<Track>).every(isTrack)
   );
-// const keybindingsSessionRepo: SessionRepository<Array<KeyBinding<string>>> =
-//   new LocalStorageSessionRepository(
-//     "keyBindings",
-//     (tracks: Array<KeyBinding<string>>): tracks is Array<KeyBinding<string>> =>
-//       (tracks as Array<KeyBinding<string>>).every(isKeyBinding)
-//   );
 const sourcesRepo: SourcesRepository = new StaticSourcesRepository();
 
 const VOLUME_STEP = 0.1;
@@ -59,12 +61,10 @@ const App = () => {
 
   useEffect(() => {
     if (searchQuery === "") {
-      // setSourceFocus();
       return setDisplayedSources(searchSources.getCollection());
     }
 
     searchSources.search(searchQuery).then(setDisplayedSources);
-    // .then(() => setSourceFocus(0));
   }, [searchQuery]);
 
   /**
@@ -82,22 +82,27 @@ const App = () => {
     );
   };
 
-  const removeTrack = (id: string) => {
-    mixer.remove(id);
-    setTracks(tracks.filter((t) => t.id !== id));
-    // setKeyBindings(keyBindings.filter((k) => k.target !== id));
+  const removeTrack = (trackId: string) => {
+    mixer.remove(trackId);
+    setTracks(tracks.filter((t) => t.id !== trackId));
   };
 
-  const fadeTrackVolume = (id: string, step: number) => {
+  const fadeTrackVolume = (trackId: string, step: number) => {
     try {
-      const updatedVolume = mixer.channel(id).fader(step);
+      const updatedVolume = mixer.channel(trackId).fader(step);
       setTracks(
-        tracks.map((t) => (t.id === id ? { ...t, volume: updatedVolume } : t))
+        tracks.map((t) =>
+          t.id === trackId ? { ...t, volume: updatedVolume } : t
+        )
       );
     } catch (e) {
       console.error(e);
     }
   };
+
+  const volumeUp = (trackId: string) => fadeTrackVolume(trackId, VOLUME_STEP);
+  const volumeDown = (trackId: string) =>
+    fadeTrackVolume(trackId, -VOLUME_STEP);
 
   /**
    * Keyboard
@@ -110,12 +115,14 @@ const App = () => {
       ? "source"
       : "track";
 
-  const doWithFocusedTrack =
-    (fn: (trackId: string) => unknown) => (focusId: string) => {
-      const trackId = focusId.replace("track-", "");
-      const track = tracks.find((t) => t.id === trackId);
-      track && fn(track.id);
-    };
+  const withFocusedTrackDo = (fn: (trackId: string) => unknown) => {
+    if (currentFocusId === undefined) {
+      return;
+    }
+    const trackId = currentFocusId.replace("track-", "");
+    const track = tracks.find((t) => t.id === trackId);
+    track && fn(track.id);
+  };
 
   useKeyBinding(
     {
@@ -134,22 +141,13 @@ const App = () => {
           find: (id) => id.includes(navigationTarget),
           wrap: true,
         }),
-      [KB.X.id]: () => {
-        if (currentFocusId) {
-          doWithFocusedTrack(removeTrack)(currentFocusId);
+      [KB.X.id]: () =>
+        withFocusedTrackDo((trackId) => {
+          removeTrack(trackId);
           focusClear();
-        }
-      },
-      [KB.ArrowLeft.id]: () =>
-        currentFocusId &&
-        doWithFocusedTrack((trackId) => fadeTrackVolume(trackId, -VOLUME_STEP))(
-          currentFocusId
-        ),
-      [KB.ArrowRight.id]: () =>
-        currentFocusId &&
-        doWithFocusedTrack((trackId) => fadeTrackVolume(trackId, VOLUME_STEP))(
-          currentFocusId
-        ),
+        }),
+      [KB.ArrowLeft.id]: () => withFocusedTrackDo(volumeDown),
+      [KB.ArrowRight.id]: () => withFocusedTrackDo(volumeUp),
     },
     [navigationTarget, currentFocusId]
   );
@@ -164,17 +162,75 @@ const App = () => {
       });
       setTracks(x);
     });
-    // keybindingsSessionRepo.fetch().then((x) => setKeyBindings(x));
   }, []);
 
   useEffect(() => {
     tracksSessionRepo.persist(tracks);
   }, [tracks]);
 
-  // useEffect(() => {
-  //   keybindingsSessionRepo.persist(keyBindings);
-  // }, [keyBindings]);
-
+  const tracksRender = tracks.map((track) => {
+    const focusId = `track-${track.id}`;
+    const isFocused = currentFocusId === focusId;
+    const iconRemove = (
+      <Conceal visible={isFocused}>
+        <IconButton
+          icon={IconClose}
+          size={8}
+          kind="transparent"
+          hierarchy="primary"
+          label=""
+          onPress={() =>
+            withFocusedTrackDo((trackId) => {
+              removeTrack(trackId);
+              focusClear();
+            })
+          }
+        />
+      </Conceal>
+    );
+    return (
+      <Box
+        key={`track-container-${track.id}`}
+        onMouseEnter={() => focusFirst({ find: (id) => id === focusId })}
+        onMouseLeave={() => focusClear()}
+      >
+        <Columns space={24} alignY="center">
+          <Column width="content">
+            <Conceal visible={isFocused}>
+              <IconButton
+                icon={IconChevronLeft}
+                size={8}
+                kind="transparent"
+                hierarchy="primary"
+                label=""
+                onPress={() => volumeDown(track.id)}
+              />
+            </Conceal>
+          </Column>
+          <ProgressBarCard
+            key={track.id}
+            data-focus-id={focusId}
+            title={track.name}
+            progress={track.volume}
+            background={isFocused ? "backgroundSecondary" : "backgroundPrimary"}
+            icon={iconRemove}
+          />
+          <Column width="content">
+            <Conceal visible={isFocused}>
+              <IconButton
+                icon={IconChevronRight}
+                size={8}
+                kind="transparent"
+                hierarchy="primary"
+                label=""
+                onPress={() => volumeUp(track.id)}
+              />
+            </Conceal>
+          </Column>
+        </Columns>
+      </Box>
+    );
+  });
   return (
     <Columns space={24}>
       <Column width="1/5">
@@ -199,32 +255,7 @@ const App = () => {
       </Column>
       <ContentBlock maxWidth={700} alignSelf="center">
         <Stack space={0}>
-          <Stack space={4}>
-            {tracks.map((track) => (
-              <li
-                tabIndex={0}
-                data-focus-id={`track-${track.id}`}
-                key={track.id}
-              // style={index == trackFocus ? { background: "lightgray" } : {}}
-              >
-                <button onClick={() => fadeTrackVolume(track.id, VOLUME_STEP)}>
-                  +
-                </button>
-                {` `}
-                <button onClick={() => fadeTrackVolume(track.id, -VOLUME_STEP)}>
-                  -
-                </button>
-                {` `}
-                <button onClick={() => removeTrack(track.id)}>x</button>
-                {` `}
-                <span>{track.name}</span>
-                {` `}
-                {track.volume > 0 && <span>|</span>}
-                <span>{`-`.repeat(Math.round(track.volume * 10))}</span>
-                {track.volume == 1 && <span>|</span>}
-              </li>
-            ))}
-          </Stack>
+          <Stack space={4}>{tracksRender}</Stack>
         </Stack>
       </ContentBlock>
     </Columns>
