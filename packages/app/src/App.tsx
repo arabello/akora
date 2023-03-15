@@ -19,8 +19,7 @@ import {
   SearchBar,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
-import { KB, KeyBinding, keyBindingFrom, useKeyBinding } from "keybinding";
-import { useKeyPress } from "./useKeyPress";
+import { KB, useKeyBinding } from "keybinding";
 
 const mixer = new Mixer();
 
@@ -118,10 +117,7 @@ const App = () => {
       track && fn(track.id);
     };
 
-  const [tracksKeyBindings, setTracksKeyBindings] = useState<
-    Record<string, KeyBinding>
-  >({});
-  const [addKeyBinding, removeKeyBinding] = useKeyBinding(
+  useKeyBinding(
     {
       [KB.Escape.id]: () => {
         setSearchQuery("");
@@ -140,14 +136,8 @@ const App = () => {
         }),
       [KB.X.id]: () => {
         if (currentFocusId) {
-          doWithFocusedTrack((trackId) => {
-            removeTrack(trackId);
-            const { [trackId]: kb, ...remaining } = tracksKeyBindings;
-            if (kb) {
-              removeKeyBinding(kb);
-              setTracksKeyBindings(remaining);
-            }
-          })(currentFocusId);
+          doWithFocusedTrack(removeTrack)(currentFocusId);
+          focusClear();
         }
       },
       [KB.ArrowLeft.id]: () =>
@@ -163,32 +153,6 @@ const App = () => {
     },
     [navigationTarget, currentFocusId]
   );
-
-  const [bindingTrackId, setBindingTrackId] = useState<string>();
-  const bindingEvent = useKeyPress();
-
-  useEffect(() => {
-    if (!bindingEvent || !bindingTrackId) {
-      return;
-    }
-
-    const volumeUpKeyBinding = keyBindingFrom(bindingEvent);
-    if (!volumeUpKeyBinding) {
-      return;
-    }
-    const volumeDownKeyBinding = KB.shift[KB.codeName(volumeUpKeyBinding.code)];
-
-    addKeyBinding({
-      [volumeUpKeyBinding.id]: () =>
-        !currentFocusId?.includes("searchbar") &&
-        fadeTrackVolume(bindingTrackId, VOLUME_STEP),
-      [volumeDownKeyBinding.id]: () =>
-        !currentFocusId?.includes("searchbar") &&
-        fadeTrackVolume(bindingTrackId, -VOLUME_STEP),
-    });
-
-    setBindingTrackId(undefined);
-  }, [bindingEvent, bindingTrackId]);
 
   /**
    * Session storage
@@ -241,11 +205,8 @@ const App = () => {
                 tabIndex={0}
                 data-focus-id={`track-${track.id}`}
                 key={track.id}
-                // style={index == trackFocus ? { background: "lightgray" } : {}}
+              // style={index == trackFocus ? { background: "lightgray" } : {}}
               >
-                <span>
-                  {/* {keyBindings.find((x) => x.target === track.id)?.key} */}
-                </span>
                 <button onClick={() => fadeTrackVolume(track.id, VOLUME_STEP)}>
                   +
                 </button>
@@ -255,14 +216,6 @@ const App = () => {
                 </button>
                 {` `}
                 <button onClick={() => removeTrack(track.id)}>x</button>
-                {` `}
-                {bindingTrackId == track.id ? (
-                  <button disabled>Binding...</button>
-                ) : (
-                  <button onClick={() => setBindingTrackId(track.id)}>
-                    Bind
-                  </button>
-                )}
                 {` `}
                 <span>{track.name}</span>
                 {` `}
