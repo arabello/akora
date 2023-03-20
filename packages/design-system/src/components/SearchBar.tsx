@@ -1,4 +1,4 @@
-import { Body, TextField } from "@buildo/bento-design-system";
+import { Chip, TextField } from "@buildo/bento-design-system";
 
 type Props = Omit<React.ComponentProps<typeof TextField>, "label">;
 
@@ -7,10 +7,6 @@ export const SearchBar = (props: Props) => (
     {...props}
     label=""
     hint=""
-    rightAccessory={
-      <Body size="medium" color="secondary">
-        ⌘ + K
-      </Body>
-    }
+    rightAccessory={<Chip label="⌘ + K" color="grey" />}
   />
 );

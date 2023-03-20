@@ -231,6 +231,7 @@ const App = () => {
       </Box>
     );
   });
+
   return (
     <Columns space={24}>
       <Column width="1/5">
@@ -238,7 +239,8 @@ const App = () => {
           <Headline size="large">Night Focus</Headline>
           <SearchBar
             data-focus-id="searchbar"
-            placeholder="Type here..."
+            aria-label="Search for sources"
+            placeholder="Search for sources..."
             value={searchQuery}
             onChange={setSearchQuery}
           />
