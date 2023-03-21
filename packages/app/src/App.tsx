@@ -246,20 +246,27 @@ const App = () => {
             onChange={setSearchQuery}
           />
           <Stack space={4} as="ul" dividers={true}>
-            {displayedSource.map(s => {
+            {displayedSource.map((s) => {
               const focusId = `source-${s.id}`;
               const isFocused = currentFocusId === focusId;
-              const isLoaded = tracks.map((x) => x.id).includes(s.id)
-              return (<ListItem
-                key={s.id}
-                onMouseEnter={() => focusFirst({ find: (id) => id === focusId })}
-                onMouseLeave={() => focusClear()}
-                tabIndex={isLoaded ? undefined : 0}
-                data-focus-id={`source-${s.id}`}
-                status={isLoaded ? "disabled" : isFocused ? "focused" : "default"}
-                onClick={() => loadTrack(s)}>
-                {s.name}
-              </ListItem>)
+              const isLoaded = tracks.map((x) => x.id).includes(s.id);
+              return (
+                <ListItem
+                  key={s.id}
+                  onMouseEnter={() =>
+                    focusFirst({ find: (id) => id === focusId })
+                  }
+                  onMouseLeave={() => focusClear()}
+                  tabIndex={isLoaded ? undefined : 0}
+                  data-focus-id={`source-${s.id}`}
+                  status={
+                    isLoaded ? "disabled" : isFocused ? "focused" : "default"
+                  }
+                  onClick={() => loadTrack(s)}
+                >
+                  {s.name}
+                </ListItem>
+              );
             })}
           </Stack>
         </Stack>

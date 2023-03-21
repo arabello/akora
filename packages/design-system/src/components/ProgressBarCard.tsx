@@ -13,7 +13,7 @@ type Props = React.ComponentPropsWithRef<typeof Box> & {
   title: string;
   progress: number;
   icon?: JSX.Element;
-  status?: Exclude<Status, "disabled">
+  status?: Exclude<Status, "disabled">;
 };
 
 export const ProgressBarCard = (props: Props) => {
@@ -23,9 +23,7 @@ export const ProgressBarCard = (props: Props) => {
       <Box
         {...props}
         background={
-          status === "focused"
-            ? "backgroundSecondary"
-            : "backgroundPrimary"
+          status === "focused" ? "backgroundSecondary" : "backgroundPrimary"
         }
         paddingY={16}
         paddingX={32}
