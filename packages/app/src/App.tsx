@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { ItemList } from "./ItemList";
 import { SearchSources } from "./search";
 import Mixer from "./mixer";
 import { isTrack, Source, Track } from "./model";
@@ -24,6 +23,7 @@ import {
   ProgressBarCard,
   Conceal,
   Box,
+  ListItem,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
 import { KB, useKeyBinding } from "keybinding";
@@ -209,10 +209,11 @@ const App = () => {
           </Column>
           <ProgressBarCard
             key={track.id}
+            tabIndex={0}
             data-focus-id={focusId}
             title={track.name}
             progress={track.volume}
-            background={isFocused ? "backgroundSecondary" : "backgroundPrimary"}
+            status={isFocused ? "focused" : "default"}
             icon={iconRemove}
           />
           <Column width="content">
@@ -244,15 +245,23 @@ const App = () => {
             value={searchQuery}
             onChange={setSearchQuery}
           />
-          <ItemList
-            items={displayedSource.map(({ id, name }) => ({ id, label: name }))}
-            // isFocused={(_, index) => index == sourceFocus}
-            isClickable={({ id }) => !tracks.map((x) => x.id).includes(id)}
-            onClick={({ id }) => {
-              const s = displayedSource.find((s) => s.id === id);
-              s && loadTrack(s);
-            }}
-          />
+          <Stack space={4} as="ul" dividers={true}>
+            {displayedSource.map(s => {
+              const focusId = `source-${s.id}`;
+              const isFocused = currentFocusId === focusId;
+              const isLoaded = tracks.map((x) => x.id).includes(s.id)
+              return (<ListItem
+                key={s.id}
+                onMouseEnter={() => focusFirst({ find: (id) => id === focusId })}
+                onMouseLeave={() => focusClear()}
+                tabIndex={isLoaded ? undefined : 0}
+                data-focus-id={`source-${s.id}`}
+                status={isLoaded ? "disabled" : isFocused ? "focused" : "default"}
+                onClick={() => loadTrack(s)}>
+                {s.name}
+              </ListItem>)
+            })}
+          </Stack>
         </Stack>
       </Column>
       <ContentBlock maxWidth={700} alignSelf="center">
