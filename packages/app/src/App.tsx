@@ -24,6 +24,7 @@ import {
   Conceal,
   Box,
   ListItem,
+  Chip,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
 import { KB, useKeyBinding } from "keybinding";
@@ -124,6 +125,15 @@ const App = () => {
     track && fn(track.id);
   };
 
+  const withFocusedSourceDo = (fn: (source: Source) => unknown) => {
+    if (currentFocusId === undefined) {
+      return;
+    }
+    const sourceId = currentFocusId.replace("source-", "");
+    const source = displayedSource.find((s) => s.id === sourceId);
+    source && fn(source);
+  };
+
   useKeyBinding(
     {
       [KB.Escape.id]: () => {
@@ -141,6 +151,10 @@ const App = () => {
           find: (id) => id.includes(navigationTarget),
           wrap: true,
         }),
+      [KB.Enter.id]: () => withFocusedSourceDo(source => {
+        loadTrack(source);
+        focusClear();
+      }),
       [KB.X.id]: () =>
         withFocusedTrackDo((trackId) => {
           removeTrack(trackId);
@@ -245,6 +259,7 @@ const App = () => {
             placeholder="Search for sources..."
             value={searchQuery}
             onChange={setSearchQuery}
+            rightAccessory={<Chip label="⌘ + K" color="grey" />}
           />
           <Stack space={4} as="ul" dividers={true}>
             {displayedSource.map((s) => {
@@ -263,7 +278,11 @@ const App = () => {
                   status={
                     isLoaded ? "disabled" : isFocused ? "focused" : "default"
                   }
-                  onClick={() => loadTrack(s)}
+                  onClick={() => {
+                    loadTrack(s);
+                    focusClear();
+                  }}
+                  rightAccessory={isFocused ? <Chip label="⏎" color="grey" /> : undefined}
                 >
                   {s.name}
                 </ListItem>

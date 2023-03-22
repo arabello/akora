@@ -5,6 +5,7 @@ export {
   Body,
   Box,
   Card,
+  Chip,
   Column,
   Columns,
   ContentBlock,
