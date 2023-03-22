@@ -149,6 +149,7 @@ const App = () => {
       [KB.ArrowLeft.id]: () => withFocusedTrackDo(volumeDown),
       [KB.ArrowRight.id]: () => withFocusedTrackDo(volumeUp),
     },
+    [KB.ArrowDown, KB.ArrowUp],
     [navigationTarget, currentFocusId]
   );
 

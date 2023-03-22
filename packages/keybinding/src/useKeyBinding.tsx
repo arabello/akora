@@ -4,41 +4,46 @@ import { useKeyPress } from "./useKeyPress";
 
 export const useKeyBinding: <R>(
   initActions: Actions<R>,
+  preventDefault: Array<KeyBinding>,
   deps?: React.DependencyList
 ) => [(newActions: Actions<R>) => void, (keyBinding: KeyBinding) => void] = <
   R,
 >(
   initActions: Actions<R>,
+  preventDefault: Array<KeyBinding> = [],
   deps?: React.DependencyList
 ) => {
-  const keyPress = useKeyPress();
-  const [actions, setActions] = useState(initActions);
+    const keyPress = useKeyPress();
+    const [actions, setActions] = useState(initActions);
 
-  deps &&
+    deps &&
+      useEffect(() => {
+        setActions(initActions);
+      }, deps);
+
+    const putAction = (newActions: Actions<R>) =>
+      setActions({ ...actions, ...newActions });
+    const removeAction = (keyBinding: KeyBinding) => {
+      const { [keyBinding.id]: _, ...remainingActions } = actions;
+      setActions(remainingActions);
+    };
+
     useEffect(() => {
-      setActions(initActions);
-    }, deps);
+      if (!keyPress) {
+        return;
+      }
 
-  const putAction = (newActions: Actions<R>) =>
-    setActions({ ...actions, ...newActions });
-  const removeAction = (keyBinding: KeyBinding) => {
-    const { [keyBinding.id]: _, ...remainingActions } = actions;
-    setActions(remainingActions);
+      const keyBinding = keyBindingFrom(keyPress);
+
+      if (!keyBinding) {
+        return;
+      }
+
+      preventDefault.map(x => x.id).includes(keyBinding.id) &&
+        keyPress.preventDefault();
+
+      match(actions)(keyBinding);
+    }, [keyPress]);
+
+    return [putAction, removeAction];
   };
-
-  useEffect(() => {
-    if (!keyPress) {
-      return;
-    }
-
-    const keyBinding = keyBindingFrom(keyPress);
-
-    if (!keyBinding) {
-      return;
-    }
-
-    match(actions)(keyBinding);
-  }, [keyPress]);
-
-  return [putAction, removeAction];
-};
