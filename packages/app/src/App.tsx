@@ -43,6 +43,19 @@ const sourcesRepo: SourcesRepository = new StaticSourcesRepository();
 
 const VOLUME_STEP = 0.1;
 
+
+const makeFocusIdConversion = (prefix: string) => (
+  {
+    prefix,
+    to: (id: string) => `${prefix}-${id}`,
+    from: (focusId: string) => focusId.replace(`${prefix}-`, "")
+  }
+)
+const FID = {
+  track: makeFocusIdConversion('track'),
+  source: makeFocusIdConversion('source')
+}
+
 const App = () => {
   /**
    * Library
@@ -112,16 +125,15 @@ const App = () => {
     useFocus();
 
   const navigationTarget =
-    currentFocusId?.includes("searchbar") || currentFocusId?.includes("source")
-      ? "source"
-      : "track";
+    currentFocusId?.includes("searchbar") || currentFocusId?.includes(FID.source.prefix)
+      ? FID.source.prefix
+      : FID.track.prefix;
 
   const withFocusedTrackDo = (fn: (trackId: string) => unknown) => {
     if (currentFocusId === undefined) {
       return;
     }
-    const trackId = currentFocusId.replace("track-", "");
-    const track = tracks.find((t) => t.id === trackId);
+    const track = tracks.find((t) => t.id === FID.track.from(currentFocusId));
     track && fn(track.id);
   };
 
@@ -129,8 +141,7 @@ const App = () => {
     if (currentFocusId === undefined) {
       return;
     }
-    const sourceId = currentFocusId.replace("source-", "");
-    const source = displayedSource.find((s) => s.id === sourceId);
+    const source = displayedSource.find((s) => s.id === FID.source.from(currentFocusId));
     source && fn(source);
   };
 
@@ -153,12 +164,18 @@ const App = () => {
         }),
       [KB.Enter.id]: () => withFocusedSourceDo(source => {
         loadTrack(source);
-        focusClear();
+        focusNext({
+          find: (id) => id.includes(navigationTarget),
+          wrap: true,
+        })
       }),
       [KB.X.id]: () =>
         withFocusedTrackDo((trackId) => {
           removeTrack(trackId);
-          focusClear();
+          focusNext({
+            find: (id) => id.includes(navigationTarget),
+            wrap: true,
+          })
         }),
       [KB.ArrowLeft.id]: () => withFocusedTrackDo(volumeDown),
       [KB.ArrowRight.id]: () => withFocusedTrackDo(volumeUp),
@@ -184,8 +201,8 @@ const App = () => {
   }, [tracks]);
 
   const tracksRender = tracks.map((track) => {
-    const focusId = `track-${track.id}`;
-    const isFocused = currentFocusId === focusId;
+    const trackFID = FID.track.to(track.id);
+    const isFocused = currentFocusId === trackFID;
     const iconRemove = (
       <Conceal visible={isFocused}>
         <IconButton
@@ -206,7 +223,7 @@ const App = () => {
     return (
       <Box
         key={`track-container-${track.id}`}
-        onMouseEnter={() => focusFirst({ find: (id) => id === focusId })}
+        onMouseEnter={() => focusFirst({ find: (id) => id === trackFID })}
         onMouseLeave={() => focusClear()}
       >
         <Columns space={24} alignY="center">
@@ -225,7 +242,7 @@ const App = () => {
           <ProgressBarCard
             key={track.id}
             tabIndex={0}
-            data-focus-id={focusId}
+            data-focus-id={trackFID}
             title={track.name}
             progress={track.volume}
             status={isFocused ? "focused" : "default"}
@@ -263,18 +280,18 @@ const App = () => {
           />
           <Stack space={4} as="ul" dividers={true}>
             {displayedSource.map((s) => {
-              const focusId = `source-${s.id}`;
-              const isFocused = currentFocusId === focusId;
+              const sourceFID = FID.source.to(s.id);
+              const isFocused = currentFocusId === sourceFID;
               const isLoaded = tracks.map((x) => x.id).includes(s.id);
               return (
                 <ListItem
                   key={s.id}
                   onMouseEnter={() =>
-                    focusFirst({ find: (id) => id === focusId })
+                    focusFirst({ find: (id) => id === sourceFID })
                   }
                   onMouseLeave={() => focusClear()}
                   tabIndex={isLoaded ? undefined : 0}
-                  data-focus-id={`source-${s.id}`}
+                  data-focus-id={sourceFID}
                   status={
                     isLoaded ? "disabled" : isFocused ? "focused" : "default"
                   }
