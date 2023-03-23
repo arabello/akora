@@ -23,10 +23,7 @@ export class SearchSources {
     return this._collection;
   }
 
-  public search(query: string): Promise<Source[]> {
-    return new Promise((resolve) => {
-      const result = this._fuse.search(query);
-      resolve(result.map((r) => r.item));
-    });
+  public search(query: string): Source[] {
+    return this._fuse.search(query).map((r) => r.item);
   }
 }

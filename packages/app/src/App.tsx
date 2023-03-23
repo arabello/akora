@@ -60,54 +60,48 @@ const FID = {
 const ACTIONS_INFO = [
   {
     label: "⌘ + K",
-    desc: "Search"
+    desc: "Search",
   },
   {
     label: "▲ ▼",
-    desc: "Navigate tracks or sources"
+    desc: "Navigate tracks or sources",
   },
   {
     label: "⏎",
-    desc: "Load the focused source in tracks pool"
+    desc: "Load the focused source in tracks pool",
   },
   {
     label: "◄ ►",
-    desc: "Control track volume"
+    desc: "Control track volume",
   },
   {
     label: "x",
-    desc: "Remove track from pool"
+    desc: "Remove track from pool",
   },
   {
     label: "?",
-    desc: "Toggle this dialog"
-  }
-]
+    desc: "Toggle this dialog",
+  },
+];
 
 const App = () => {
   /**
    * Library
    */
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [displayedSource, setDisplayedSources] = useState<Array<Source>>([]);
+  const displayedSource =
+    searchQuery === ""
+      ? searchSources.getCollection()
+      : searchSources.search(searchQuery);
 
   useEffect(() => {
     sourcesRepo
       .fetchSources()
       .then((x) => {
         searchSources.setCollection(x);
-        setDisplayedSources(x);
       })
       .catch(console.error);
   }, []);
-
-  useEffect(() => {
-    if (searchQuery === "") {
-      return setDisplayedSources(searchSources.getCollection());
-    }
-
-    searchSources.search(searchQuery).then(setDisplayedSources);
-  }, [searchQuery]);
 
   /**
    * Tracks
@@ -116,27 +110,29 @@ const App = () => {
 
   const loadTrack = (source: Source) => {
     const chInfo = mixer.load(source.id, source.url);
-    setTracks(
-      tracks.concat({
-        ...source,
-        ...chInfo,
-      })
-    );
+    const newTracks = tracks.concat({
+      ...source,
+      ...chInfo,
+    });
+    tracksSessionRepo.persist(newTracks);
+    setTracks(newTracks);
   };
 
   const removeTrack = (trackId: string) => {
     mixer.remove(trackId);
-    setTracks(tracks.filter((t) => t.id !== trackId));
+    const newTracks = tracks.filter((t) => t.id !== trackId);
+    tracksSessionRepo.persist(newTracks);
+    setTracks(newTracks);
   };
 
   const fadeTrackVolume = (trackId: string, step: number) => {
     try {
       const updatedVolume = mixer.channel(trackId).fader(step);
-      setTracks(
-        tracks.map((t) =>
-          t.id === trackId ? { ...t, volume: updatedVolume } : t
-        )
+      const newTracks = tracks.map((t) =>
+        t.id === trackId ? { ...t, volume: updatedVolume } : t
       );
+      tracksSessionRepo.persist(newTracks);
+      setTracks(newTracks);
     } catch (e) {
       console.error(e);
     }
@@ -158,7 +154,7 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-      currentFocusId?.includes(FID.source.prefix)
+    currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
@@ -216,7 +212,7 @@ const App = () => {
         }),
       [KB.ArrowLeft.id]: () => withFocusedTrackDo(volumeDown),
       [KB.ArrowRight.id]: () => withFocusedTrackDo(volumeUp),
-      [KB.shift.Slash.id]: () => setShowKeybindingsModal(!showKeybindingsModal)
+      [KB.shift.Slash.id]: () => setShowKeybindingsModal(!showKeybindingsModal),
     },
     [KB.ArrowDown, KB.ArrowUp],
     [navigationTarget, currentFocusId]
@@ -233,10 +229,6 @@ const App = () => {
       setTracks(x);
     });
   }, []);
-
-  useEffect(() => {
-    tracksSessionRepo.persist(tracks);
-  }, [tracks]);
 
   /**
    * Rendering
@@ -364,23 +356,25 @@ const App = () => {
             hierarchy="primary"
             onPress={() => setShowKeybindingsModal(!showKeybindingsModal)}
           />
-          {showKeybindingsModal &&
-            <Modal title="Keybindings" onClose={() => setShowKeybindingsModal(false)}>
+          {showKeybindingsModal && (
+            <Modal
+              title="Keybindings"
+              onClose={() => setShowKeybindingsModal(false)}
+            >
               <Stack space={4}>
-                {ACTIONS_INFO.map(a => (
+                {ACTIONS_INFO.map((a) => (
                   <Columns space={16}>
                     <Column width="1/5">
                       <Chip label={a.label} color="grey" />
                     </Column>
                     <Column>
-                      <Body size="medium">
-                        {a.desc}
-                      </Body>
+                      <Body size="medium">{a.desc}</Body>
                     </Column>
                   </Columns>
                 ))}
               </Stack>
-            </Modal>}
+            </Modal>
+          )}
         </Column>
       </Columns>
     </Inset>
