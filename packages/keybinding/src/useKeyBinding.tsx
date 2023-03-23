@@ -13,37 +13,37 @@ export const useKeyBinding: <R>(
   preventDefault: Array<KeyBinding> = [],
   deps?: React.DependencyList
 ) => {
-    const keyPress = useKeyPress();
-    const [actions, setActions] = useState(initActions);
+  const keyPress = useKeyPress();
+  const [actions, setActions] = useState(initActions);
 
-    deps &&
-      useEffect(() => {
-        setActions(initActions);
-      }, deps);
-
-    const putAction = (newActions: Actions<R>) =>
-      setActions({ ...actions, ...newActions });
-    const removeAction = (keyBinding: KeyBinding) => {
-      const { [keyBinding.id]: _, ...remainingActions } = actions;
-      setActions(remainingActions);
-    };
-
+  deps &&
     useEffect(() => {
-      if (!keyPress) {
-        return;
-      }
+      setActions(initActions);
+    }, deps);
 
-      const keyBinding = keyBindingFrom(keyPress);
-
-      if (!keyBinding) {
-        return;
-      }
-
-      preventDefault.map(x => x.id).includes(keyBinding.id) &&
-        keyPress.preventDefault();
-
-      match(actions)(keyBinding);
-    }, [keyPress]);
-
-    return [putAction, removeAction];
+  const putAction = (newActions: Actions<R>) =>
+    setActions({ ...actions, ...newActions });
+  const removeAction = (keyBinding: KeyBinding) => {
+    const { [keyBinding.id]: _, ...remainingActions } = actions;
+    setActions(remainingActions);
   };
+
+  useEffect(() => {
+    if (!keyPress) {
+      return;
+    }
+
+    const keyBinding = keyBindingFrom(keyPress);
+
+    if (!keyBinding) {
+      return;
+    }
+
+    preventDefault.map((x) => x.id).includes(keyBinding.id) &&
+      keyPress.preventDefault();
+
+    match(actions)(keyBinding);
+  }, [keyPress]);
+
+  return [putAction, removeAction];
+};

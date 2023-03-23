@@ -18,6 +18,7 @@ type Props = React.ComponentPropsWithRef<typeof Box> & {
 
 export const ProgressBarCard = (props: Props) => {
   const status = props.status === undefined ? "default" : props.status;
+
   return (
     <Card elevation="small">
       <Box

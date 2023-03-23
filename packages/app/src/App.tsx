@@ -43,18 +43,15 @@ const sourcesRepo: SourcesRepository = new StaticSourcesRepository();
 
 const VOLUME_STEP = 0.1;
 
-
-const makeFocusIdConversion = (prefix: string) => (
-  {
-    prefix,
-    to: (id: string) => `${prefix}-${id}`,
-    from: (focusId: string) => focusId.replace(`${prefix}-`, "")
-  }
-)
+const makeFocusIdConversion = (prefix: string) => ({
+  prefix,
+  to: (id: string) => `${prefix}-${id}`,
+  from: (focusId: string) => focusId.replace(`${prefix}-`, ""),
+});
 const FID = {
-  track: makeFocusIdConversion('track'),
-  source: makeFocusIdConversion('source')
-}
+  track: makeFocusIdConversion("track"),
+  source: makeFocusIdConversion("source"),
+};
 
 const App = () => {
   /**
@@ -125,7 +122,8 @@ const App = () => {
     useFocus();
 
   const navigationTarget =
-    currentFocusId?.includes("searchbar") || currentFocusId?.includes(FID.source.prefix)
+    currentFocusId?.includes("searchbar") ||
+    currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
@@ -141,7 +139,9 @@ const App = () => {
     if (currentFocusId === undefined) {
       return;
     }
-    const source = displayedSource.find((s) => s.id === FID.source.from(currentFocusId));
+    const source = displayedSource.find(
+      (s) => s.id === FID.source.from(currentFocusId)
+    );
     source && fn(source);
   };
 
@@ -162,20 +162,21 @@ const App = () => {
           find: (id) => id.includes(navigationTarget),
           wrap: true,
         }),
-      [KB.Enter.id]: () => withFocusedSourceDo(source => {
-        loadTrack(source);
-        focusNext({
-          find: (id) => id.includes(navigationTarget),
-          wrap: true,
-        })
-      }),
+      [KB.Enter.id]: () =>
+        withFocusedSourceDo((source) => {
+          loadTrack(source);
+          focusNext({
+            find: (id) => id.includes(navigationTarget),
+            wrap: true,
+          });
+        }),
       [KB.X.id]: () =>
         withFocusedTrackDo((trackId) => {
           removeTrack(trackId);
           focusNext({
             find: (id) => id.includes(navigationTarget),
             wrap: true,
-          })
+          });
         }),
       [KB.ArrowLeft.id]: () => withFocusedTrackDo(volumeDown),
       [KB.ArrowRight.id]: () => withFocusedTrackDo(volumeUp),
@@ -299,7 +300,9 @@ const App = () => {
                     loadTrack(s);
                     focusClear();
                   }}
-                  rightAccessory={isFocused ? <Chip label="⏎" color="grey" /> : undefined}
+                  rightAccessory={
+                    isFocused ? <Chip label="⏎" color="grey" /> : undefined
+                  }
                 >
                   {s.name}
                 </ListItem>

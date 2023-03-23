@@ -1,4 +1,11 @@
-import { Bleed, Body, Box, Children, Column, Columns } from "@buildo/bento-design-system";
+import {
+  Bleed,
+  Body,
+  Box,
+  Children,
+  Column,
+  Columns,
+} from "@buildo/bento-design-system";
 import { Status } from "./types";
 
 type Props = React.ComponentProps<typeof Box> & {
@@ -31,9 +38,7 @@ export const ListItem = (props: Props) => {
           </Body>
         </Column>
         <Column width="content">
-          <Bleed spaceY={16}>
-            {props.rightAccessory}
-          </Bleed>
+          <Bleed spaceY={16}>{props.rightAccessory}</Bleed>
         </Column>
       </Columns>
     </Box>

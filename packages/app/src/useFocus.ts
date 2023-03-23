@@ -32,23 +32,23 @@ export const useFocus: (dataAttrName?: string) => FocusManager = (
   const overrideOpts = (opts?: FocusManagerOptions) =>
     opts && opts.find
       ? {
-        ...opts,
-        accept: overrideAccept(opts.find),
-      }
+          ...opts,
+          accept: overrideAccept(opts.find),
+        }
       : opts;
 
   const [currentFocusId, setCurrentFocusId] = useState<string>();
   const overrideFn =
     (fn: (opts?: FocusManagerOptions) => FocusableElement) =>
-      (opts?: FocusManagerOptions) => {
-        const elem = fn(overrideOpts(opts));
-        if (!elem) {
-          return elem;
-        }
-        const focusId = elem.getAttribute(dataAttrName);
-        focusId && setCurrentFocusId(focusId);
+    (opts?: FocusManagerOptions) => {
+      const elem = fn(overrideOpts(opts));
+      if (!elem) {
         return elem;
-      };
+      }
+      const focusId = elem.getAttribute(dataAttrName);
+      focusId && setCurrentFocusId(focusId);
+      return elem;
+    };
 
   const manager = useFocusManager();
   const override = useMemo<FocusManager>(
