@@ -21,10 +21,14 @@ import {
   IconChevronRight,
   IconClose,
   ProgressBarCard,
+  Modal,
   Conceal,
   Box,
   ListItem,
   Chip,
+  IconSliders,
+  Inset,
+  Body,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
 import { KB, useKeyBinding } from "keybinding";
@@ -52,6 +56,33 @@ const FID = {
   track: makeFocusIdConversion("track"),
   source: makeFocusIdConversion("source"),
 };
+
+const ACTIONS_INFO = [
+  {
+    label: "⌘ + K",
+    desc: "Search"
+  },
+  {
+    label: "▲ ▼",
+    desc: "Navigate tracks or sources"
+  },
+  {
+    label: "⏎",
+    desc: "Load the focused source in tracks pool"
+  },
+  {
+    label: "◄ ►",
+    desc: "Control track volume"
+  },
+  {
+    label: "x",
+    desc: "Remove track from pool"
+  },
+  {
+    label: "?",
+    desc: "Toggle this dialog"
+  }
+]
 
 const App = () => {
   /**
@@ -114,6 +145,10 @@ const App = () => {
   const volumeUp = (trackId: string) => fadeTrackVolume(trackId, VOLUME_STEP);
   const volumeDown = (trackId: string) =>
     fadeTrackVolume(trackId, -VOLUME_STEP);
+  /**
+   * Info dialog
+   */
+  const [showKeybindingsModal, setShowKeybindingsModal] = useState(false);
 
   /**
    * Keyboard
@@ -123,7 +158,7 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-    currentFocusId?.includes(FID.source.prefix)
+      currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
@@ -150,6 +185,7 @@ const App = () => {
       [KB.Escape.id]: () => {
         setSearchQuery("");
         focusClear();
+        setShowKeybindingsModal(false);
       },
       [KB.meta.K.id]: () => focusFirst({ find: (id) => id === "searchbar" }),
       [KB.ArrowUp.id]: () =>
@@ -180,6 +216,7 @@ const App = () => {
         }),
       [KB.ArrowLeft.id]: () => withFocusedTrackDo(volumeDown),
       [KB.ArrowRight.id]: () => withFocusedTrackDo(volumeUp),
+      [KB.shift.Slash.id]: () => setShowKeybindingsModal(!showKeybindingsModal)
     },
     [KB.ArrowDown, KB.ArrowUp],
     [navigationTarget, currentFocusId]
@@ -200,6 +237,32 @@ const App = () => {
   useEffect(() => {
     tracksSessionRepo.persist(tracks);
   }, [tracks]);
+
+  /**
+   * Rendering
+   */
+  const sourcesRender = displayedSource.map((s) => {
+    const sourceFID = FID.source.to(s.id);
+    const isFocused = currentFocusId === sourceFID;
+    const isLoaded = tracks.map((x) => x.id).includes(s.id);
+    return (
+      <ListItem
+        key={s.id}
+        onMouseEnter={() => focusFirst({ find: (id) => id === sourceFID })}
+        onMouseLeave={() => focusClear()}
+        tabIndex={isLoaded ? undefined : 0}
+        data-focus-id={sourceFID}
+        status={isLoaded ? "disabled" : isFocused ? "focused" : "default"}
+        onClick={() => {
+          loadTrack(s);
+          focusClear();
+        }}
+        rightAccessory={isFocused ? <Chip label="⏎" color="grey" /> : undefined}
+      >
+        {s.name}
+      </ListItem>
+    );
+  });
 
   const tracksRender = tracks.map((track) => {
     const trackFID = FID.track.to(track.id);
@@ -267,56 +330,60 @@ const App = () => {
   });
 
   return (
-    <Columns space={24}>
-      <Column width="1/5">
-        <Stack space={0}>
-          <Headline size="large">Night Focus</Headline>
-          <SearchBar
-            data-focus-id="searchbar"
-            aria-label="Search for sources"
-            placeholder="Search for sources..."
-            value={searchQuery}
-            onChange={setSearchQuery}
-            rightAccessory={<Chip label="⌘ + K" color="grey" />}
-          />
-          <Stack space={4} as="ul" dividers={true}>
-            {displayedSource.map((s) => {
-              const sourceFID = FID.source.to(s.id);
-              const isFocused = currentFocusId === sourceFID;
-              const isLoaded = tracks.map((x) => x.id).includes(s.id);
-              return (
-                <ListItem
-                  key={s.id}
-                  onMouseEnter={() =>
-                    focusFirst({ find: (id) => id === sourceFID })
-                  }
-                  onMouseLeave={() => focusClear()}
-                  tabIndex={isLoaded ? undefined : 0}
-                  data-focus-id={sourceFID}
-                  status={
-                    isLoaded ? "disabled" : isFocused ? "focused" : "default"
-                  }
-                  onClick={() => {
-                    loadTrack(s);
-                    focusClear();
-                  }}
-                  rightAccessory={
-                    isFocused ? <Chip label="⏎" color="grey" /> : undefined
-                  }
-                >
-                  {s.name}
-                </ListItem>
-              );
-            })}
+    <Inset spaceX={16} spaceY={16}>
+      <Columns space={24}>
+        <Column width="1/5">
+          <Stack space={16}>
+            <Inset spaceX={8}>
+              <Headline size="large">Night Focus</Headline>
+            </Inset>
+            <SearchBar
+              data-focus-id="searchbar"
+              aria-label="Search for sources"
+              placeholder="Search for sources..."
+              value={searchQuery}
+              onChange={setSearchQuery}
+              rightAccessory={<Chip label="⌘ + K" color="grey" />}
+            />
+            <Stack space={4}>{sourcesRender}</Stack>
           </Stack>
-        </Stack>
-      </Column>
-      <ContentBlock maxWidth={700} alignSelf="center">
-        <Stack space={0}>
-          <Stack space={4}>{tracksRender}</Stack>
-        </Stack>
-      </ContentBlock>
-    </Columns>
+        </Column>
+        <Column>
+          <ContentBlock maxWidth={700} alignSelf="center">
+            <Stack space={0}>
+              <Stack space={4}>{tracksRender}</Stack>
+            </Stack>
+          </ContentBlock>
+        </Column>
+        <Column width="content">
+          <IconButton
+            label=""
+            icon={IconSliders}
+            size={16}
+            kind="outline"
+            hierarchy="primary"
+            onPress={() => setShowKeybindingsModal(!showKeybindingsModal)}
+          />
+          {showKeybindingsModal &&
+            <Modal title="Keybindings" onClose={() => setShowKeybindingsModal(false)}>
+              <Stack space={4}>
+                {ACTIONS_INFO.map(a => (
+                  <Columns space={16}>
+                    <Column width="1/5">
+                      <Chip label={a.label} color="grey" />
+                    </Column>
+                    <Column>
+                      <Body size="medium">
+                        {a.desc}
+                      </Body>
+                    </Column>
+                  </Columns>
+                ))}
+              </Stack>
+            </Modal>}
+        </Column>
+      </Columns>
+    </Inset>
   );
 };
 

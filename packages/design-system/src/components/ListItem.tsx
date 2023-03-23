@@ -22,10 +22,10 @@ export const ListItem = (props: Props) => {
       {...props}
       cursor={status == "disabled" ? "default" : "pointer"}
       background={
-        status === "focused" ? "backgroundSecondary" : "backgroundPrimary"
+        status === "focused" ? "backgroundSecondary" : props.background
       }
-      paddingY={16}
-      paddingX={24}
+      paddingX={16}
+      paddingY={8}
       onClick={status === "disabled" ? undefined : props.onClick}
     >
       <Columns space={24} alignY="baseline">
