@@ -20,7 +20,7 @@ export const ProgressBarCard = (props: Props) => {
   const status = props.status === undefined ? "default" : props.status;
 
   return (
-    <Card elevation="small">
+    <Card>
       <Box
         {...props}
         background={
