@@ -63,15 +63,15 @@ const ACTIONS_INFO = [
     desc: "Search",
   },
   {
-    label: "▲ ▼",
-    desc: "Navigate tracks or sources",
-  },
-  {
     label: "⏎",
     desc: "Load the focused source in tracks pool",
   },
   {
-    label: "◄ ►",
+    label: "▲ ▼",
+    desc: "Navigate tracks or sources",
+  },
+  {
+    label: "◀ ▶",
     desc: "Control track volume",
   },
   {
@@ -154,7 +154,7 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-    currentFocusId?.includes(FID.source.prefix)
+      currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
