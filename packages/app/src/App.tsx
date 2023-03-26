@@ -154,7 +154,7 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-      currentFocusId?.includes(FID.source.prefix)
+    currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
@@ -223,9 +223,7 @@ const App = () => {
    */
   useEffect(() => {
     tracksSessionRepo.fetch().then((x) => {
-      x.map((x) => {
-        mixer.load(x.id, x.url, x.volume);
-      });
+      x.forEach((x) => mixer.load(x.id, x.url, x.volume));
       setTracks(x);
     });
   }, []);
