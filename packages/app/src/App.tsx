@@ -361,7 +361,7 @@ const App = () => {
             >
               <Stack space={4}>
                 {ACTIONS_INFO.map((a) => (
-                  <Columns space={16}>
+                  <Columns space={16} key={a.label}>
                     <Column width="1/5">
                       <Chip label={a.label} color="grey" />
                     </Column>
