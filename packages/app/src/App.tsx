@@ -59,34 +59,37 @@ const FID = {
   source: makeFocusIdConversion("source"),
 };
 
-const ACTIONS_INFO: Array<{ keybinding: string, secondaryKeybinding?: string, desc: string }> =
-  [
-    {
-      keybinding: "⌘ + K",
-      desc: "Search",
-    },
-    {
-      keybinding: "⏎",
-      desc: "Load the focused source in tracks pool",
-    },
-    {
-      keybinding: "▲ ▼",
-      desc: "Navigate tracks or sources",
-    },
-    {
-      keybinding: "◀ ▶",
-      secondaryKeybinding: "⇧ + ◀ ▶",
-      desc: "Control or Adjust track volume",
-    },
-    {
-      keybinding: "x",
-      desc: "Remove track from pool",
-    },
-    {
-      keybinding: "?",
-      desc: "Toggle this dialog",
-    },
-  ];
+const ACTIONS_INFO: Array<{
+  keybinding: string;
+  secondaryKeybinding?: string;
+  desc: string;
+}> = [
+  {
+    keybinding: "⌘ + K",
+    desc: "Search",
+  },
+  {
+    keybinding: "⏎",
+    desc: "Load the focused source in tracks pool",
+  },
+  {
+    keybinding: "▲ ▼",
+    desc: "Navigate tracks or sources",
+  },
+  {
+    keybinding: "◀ ▶",
+    secondaryKeybinding: "⇧ + ◀ ▶",
+    desc: "Control or Adjust track volume",
+  },
+  {
+    keybinding: "x",
+    desc: "Remove track from pool",
+  },
+  {
+    keybinding: "?",
+    desc: "Toggle this dialog",
+  },
+];
 
 const App = () => {
   /**
@@ -155,7 +158,7 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-      currentFocusId?.includes(FID.source.prefix)
+    currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
@@ -211,10 +214,14 @@ const App = () => {
             wrap: true,
           });
         }),
-      [KB.ArrowLeft.id]: () => withFocusedTrackDo((tid) => fadeTrackVolume(tid, -VOLUME_STEP)),
-      [KB.ArrowRight.id]: () => withFocusedTrackDo((tid) => fadeTrackVolume(tid, VOLUME_STEP)),
-      [KB.shift.ArrowLeft.id]: () => withFocusedTrackDo((tid) => fadeTrackVolume(tid, -VOLUME_ADJUST)),
-      [KB.shift.ArrowRight.id]: () => withFocusedTrackDo((tid) => fadeTrackVolume(tid, VOLUME_ADJUST)),
+      [KB.ArrowLeft.id]: () =>
+        withFocusedTrackDo((tid) => fadeTrackVolume(tid, -VOLUME_STEP)),
+      [KB.ArrowRight.id]: () =>
+        withFocusedTrackDo((tid) => fadeTrackVolume(tid, VOLUME_STEP)),
+      [KB.shift.ArrowLeft.id]: () =>
+        withFocusedTrackDo((tid) => fadeTrackVolume(tid, -VOLUME_ADJUST)),
+      [KB.shift.ArrowRight.id]: () =>
+        withFocusedTrackDo((tid) => fadeTrackVolume(tid, VOLUME_ADJUST)),
       [KB.shift.Slash.id]: () => setShowKeybindingsModal(!showKeybindingsModal),
     },
     [KB.ArrowDown, KB.ArrowUp],
@@ -368,7 +375,9 @@ const App = () => {
                     <Column width="1/4">
                       <Inline space={8}>
                         <Chip label={a.keybinding} color="grey" />
-                        {a.secondaryKeybinding && <Chip label={a.secondaryKeybinding} color="grey" />}
+                        {a.secondaryKeybinding && (
+                          <Chip label={a.secondaryKeybinding} color="grey" />
+                        )}
                       </Inline>
                     </Column>
                     <Column>
