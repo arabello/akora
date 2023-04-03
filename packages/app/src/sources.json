@@ -158,5 +158,25 @@
     "id": "rain-moderate",
     "name": "Rain Moderate",
     "url": "./assets/library/rain-moderate.mp3"
+  },
+  {
+    "id": "rain-storm",
+    "name": "Rain Storm",
+    "url": "./assets/library/rain-storm.mp3"
+  },
+  {
+    "id": "white-noise",
+    "name": "White Noise",
+    "url": "./assets/library/white-noise.mp3"
+  },
+  {
+    "id": "pink-noise",
+    "name": "Pink Noise",
+    "url": "./assets/library/pink-noise.mp3"
+  },
+  {
+    "id": "brownian-noise",
+    "name": "Brownian Noise",
+    "url": "./assets/library/brownian-noise.mp3"
   }
 ]
