@@ -1,5 +1,5 @@
 build
-public/assets/library
+packages/app/public/assets/library/
 lib
 .turbo
 
