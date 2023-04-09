@@ -5,8 +5,7 @@ import { isTrack, Source, Track } from "./model";
 import {
   LocalStorageSessionRepository,
   SessionRepository,
-  SourcesRepository,
-  StaticSourcesRepository,
+  getSources,
 } from "./repository";
 import { useFocus } from "./useFocus";
 import {
@@ -37,14 +36,13 @@ import "./app.css";
 
 const mixer = new Mixer();
 
-const searchSources = new SearchSources([]);
+const searchSources = new SearchSources(getSources());
 const tracksSessionRepo: SessionRepository<Array<Track>> =
   new LocalStorageSessionRepository<Array<Track>>(
     "tracks",
     (tracks: Array<Track>): tracks is Array<Track> =>
       (tracks as Array<Track>).every(isTrack)
   );
-const sourcesRepo: SourcesRepository = new StaticSourcesRepository();
 
 const VOLUME_STEP = 0.05;
 const VOLUME_ADJUST = 0.01;
@@ -100,15 +98,6 @@ const App = () => {
     searchQuery === ""
       ? searchSources.getCollection()
       : searchSources.search(searchQuery);
-
-  useEffect(() => {
-    sourcesRepo
-      .fetchSources()
-      .then((x) => {
-        searchSources.setCollection(x);
-      })
-      .catch(console.error);
-  }, []);
 
   /**
    * Tracks

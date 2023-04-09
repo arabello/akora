@@ -15,11 +15,10 @@
     "typescript": "^4.4.2"
   },
   "scripts": {
-    "prestart": "node jsonSourcesFromAssets.js sources > src/sources.json",
+    "prestart": "node makeSourcesIndex.js sources > src/sourcesIndex.json",
     "start": "react-scripts start",
-    "prebuild": "node jsonSourcesFromAssets.js sources > src/sources.json",
+    "prebuild": "node makeSourcesIndex.js sources > src/sourcesIndex.json",
     "build": "react-scripts build",
-    "pretest": "node jsonSourcesFromAssets.js sources > src/sources.json",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "prettier-write": "prettier --write src",

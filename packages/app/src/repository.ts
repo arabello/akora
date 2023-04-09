@@ -1,15 +1,23 @@
 import { Source } from "./model";
-import { default as sources } from "./sources.json";
+import { default as sources } from "./sourcesIndex.json";
 
-export interface SourcesRepository {
-  fetchSources: () => Promise<Array<Source>>;
-}
-
-export class StaticSourcesRepository implements SourcesRepository {
-  public fetchSources(): Promise<Source[]> {
-    return new Promise((res) => res(sources));
+export const getSources: () => Array<Source> = () => {
+  if (
+    Array.isArray(sources) &&
+    sources.every(
+      (s) =>
+        typeof s.id === "string" &&
+        typeof s.name === "string" &&
+        typeof s.url === "string"
+    )
+  ) {
+    return sources;
   }
-}
+
+  console.error("Invalid sources index");
+
+  return [];
+};
 
 export interface SessionRepository<T> {
   is: (item: T) => item is T;

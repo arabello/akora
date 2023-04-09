@@ -5,7 +5,7 @@ const path = require("path");
 const args = process.argv.slice(2);
 
 if (args.length != 1) {
-  console.error("Usage: node sourcesJsonFromAssets.js <folder>");
+  console.error("Usage: node makeSourcesIndex.js <assets subfolder>");
   process.exit(1);
 }
 
