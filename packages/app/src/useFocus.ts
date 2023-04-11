@@ -1,6 +1,6 @@
 import { useFocusManager, FocusManagerOptions as FMO } from "@react-aria/focus";
 import { FocusableElement } from "@react-types/shared";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 export interface FocusManagerOptions extends FMO {
   find?: (focusId: string) => boolean;
@@ -51,19 +51,16 @@ export const useFocus: (dataAttrName?: string) => FocusManager = (
     };
 
   const manager = useFocusManager();
-  const override = useMemo<FocusManager>(
-    () => ({
-      focusFirst: overrideFn(manager.focusFirst),
-      focusNext: overrideFn(manager.focusNext),
-      focusPrevious: overrideFn(manager.focusPrevious),
-      focusLast: overrideFn(manager.focusLast),
-      focusClear: () => {
-        (document.activeElement as HTMLElement).blur();
-        setCurrentFocusId(undefined);
-      },
-    }),
-    []
-  );
 
-  return { ...override, currentFocusId };
+  return {
+    currentFocusId,
+    focusFirst: overrideFn(manager.focusFirst),
+    focusNext: overrideFn(manager.focusNext),
+    focusPrevious: overrideFn(manager.focusPrevious),
+    focusLast: overrideFn(manager.focusLast),
+    focusClear: () => {
+      (document.activeElement as HTMLElement).blur();
+      setCurrentFocusId(undefined);
+    },
+  };
 };
