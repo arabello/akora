@@ -11,7 +11,7 @@ export const getSources: () => Array<Source> = () => {
         typeof s.url === "string"
     )
   ) {
-    return sources;
+    return sources.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   console.error("Invalid sources index");
