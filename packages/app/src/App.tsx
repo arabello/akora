@@ -323,98 +323,105 @@ const App = () => {
 
   return (
     <Inset spaceX={16} spaceY={16}>
-      <Columns space={24}>
-        <Column width="1/5">
-          <Stack space={16}>
-            <Box display="flex" alignItems="baseline">
-              <Box flex={1}><Headline size="large">Night Focus</Headline></Box>
+      <Columns space={0}>
+        <Column width="1/5">{ }</Column>
+        <Column width="3/5">
+          <Columns space={24}>
+            <Column width="1/5">
+              <Stack space={16}>
+                <Box display="flex" alignItems="baseline">
+                  <Box flex={1}><Headline size="large">Night Focus</Headline></Box>
+                  <IconButton
+                    label=""
+                    icon={() => <IconInfo size={12} color="default" />}
+                    size={12}
+                    kind="transparent"
+
+                    hierarchy="primary"
+                    onPress={() => setShowInfoModal(!showInfoModal)}
+                  />
+                  {showInfoModal && (
+                    <Modal
+                      title="Purpose"
+                      onClose={() => setShowInfoModal(false)}
+                    >
+                      <Stack space={24}>
+                        <Body size="large">
+                          I built Night Focus mostly for my evening sessions.
+                        </Body>
+                        <Body size="large">
+                          I love to <Body size="large" weight="strong">immerse</Body> myself with
+                          ambient sounds while studying, coding and reading.
+                          I wanted something <Body size="large" weight="strong">tailored</Body> to
+                          my picky user experience that I can fine tune at need.
+                          Differently from background music, it hugs my mind just enough
+                          to <Body size="large" weight="strong">focus</Body> with no intrusive distracting
+                          peaks.
+                        </Body>
+                        <Body size="large">
+                          Feel free to <Link href="mailto:matteo.pelle.pellegrino@gmail.com?subject=%5BNight%20Focus%5D">reach out to me</Link> for any feedback, requests or suggestions.
+                        </Body>
+                      </Stack>
+                    </Modal>
+                  )}
+                </Box>
+                <SearchBar
+                  data-focus-id="searchbar"
+                  aria-label="Search for sources"
+                  placeholder="Search for sources..."
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  rightAccessory={<Chip label="⌘ + K" color="grey" />}
+                />
+                <Stack space={4}>{sourcesRender}</Stack>
+              </Stack>
+            </Column>
+            <Column>
+              <ContentBlock maxWidth={700} alignSelf="center">
+                <Stack space={0}>
+                  <Stack space={4}>{tracksRender}</Stack>
+                </Stack>
+              </ContentBlock>
+            </Column>
+            <Column width="content">
               <IconButton
                 label=""
-                icon={() => <IconInfo size={12} color="default" />}
-                size={12}
+                icon={IconSliders}
+                size={24}
                 kind="transparent"
-
                 hierarchy="primary"
-                onPress={() => setShowInfoModal(!showInfoModal)}
+                onPress={() => setShowKeybindingsModal(!showKeybindingsModal)}
               />
-              {showInfoModal && (
+              {showKeybindingsModal && (
                 <Modal
-                  title="Purpose"
-                  onClose={() => setShowInfoModal(false)}
+                  title="Keybindings"
+                  onClose={() => setShowKeybindingsModal(false)}
                 >
-                  <Stack space={24}>
-                    <Body size="large">
-                      I built Night Focus mostly for my evening sessions.
-                    </Body>
-                    <Body size="large">
-                      I love to <Body size="large" weight="strong">immerse</Body> myself with
-                      ambient sounds while studying, coding and reading.
-                      I wanted something <Body size="large" weight="strong">tailored</Body> to
-                      my picky user experience that I can fine tune at need.
-                      Differently from background music, it hugs my mind just enough
-                      to <Body size="large" weight="strong">focus</Body> with no intrusive distracting
-                      peaks.
-                    </Body>
-                    <Body size="large">
-                      Feel free to <Link href="mailto:matteo.pelle.pellegrino@gmail.com?subject=%5BNight%20Focus%5D">reach out to me</Link> for any feedback, requests or suggestions.
-                    </Body>
+                  <Stack space={4}>
+                    {ACTIONS_INFO.map((a) => (
+                      <Columns space={16} key={a.keybinding}>
+                        <Column width="1/4">
+                          <Inline space={8}>
+                            <Chip label={a.keybinding} color="grey" />
+                            {a.secondaryKeybinding && (
+                              <Chip label={a.secondaryKeybinding} color="grey" />
+                            )}
+                          </Inline>
+                        </Column>
+                        <Column>
+                          <Body size="medium">{a.desc}</Body>
+                        </Column>
+                      </Columns>
+                    ))}
                   </Stack>
                 </Modal>
               )}
-            </Box>
-            <SearchBar
-              data-focus-id="searchbar"
-              aria-label="Search for sources"
-              placeholder="Search for sources..."
-              value={searchQuery}
-              onChange={setSearchQuery}
-              rightAccessory={<Chip label="⌘ + K" color="grey" />}
-            />
-            <Stack space={4}>{sourcesRender}</Stack>
-          </Stack>
+            </Column>
+          </Columns>
         </Column>
-        <Column>
-          <ContentBlock maxWidth={700} alignSelf="center">
-            <Stack space={0}>
-              <Stack space={4}>{tracksRender}</Stack>
-            </Stack>
-          </ContentBlock>
-        </Column>
-        <Column width="content">
-          <IconButton
-            label=""
-            icon={IconSliders}
-            size={24}
-            kind="transparent"
-            hierarchy="primary"
-            onPress={() => setShowKeybindingsModal(!showKeybindingsModal)}
-          />
-          {showKeybindingsModal && (
-            <Modal
-              title="Keybindings"
-              onClose={() => setShowKeybindingsModal(false)}
-            >
-              <Stack space={4}>
-                {ACTIONS_INFO.map((a) => (
-                  <Columns space={16} key={a.keybinding}>
-                    <Column width="1/4">
-                      <Inline space={8}>
-                        <Chip label={a.keybinding} color="grey" />
-                        {a.secondaryKeybinding && (
-                          <Chip label={a.secondaryKeybinding} color="grey" />
-                        )}
-                      </Inline>
-                    </Column>
-                    <Column>
-                      <Body size="medium">{a.desc}</Body>
-                    </Column>
-                  </Columns>
-                ))}
-              </Stack>
-            </Modal>
-          )}
-        </Column>
+        <Column width="1/5">{ }</Column>
       </Columns>
+
     </Inset>
   );
 };
