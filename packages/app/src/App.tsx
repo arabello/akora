@@ -64,35 +64,35 @@ const ACTIONS_INFO: Array<{
   keybinding: string;
   desc: string;
 }> = [
-    {
-      keybinding: "⌘ + K",
-      desc: "Search throught the available sources.",
-    },
-    {
-      keybinding: "⏎",
-      desc: "Load the focused source into the tracks pool.",
-    },
-    {
-      keybinding: "▲ ▼",
-      desc: "Navigate tracks. If the search bar is focused, navigate sources.",
-    },
-    {
-      keybinding: "◀ ▶",
-      desc: "Control the focused track volume.",
-    },
-    {
-      keybinding: "⇧ + ◀ ▶",
-      desc: "Adjust the focused track volume precisely.",
-    },
-    {
-      keybinding: "x",
-      desc: "Remove the focused track from pool.",
-    },
-    {
-      keybinding: "?",
-      desc: "Toggle this dialog.",
-    },
-  ];
+  {
+    keybinding: "⌘ + K",
+    desc: "Search throught the available sources.",
+  },
+  {
+    keybinding: "⏎",
+    desc: "Load the focused source into the tracks pool.",
+  },
+  {
+    keybinding: "▲ ▼",
+    desc: "Navigate tracks. If the search bar is focused, navigate sources.",
+  },
+  {
+    keybinding: "◀ ▶",
+    desc: "Control the focused track volume.",
+  },
+  {
+    keybinding: "⇧ + ◀ ▶",
+    desc: "Adjust the focused track volume precisely.",
+  },
+  {
+    keybinding: "x",
+    desc: "Remove the focused track from pool.",
+  },
+  {
+    keybinding: "?",
+    desc: "Toggle this dialog.",
+  },
+];
 
 const App = () => {
   /**
@@ -153,7 +153,7 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-      currentFocusId?.includes(FID.source.prefix)
+    currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
@@ -327,19 +327,20 @@ const App = () => {
   return (
     <Inset spaceX={16} spaceY={16}>
       <Columns space={0}>
-        <Column width="1/5">{ }</Column>
+        <Column width="1/5">{}</Column>
         <Column width="3/5">
           <Columns space={24}>
             <Column width="1/5">
               <Stack space={16}>
                 <Box display="flex" alignItems="baseline">
-                  <Box flex={1}><Headline size="large">Night Focus</Headline></Box>
+                  <Box flex={1}>
+                    <Headline size="large">Night Focus</Headline>
+                  </Box>
                   <IconButton
                     label=""
                     icon={() => <IconInfo size={12} color="default" />}
                     size={12}
                     kind="transparent"
-
                     hierarchy="primary"
                     onPress={() => setShowInfoModal(!showInfoModal)}
                   />
@@ -353,16 +354,29 @@ const App = () => {
                           I built Night Focus mostly for my evening sessions.
                         </Body>
                         <Body size="large">
-                          I love to <Body size="large" weight="strong">immerse</Body> myself with
-                          ambient sounds while studying, coding and reading.
-                          I wanted something <Body size="large" weight="strong">tailored</Body> to
-                          my picky user experience that I can fine tune at need.
-                          Differently from background music, it hugs my mind just enough
-                          to <Body size="large" weight="strong">focus</Body> with no intrusive distracting
-                          peaks.
+                          I love to{" "}
+                          <Body size="large" weight="strong">
+                            immerse
+                          </Body>{" "}
+                          myself with ambient sounds while studying, coding and
+                          reading. I wanted something{" "}
+                          <Body size="large" weight="strong">
+                            tailored
+                          </Body>{" "}
+                          to my picky user experience that I can fine tune at
+                          need. Differently from background music, it hugs my
+                          mind just enough to{" "}
+                          <Body size="large" weight="strong">
+                            focus
+                          </Body>{" "}
+                          with no intrusive distracting peaks.
                         </Body>
                         <Body size="large">
-                          Feel free to <Link href="mailto:matteo.pelle.pellegrino@gmail.com?subject=%5BNight%20Focus%5D">reach out to me</Link> for any feedback, requests or suggestions.
+                          Feel free to{" "}
+                          <Link href="mailto:matteo.pelle.pellegrino@gmail.com?subject=%5BNight%20Focus%5D">
+                            reach out to me
+                          </Link>{" "}
+                          for any feedback, requests or suggestions.
                         </Body>
                       </Stack>
                     </Modal>
@@ -381,10 +395,11 @@ const App = () => {
             </Column>
             <Column>
               <ContentBlock maxWidth={700} alignSelf="center">
-                {tracksRender.length <= 0 &&
+                {tracksRender.length <= 0 && (
                   <Stack space={8}>
                     <Label size="large" color="secondary">
-                      Load a track in the pool by clicking on a source from the left panel.
+                      Load a track in the pool by clicking on a source from the
+                      left panel.
                     </Label>
                     <Label size="large" color="secondary">
                       Hover on a loaded track to see the controls.
@@ -393,15 +408,19 @@ const App = () => {
                       Control its volume with the side arrows buttons.
                     </Label>
                     <Label size="large" color="secondary">
-                      Check out the <Link onClick={() => {
-                        setShowKeybindingsModal(true);
-                      }}>keyboard shortcuts</Link>.
+                      Check out the{" "}
+                      <Link
+                        onClick={() => {
+                          setShowKeybindingsModal(true);
+                        }}
+                      >
+                        keyboard shortcuts
+                      </Link>
+                      .
                     </Label>
                   </Stack>
-                }
-                <Stack space={4}>
-                  {tracksRender}
-                </Stack>
+                )}
+                <Stack space={4}>{tracksRender}</Stack>
               </ContentBlock>
             </Column>
             <Column width="content">
@@ -437,9 +456,8 @@ const App = () => {
             </Column>
           </Columns>
         </Column>
-        <Column width="1/5">{ }</Column>
+        <Column width="1/5">{}</Column>
       </Columns>
-
     </Inset>
   );
 };
