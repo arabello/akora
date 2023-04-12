@@ -64,35 +64,35 @@ const ACTIONS_INFO: Array<{
   keybinding: string;
   desc: string;
 }> = [
-  {
-    keybinding: "⌘ + K",
-    desc: "Search throught the available sources.",
-  },
-  {
-    keybinding: "⏎",
-    desc: "Load the focused source into the tracks pool.",
-  },
-  {
-    keybinding: "▲ ▼",
-    desc: "Navigate tracks. If the search bar is focused, navigate sources.",
-  },
-  {
-    keybinding: "◀ ▶",
-    desc: "Control the focused track volume.",
-  },
-  {
-    keybinding: "⇧ + ◀ ▶",
-    desc: "Adjust the focused track volume precisely.",
-  },
-  {
-    keybinding: "x",
-    desc: "Remove the focused track from pool.",
-  },
-  {
-    keybinding: "?",
-    desc: "Toggle this dialog.",
-  },
-];
+    {
+      keybinding: "⌘ + K",
+      desc: "Search throught the available sources.",
+    },
+    {
+      keybinding: "⏎",
+      desc: "Load the focused source into the tracks pool.",
+    },
+    {
+      keybinding: "▲ ▼",
+      desc: "Navigate tracks. If the search bar is focused, navigate sources.",
+    },
+    {
+      keybinding: "◀ ▶",
+      desc: "Control the focused track volume.",
+    },
+    {
+      keybinding: "⇧ + ◀ ▶",
+      desc: "Adjust the focused track volume precisely.",
+    },
+    {
+      keybinding: "x",
+      desc: "Remove the focused track from pool.",
+    },
+    {
+      keybinding: "?",
+      desc: "Toggle this dialog.",
+    },
+  ];
 
 const App = () => {
   /**
@@ -153,7 +153,7 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-    currentFocusId?.includes(FID.source.prefix)
+      currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
@@ -324,10 +324,66 @@ const App = () => {
     );
   });
 
+  const infoModalRender = <Modal
+    title="Purpose"
+    onClose={() => setShowInfoModal(false)}
+  >
+    <Stack space={24}>
+      <Body size="large">
+        I built Night Focus mostly for my evening sessions.
+      </Body>
+      <Body size="large">
+        I love to{" "}
+        <Body size="large" weight="strong">
+          immerse
+        </Body>{" "}
+        myself with ambient sounds while studying, coding and
+        reading. I wanted something{" "}
+        <Body size="large" weight="strong">
+          tailored
+        </Body>{" "}
+        to my picky user experience that I can fine tune at
+        need. Differently from background music, it hugs my
+        mind just enough to{" "}
+        <Body size="large" weight="strong">
+          focus
+        </Body>{" "}
+        with no intrusive distracting peaks.
+      </Body>
+      <Body size="large">
+        Feel free to{" "}
+        <Link href="mailto:matteo.pelle.pellegrino@gmail.com?subject=%5BNight%20Focus%5D">
+          reach out to me
+        </Link>{" "}
+        for any feedback, requests or suggestions.
+      </Body>
+    </Stack>
+  </Modal>
+
+  const keybindingsModalRender = <Modal
+    title="Keybindings"
+    onClose={() => setShowKeybindingsModal(false)}
+  >
+    <Stack space={4}>
+      {ACTIONS_INFO.map((a) => (
+        <Columns space={16} key={a.keybinding}>
+          <Column width="1/5">
+            <Inline space={8}>
+              <Chip label={a.keybinding} color="grey" />
+            </Inline>
+          </Column>
+          <Column>
+            <Body size="medium">{a.desc}</Body>
+          </Column>
+        </Columns>
+      ))}
+    </Stack>
+  </Modal>
+
   return (
     <Inset spaceX={16} spaceY={16}>
       <Columns space={0}>
-        <Column width="1/5">{}</Column>
+        <Column width="1/5">{ }</Column>
         <Column width="3/5">
           <Columns space={24}>
             <Column width="1/5">
@@ -344,43 +400,7 @@ const App = () => {
                     hierarchy="primary"
                     onPress={() => setShowInfoModal(!showInfoModal)}
                   />
-                  {showInfoModal && (
-                    <Modal
-                      title="Purpose"
-                      onClose={() => setShowInfoModal(false)}
-                    >
-                      <Stack space={24}>
-                        <Body size="large">
-                          I built Night Focus mostly for my evening sessions.
-                        </Body>
-                        <Body size="large">
-                          I love to{" "}
-                          <Body size="large" weight="strong">
-                            immerse
-                          </Body>{" "}
-                          myself with ambient sounds while studying, coding and
-                          reading. I wanted something{" "}
-                          <Body size="large" weight="strong">
-                            tailored
-                          </Body>{" "}
-                          to my picky user experience that I can fine tune at
-                          need. Differently from background music, it hugs my
-                          mind just enough to{" "}
-                          <Body size="large" weight="strong">
-                            focus
-                          </Body>{" "}
-                          with no intrusive distracting peaks.
-                        </Body>
-                        <Body size="large">
-                          Feel free to{" "}
-                          <Link href="mailto:matteo.pelle.pellegrino@gmail.com?subject=%5BNight%20Focus%5D">
-                            reach out to me
-                          </Link>{" "}
-                          for any feedback, requests or suggestions.
-                        </Body>
-                      </Stack>
-                    </Modal>
-                  )}
+                  {showInfoModal && infoModalRender}
                 </Box>
                 <SearchBar
                   data-focus-id="searchbar"
@@ -432,31 +452,11 @@ const App = () => {
                 hierarchy="primary"
                 onPress={() => setShowKeybindingsModal(!showKeybindingsModal)}
               />
-              {showKeybindingsModal && (
-                <Modal
-                  title="Keybindings"
-                  onClose={() => setShowKeybindingsModal(false)}
-                >
-                  <Stack space={4}>
-                    {ACTIONS_INFO.map((a) => (
-                      <Columns space={16} key={a.keybinding}>
-                        <Column width="1/5">
-                          <Inline space={8}>
-                            <Chip label={a.keybinding} color="grey" />
-                          </Inline>
-                        </Column>
-                        <Column>
-                          <Body size="medium">{a.desc}</Body>
-                        </Column>
-                      </Columns>
-                    ))}
-                  </Stack>
-                </Modal>
-              )}
+              {showKeybindingsModal && keybindingsModalRender}
             </Column>
           </Columns>
         </Column>
-        <Column width="1/5">{}</Column>
+        <Column width="1/5">{ }</Column>
       </Columns>
     </Inset>
   );
