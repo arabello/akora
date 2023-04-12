@@ -29,6 +29,8 @@ import {
   Inset,
   Body,
   Inline,
+  IconInfo,
+  Link,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
 import { KB, useKeyBinding } from "keybinding";
@@ -62,32 +64,32 @@ const ACTIONS_INFO: Array<{
   secondaryKeybinding?: string;
   desc: string;
 }> = [
-  {
-    keybinding: "⌘ + K",
-    desc: "Search",
-  },
-  {
-    keybinding: "⏎",
-    desc: "Load the focused source in tracks pool",
-  },
-  {
-    keybinding: "▲ ▼",
-    desc: "Navigate tracks or sources",
-  },
-  {
-    keybinding: "◀ ▶",
-    secondaryKeybinding: "⇧ + ◀ ▶",
-    desc: "Control or Adjust track volume",
-  },
-  {
-    keybinding: "x",
-    desc: "Remove track from pool",
-  },
-  {
-    keybinding: "?",
-    desc: "Toggle this dialog",
-  },
-];
+    {
+      keybinding: "⌘ + K",
+      desc: "Search",
+    },
+    {
+      keybinding: "⏎",
+      desc: "Load the focused source in tracks pool",
+    },
+    {
+      keybinding: "▲ ▼",
+      desc: "Navigate tracks or sources",
+    },
+    {
+      keybinding: "◀ ▶",
+      secondaryKeybinding: "⇧ + ◀ ▶",
+      desc: "Control or Adjust track volume",
+    },
+    {
+      keybinding: "x",
+      desc: "Remove track from pool",
+    },
+    {
+      keybinding: "?",
+      desc: "Toggle this dialog",
+    },
+  ];
 
 const App = () => {
   /**
@@ -138,6 +140,7 @@ const App = () => {
    * Info dialog
    */
   const [showKeybindingsModal, setShowKeybindingsModal] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
 
   /**
    * Keyboard
@@ -147,7 +150,7 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-    currentFocusId?.includes(FID.source.prefix)
+      currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
@@ -323,9 +326,42 @@ const App = () => {
       <Columns space={24}>
         <Column width="1/5">
           <Stack space={16}>
-            <Inset spaceX={8}>
-              <Headline size="large">Night Focus</Headline>
-            </Inset>
+            <Box display="flex" alignItems="baseline">
+              <Box flex={1}><Headline size="large">Night Focus</Headline></Box>
+              <IconButton
+                label=""
+                icon={() => <IconInfo size={12} color="default" />}
+                size={12}
+                kind="transparent"
+
+                hierarchy="primary"
+                onPress={() => setShowInfoModal(!showInfoModal)}
+              />
+              {showInfoModal && (
+                <Modal
+                  title="Purpose"
+                  onClose={() => setShowInfoModal(false)}
+                >
+                  <Stack space={24}>
+                    <Body size="large">
+                      I built Night Focus mostly for my evening sessions.
+                    </Body>
+                    <Body size="large">
+                      I love to <Body size="large" weight="strong">immerse</Body> myself with
+                      ambient sounds while studying, coding and reading.
+                      I wanted something <Body size="large" weight="strong">tailored</Body> to
+                      my picky user experience that I can fine tune at need.
+                      Differently from background music, it hugs my mind just enough
+                      to <Body size="large" weight="strong">focus</Body> with no intrusive distracting
+                      peaks.
+                    </Body>
+                    <Body size="large">
+                      Feel free to <Link href="mailto:matteo.pelle.pellegrino@gmail.com?subject=%5BNight%20Focus%5D">reach out to me</Link> for any feedback, requests or suggestions.
+                    </Body>
+                  </Stack>
+                </Modal>
+              )}
+            </Box>
             <SearchBar
               data-focus-id="searchbar"
               aria-label="Search for sources"
@@ -348,8 +384,8 @@ const App = () => {
           <IconButton
             label=""
             icon={IconSliders}
-            size={16}
-            kind="outline"
+            size={24}
+            kind="transparent"
             hierarchy="primary"
             onPress={() => setShowKeybindingsModal(!showKeybindingsModal)}
           />
