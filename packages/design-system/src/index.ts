@@ -18,6 +18,7 @@ export {
   IconInfo,
   Inset,
   Inline,
+  Label,
   Link,
   ProgressBar,
   Modal,

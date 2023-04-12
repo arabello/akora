@@ -31,6 +31,7 @@ import {
   Inline,
   IconInfo,
   Link,
+  Label,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
 import { KB, useKeyBinding } from "keybinding";
@@ -380,8 +381,26 @@ const App = () => {
             </Column>
             <Column>
               <ContentBlock maxWidth={700} alignSelf="center">
-                <Stack space={0}>
-                  <Stack space={4}>{tracksRender}</Stack>
+                {tracksRender.length <= 0 &&
+                  <Stack space={8}>
+                    <Label size="large" color="secondary">
+                      Load a track in the pool by clicking on a source from the left panel.
+                    </Label>
+                    <Label size="large" color="secondary">
+                      Hover on a loaded track to see the controls.
+                    </Label>
+                    <Label size="large" color="secondary">
+                      Control its volume with the side arrows buttons.
+                    </Label>
+                    <Label size="large" color="secondary">
+                      Check out the <Link onClick={() => {
+                        setShowKeybindingsModal(true);
+                      }}>keyboard shortcuts</Link>.
+                    </Label>
+                  </Stack>
+                }
+                <Stack space={4}>
+                  {tracksRender}
                 </Stack>
               </ContentBlock>
             </Column>
