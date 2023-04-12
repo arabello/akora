@@ -61,33 +61,35 @@ const FID = {
 
 const ACTIONS_INFO: Array<{
   keybinding: string;
-  secondaryKeybinding?: string;
   desc: string;
 }> = [
     {
       keybinding: "⌘ + K",
-      desc: "Search",
+      desc: "Search throught the available sources.",
     },
     {
       keybinding: "⏎",
-      desc: "Load the focused source in tracks pool",
+      desc: "Load the focused source into the tracks pool.",
     },
     {
       keybinding: "▲ ▼",
-      desc: "Navigate tracks or sources",
+      desc: "Navigate tracks. If the search bar is focused, navigate sources.",
     },
     {
       keybinding: "◀ ▶",
-      secondaryKeybinding: "⇧ + ◀ ▶",
-      desc: "Control or Adjust track volume",
+      desc: "Control the focused track volume.",
+    },
+    {
+      keybinding: "⇧ + ◀ ▶",
+      desc: "Adjust the focused track volume precisely.",
     },
     {
       keybinding: "x",
-      desc: "Remove track from pool",
+      desc: "Remove the focused track from pool.",
     },
     {
       keybinding: "?",
-      desc: "Toggle this dialog",
+      desc: "Toggle this dialog.",
     },
   ];
 
@@ -400,12 +402,9 @@ const App = () => {
                   <Stack space={4}>
                     {ACTIONS_INFO.map((a) => (
                       <Columns space={16} key={a.keybinding}>
-                        <Column width="1/4">
+                        <Column width="1/5">
                           <Inline space={8}>
                             <Chip label={a.keybinding} color="grey" />
-                            {a.secondaryKeybinding && (
-                              <Chip label={a.secondaryKeybinding} color="grey" />
-                            )}
                           </Inline>
                         </Column>
                         <Column>
