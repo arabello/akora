@@ -59,40 +59,6 @@ const FID = {
   source: makeFocusIdConversion("source"),
 };
 
-const ACTIONS_INFO: Array<{
-  keybinding: string;
-  desc: string;
-}> = [
-    {
-      keybinding: "⌘ + K",
-      desc: "Search throught the available sources.",
-    },
-    {
-      keybinding: "⏎",
-      desc: "Load the focused source into the tracks pool.",
-    },
-    {
-      keybinding: "▲ ▼",
-      desc: "Navigate tracks. If the search bar is focused, navigate sources.",
-    },
-    {
-      keybinding: "◀ ▶",
-      desc: "Control the focused track volume.",
-    },
-    {
-      keybinding: "⇧ + ◀ ▶",
-      desc: "Adjust the focused track volume precisely.",
-    },
-    {
-      keybinding: "x",
-      desc: "Remove the focused track from pool.",
-    },
-    {
-      keybinding: "?",
-      desc: "Toggle this dialog.",
-    },
-  ];
-
 const App = () => {
   /**
    * Library
@@ -397,7 +363,36 @@ const App = () => {
       kind="transparent"
       hierarchy="primary"
     ><Stack space={4}>
-        {ACTIONS_INFO.map((a) => (
+        {[
+          {
+            keybinding: "⌘ + K",
+            desc: "Search throught the available sources.",
+          },
+          {
+            keybinding: "⏎",
+            desc: "Load the focused source into the tracks pool.",
+          },
+          {
+            keybinding: "▲ ▼",
+            desc: "Navigate tracks. If the search bar is focused, navigate sources.",
+          },
+          {
+            keybinding: "◀ ▶",
+            desc: "Control the focused track volume.",
+          },
+          {
+            keybinding: "⇧ + ◀ ▶",
+            desc: "Adjust the focused track volume precisely.",
+          },
+          {
+            keybinding: "x",
+            desc: "Remove the focused track from pool.",
+          },
+          {
+            keybinding: "?",
+            desc: "Toggle this dialog.",
+          },
+        ].map((a) => (
           <Columns space={16} key={a.keybinding}>
             <Column width="1/5">
               <Inline space={8}>
