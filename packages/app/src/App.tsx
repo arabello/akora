@@ -13,14 +13,12 @@ import {
   Headline,
   Stack,
   Column,
-  ContentBlock,
   SearchBar,
   IconButton,
   IconChevronLeft,
   IconChevronRight,
   IconClose,
   ProgressBarCard,
-  Modal,
   Conceal,
   Box,
   ListItem,
@@ -29,13 +27,14 @@ import {
   Inset,
   Body,
   Inline,
-  IconInfo,
   Link,
   Label,
+  IconInfo,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
 import { KB, useKeyBinding } from "keybinding";
 import "./app.css";
+import { IconButtonModal } from "./components/IconButtonModal";
 
 const mixer = new Mixer();
 
@@ -143,7 +142,6 @@ const App = () => {
    * Info dialog
    */
   const [showKeybindingsModal, setShowKeybindingsModal] = useState(false);
-  const [showInfoModal, setShowInfoModal] = useState(false);
 
   /**
    * Keyboard
@@ -324,139 +322,130 @@ const App = () => {
     );
   });
 
-  const infoModalRender = <Modal
-    title="Purpose"
-    onClose={() => setShowInfoModal(false)}
-  >
-    <Stack space={24}>
-      <Body size="large">
-        I built Night Focus mostly for my evening sessions.
-      </Body>
-      <Body size="large">
-        I love to{" "}
-        <Body size="large" weight="strong">
-          immerse
-        </Body>{" "}
-        myself with ambient sounds while studying, coding and
-        reading. I wanted something{" "}
-        <Body size="large" weight="strong">
-          tailored
-        </Body>{" "}
-        to my picky user experience that I can fine tune at
-        need. Differently from background music, it hugs my
-        mind just enough to{" "}
-        <Body size="large" weight="strong">
-          focus
-        </Body>{" "}
-        with no intrusive distracting peaks.
-      </Body>
-      <Body size="large">
-        Feel free to{" "}
-        <Link href="mailto:matteo.pelle.pellegrino@gmail.com?subject=%5BNight%20Focus%5D">
-          reach out to me
-        </Link>{" "}
-        for any feedback, requests or suggestions.
-      </Body>
+  const wizardInfoRender = (
+    <Stack space={8}>
+      <Label size="large" color="secondary">
+        Load a track in the pool by clicking on a source from the
+        left panel.
+      </Label>
+      <Label size="large" color="secondary">
+        Hover on a loaded track to see the controls.
+      </Label>
+      <Label size="large" color="secondary">
+        Control its volume with the side arrows buttons.
+      </Label>
+      <Label size="large" color="secondary">
+        Check out the{" "}
+        <Link
+          onClick={() => {
+            setShowKeybindingsModal(true);
+          }}
+        >
+          keyboard shortcuts
+        </Link>
+        .
+      </Label>
     </Stack>
-  </Modal>
+  )
 
-  const keybindingsModalRender = <Modal
-    title="Keybindings"
-    onClose={() => setShowKeybindingsModal(false)}
-  >
-    <Stack space={4}>
-      {ACTIONS_INFO.map((a) => (
-        <Columns space={16} key={a.keybinding}>
-          <Column width="1/5">
-            <Inline space={8}>
-              <Chip label={a.keybinding} color="grey" />
-            </Inline>
-          </Column>
-          <Column>
-            <Body size="medium">{a.desc}</Body>
-          </Column>
-        </Columns>
-      ))}
-    </Stack>
-  </Modal>
+  const infoModalRender = (
+    <IconButtonModal
+      title="Purpose"
+      icon={IconInfo}
+      size={12}
+      kind="transparent"
+      hierarchy="primary"
+    >
+      <Stack space={24}>
+        <Body size="large">
+          I built Night Focus mostly for my evening sessions.
+        </Body>
+        <Body size="large">
+          I love to{" "}
+          <Body size="large" weight="strong">
+            immerse
+          </Body>{" "}
+          myself with ambient sounds while studying, coding and
+          reading. I wanted something{" "}
+          <Body size="large" weight="strong">
+            tailored
+          </Body>{" "}
+          to my picky user experience that I can fine tune at
+          need. Differently from background music, it hugs my
+          mind just enough to{" "}
+          <Body size="large" weight="strong">
+            focus
+          </Body>{" "}
+          with no intrusive distracting peaks.
+        </Body>
+        <Body size="large">
+          Feel free to{" "}
+          <Link href="mailto:matteo.pelle.pellegrino@gmail.com?subject=%5BNight%20Focus%5D">
+            reach out to me
+          </Link>{" "}
+          for any feedback, requests or suggestions.
+        </Body>
+      </Stack>
+    </IconButtonModal>
+  )
 
-  return (
-    <Inset spaceX={16} spaceY={16}>
-      <Columns space={0}>
-        <Column width="1/5">{ }</Column>
-        <Column width="3/5">
-          <Columns space={24}>
+  const keybindingsModalRender = (
+    <IconButtonModal
+      title="Keybindings"
+      icon={IconSliders}
+      size={16}
+      kind="transparent"
+      hierarchy="primary"
+    ><Stack space={4}>
+        {ACTIONS_INFO.map((a) => (
+          <Columns space={16} key={a.keybinding}>
             <Column width="1/5">
-              <Stack space={16}>
-                <Box display="flex" alignItems="baseline">
-                  <Box flex={1}>
-                    <Headline size="large">Night Focus</Headline>
-                  </Box>
-                  <IconButton
-                    label=""
-                    icon={() => <IconInfo size={12} color="default" />}
-                    size={12}
-                    kind="transparent"
-                    hierarchy="primary"
-                    onPress={() => setShowInfoModal(!showInfoModal)}
-                  />
-                  {showInfoModal && infoModalRender}
-                </Box>
-                <SearchBar
-                  data-focus-id="searchbar"
-                  aria-label="Search for sources"
-                  placeholder="Search for sources..."
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  rightAccessory={<Chip label="⌘ + K" color="grey" />}
-                />
-                <Stack space={4}>{sourcesRender}</Stack>
-              </Stack>
+              <Inline space={8}>
+                <Chip label={a.keybinding} color="grey" />
+              </Inline>
             </Column>
             <Column>
-              <ContentBlock maxWidth={700} alignSelf="center">
-                {tracksRender.length <= 0 && (
-                  <Stack space={8}>
-                    <Label size="large" color="secondary">
-                      Load a track in the pool by clicking on a source from the
-                      left panel.
-                    </Label>
-                    <Label size="large" color="secondary">
-                      Hover on a loaded track to see the controls.
-                    </Label>
-                    <Label size="large" color="secondary">
-                      Control its volume with the side arrows buttons.
-                    </Label>
-                    <Label size="large" color="secondary">
-                      Check out the{" "}
-                      <Link
-                        onClick={() => {
-                          setShowKeybindingsModal(true);
-                        }}
-                      >
-                        keyboard shortcuts
-                      </Link>
-                      .
-                    </Label>
-                  </Stack>
-                )}
-                <Stack space={4}>{tracksRender}</Stack>
-              </ContentBlock>
-            </Column>
-            <Column width="content">
-              <IconButton
-                label=""
-                icon={IconSliders}
-                size={24}
-                kind="transparent"
-                hierarchy="primary"
-                onPress={() => setShowKeybindingsModal(!showKeybindingsModal)}
-              />
-              {showKeybindingsModal && keybindingsModalRender}
+              <Body size="medium">{a.desc}</Body>
             </Column>
           </Columns>
+        ))}
+      </Stack>
+    </IconButtonModal>
+  )
+
+  return (
+    <Inset spaceX={32} spaceY={32}>
+      <Columns space={24}>
+        <Column width="1/3">
+          <Box display="flex" justifyContent="flexEnd">
+            <Stack space={16}>
+              <Box display="flex" alignItems="baseline">
+                <Box flex={1}>
+                  <Headline size="large">Night Focus</Headline>
+                </Box>
+                {keybindingsModalRender}
+              </Box>
+              <SearchBar
+                data-focus-id="searchbar"
+                aria-label="Search for sources"
+                placeholder="Search for sources..."
+                value={searchQuery}
+                onChange={setSearchQuery}
+                rightAccessory={<Chip label="⌘ + K" color="grey" />}
+              />
+              <Stack space={4}>{sourcesRender}</Stack>
+            </Stack>
+          </Box>
         </Column>
-        <Column width="1/5">{ }</Column>
+        <Column>
+          {tracksRender.length <= 0 ? wizardInfoRender
+            : <Stack space={4}>{tracksRender}</Stack>}
+        </Column>
+        <Column width="1/5">
+          <Box display="flex" justifyContent="flexEnd">
+            {infoModalRender}
+          </Box>
+        </Column>
       </Columns>
     </Inset>
   );
