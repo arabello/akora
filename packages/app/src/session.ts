@@ -1,24 +1,3 @@
-import { Source } from "./model";
-import { default as sources } from "./sourcesIndex.json";
-
-export const getSources: () => Array<Source> = () => {
-  if (
-    Array.isArray(sources) &&
-    sources.every(
-      (s) =>
-        typeof s.id === "string" &&
-        typeof s.name === "string" &&
-        typeof s.url === "string"
-    )
-  ) {
-    return sources.sort((a, b) => a.name.localeCompare(b.name));
-  }
-
-  console.error("Invalid sources index");
-
-  return [];
-};
-
 export interface SessionRepository<T> {
   is: (item: T) => item is T;
   write: (item: T) => void;

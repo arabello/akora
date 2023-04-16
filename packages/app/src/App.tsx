@@ -1,12 +1,5 @@
 import { useState } from "react";
-import { SearchSources } from "./search";
 import { useMixer } from "./mixer";
-import { isTrack, Source, Track } from "./model";
-import {
-  LocalStorageSessionRepository,
-  SessionRepository,
-  getSources,
-} from "./repository";
 import { useFocus } from "./useFocus";
 import {
   Columns,
@@ -35,13 +28,18 @@ import "@night-focus/design-system/lib/index.css";
 import { KB, useKeyBinding } from "keybinding";
 import "./app.css";
 import { IconButtonModal } from "./components/IconButtonModal";
+import { search, Source, sources } from "./sources";
+import { SessionRepository, LocalStorageSessionRepository } from "./session";
 
-const sources = getSources();
-const sourcesById = sources.reduce(
-  (acc, s) => ({ ...acc, [s.id]: s }),
-  {}
-) as Record<string, Source>;
-const searchSources = new SearchSources(sources);
+type Track = Source & {
+  volume: number;
+};
+
+const isTrack = (obj: any): obj is Track =>
+  typeof obj.id === "string" &&
+  typeof obj.name === "string" &&
+  typeof obj.url === "string";
+
 const sessionRepo: SessionRepository<Record<string, Track>> =
   new LocalStorageSessionRepository<Record<string, Track>>(
     "tracks",
@@ -71,30 +69,26 @@ const FID = {
 
 const App = () => {
   /**
-   * Library
-   */
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const displayedSource =
-    searchQuery === ""
-      ? searchSources.getCollection()
-      : searchSources.search(searchQuery);
-
-  /**
    * Mixer
    */
-  const session = firstMount ? sessionRepo.read() : undefined;
+  const session = firstMount ? sessionRepo.read() || {} : {};
   firstMount = false;
-  const mixer = useMixer(Object.values(session || {}));
+  const mixer = useMixer(Object.values(session));
   const tracks: Record<string, Track> = Object.entries(mixer.channels).reduce(
-    (acc, [id, ch]) => ({
-      ...acc,
-      [id]: {
-        id,
-        name: sourcesById[id].name,
-        url: ch.url(),
-        volume: ch.volume(),
-      },
-    }),
+    (acc, [id, ch]) => {
+      const name = sources.find((s) => s.id === id)?.name;
+      return !name
+        ? acc
+        : {
+            ...acc,
+            [id]: {
+              id,
+              name,
+              url: ch.url(),
+              volume: ch.volume(),
+            },
+          };
+    },
     {}
   );
   sessionRepo.write(tracks);
@@ -109,6 +103,12 @@ const App = () => {
    */
   const [mute, setMute] = useState(false);
   Object.values(mixer.channels).forEach((ch) => ch.mute(mute));
+
+  /**
+   * Search
+   */
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const filteredSources = searchQuery === "" ? sources : search(searchQuery);
 
   /**
    * Focus
@@ -134,7 +134,7 @@ const App = () => {
     if (currentFocusId === undefined) {
       return;
     }
-    const source = displayedSource.find(
+    const source = filteredSources.find(
       (s) => s.id === FID.source.from(currentFocusId)
     );
     source && fn(source);
@@ -192,7 +192,7 @@ const App = () => {
   /**
    * Rendering
    */
-  const sourcesRender = displayedSource.map((s) => {
+  const sourcesRender = filteredSources.map((s) => {
     const sourceFID = FID.source.to(s.id);
     const isFocused = currentFocusId === sourceFID;
     const isLoaded = tracks[s.id] !== undefined;
