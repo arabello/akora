@@ -105,7 +105,13 @@ const App = () => {
   const [showKeybindingsModal, setShowKeybindingsModal] = useState(false);
 
   /**
-   * Keyboard
+   * Mute
+   */
+  const [mute, setMute] = useState(false);
+  Object.values(mixer.channels).forEach((ch) => ch.mute(mute));
+
+  /**
+   * Focus
    */
   const { currentFocusId, focusFirst, focusNext, focusPrevious, focusClear } =
     useFocus();
@@ -134,53 +140,54 @@ const App = () => {
     source && fn(source);
   };
 
-  useKeyBinding(
-    {
-      [KB.Escape.id]: () => {
-        setSearchQuery("");
-        focusClear();
-        setShowKeybindingsModal(false);
-      },
-      [KB.meta.K.id]: () => focusFirst({ find: (id) => id === "searchbar" }),
-      [KB.ArrowUp.id]: () =>
-        focusPrevious({
-          find: (id) => id.includes(navigationTarget),
-          wrap: true,
-        }),
-      [KB.ArrowDown.id]: () =>
+  /**
+   * Keybindings
+   */
+  const keyBindingActions = {
+    [KB.Escape.id]: () => {
+      setSearchQuery("");
+      focusClear();
+      setShowKeybindingsModal(false);
+    },
+    [KB.meta.K.id]: () => focusFirst({ find: (id) => id === "searchbar" }),
+    [KB.ArrowUp.id]: () =>
+      focusPrevious({
+        find: (id) => id.includes(navigationTarget),
+        wrap: true,
+      }),
+    [KB.ArrowDown.id]: () =>
+      focusNext({
+        find: (id) => id.includes(navigationTarget),
+        wrap: true,
+      }),
+    [KB.Enter.id]: () =>
+      withFocusedSourceDo((source) => {
+        mixer.load(source.id, source.url);
         focusNext({
           find: (id) => id.includes(navigationTarget),
           wrap: true,
-        }),
-      [KB.Enter.id]: () =>
-        withFocusedSourceDo((source) => {
-          mixer.load(source.id, source.url);
-          focusNext({
-            find: (id) => id.includes(navigationTarget),
-            wrap: true,
-          });
-        }),
-      [KB.X.id]: () =>
-        withFocusedTrackDo((tid) => {
-          mixer.unload(tid);
-          focusNext({
-            find: (id) => id.includes(navigationTarget),
-            wrap: true,
-          });
-        }),
-      [KB.ArrowLeft.id]: () =>
-        withFocusedTrackDo((tid) => mixer.channels[tid].fade(-VOLUME_STEP)),
-      [KB.ArrowRight.id]: () =>
-        withFocusedTrackDo((tid) => mixer.channels[tid].fade(VOLUME_STEP)),
-      [KB.shift.ArrowLeft.id]: () =>
-        withFocusedTrackDo((tid) => mixer.channels[tid].fade(-VOLUME_ADJUST)),
-      [KB.shift.ArrowRight.id]: () =>
-        withFocusedTrackDo((tid) => mixer.channels[tid].fade(VOLUME_ADJUST)),
-      [KB.shift.Slash.id]: () => setShowKeybindingsModal(!showKeybindingsModal),
-    },
-    [KB.ArrowDown, KB.ArrowUp],
-    [navigationTarget, currentFocusId]
-  );
+        });
+      }),
+    [KB.X.id]: () =>
+      withFocusedTrackDo((tid) => {
+        mixer.unload(tid);
+        focusNext({
+          find: (id) => id.includes(navigationTarget),
+          wrap: true,
+        });
+      }),
+    [KB.ArrowLeft.id]: () =>
+      withFocusedTrackDo((tid) => mixer.channels[tid].fade(-VOLUME_STEP)),
+    [KB.ArrowRight.id]: () =>
+      withFocusedTrackDo((tid) => mixer.channels[tid].fade(VOLUME_STEP)),
+    [KB.shift.ArrowLeft.id]: () =>
+      withFocusedTrackDo((tid) => mixer.channels[tid].fade(-VOLUME_ADJUST)),
+    [KB.shift.ArrowRight.id]: () =>
+      withFocusedTrackDo((tid) => mixer.channels[tid].fade(VOLUME_ADJUST)),
+    [KB.shift.Slash.id]: () => setShowKeybindingsModal(!showKeybindingsModal),
+    [KB.shift.M.id]: () => setMute(!mute),
+  };
+  useKeyBinding(keyBindingActions);
 
   /**
    * Rendering

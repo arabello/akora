@@ -97,7 +97,6 @@ type Composable<T extends SimplerModifier> = {
   [K in T]: ExportedKeyBindingsSimple & Composable<Exclude<T, K>>;
 };
 
-// I can't read it either
 const f: <T extends SimplerModifier>(
   modifiers: Array<SimplerModifier>
 ) => Composable<T> = (m) =>
