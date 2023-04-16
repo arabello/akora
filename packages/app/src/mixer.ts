@@ -1,103 +1,64 @@
 import { Howl } from "howler";
+import { useState } from "react";
 
 Howler.autoSuspend = false;
 
-export class InvalidTrack extends Error {}
-export class VolumeOutOfRange extends Error {}
-export class VolumeStepOutOfRange extends VolumeOutOfRange {}
-
-type ChannelInfo = {
-  id: string;
-  url: string;
-  volume: number;
-};
-
-class Channel extends Howl {
+export class Channel extends Howl {
   private _url: string;
-  private _fadingDuration: number;
-  constructor(url: string, volume: number = 0) {
-    if (volume < 0 || volume > 1) {
-      throw new VolumeOutOfRange();
-    }
 
+  constructor(url: string, volume: number = 0) {
     super({
-      src: [url],
       preload: true,
       autoplay: true,
       loop: true,
-      volume,
+      src: [url],
+      volume: volume < 0 ? 0 : volume > 1 ? 1 : volume,
     });
-
     this._url = url;
-    this._fadingDuration = 0;
   }
 
   public url(): string {
     return this._url;
   }
 
-  public fader(step: number, fading?: number): number {
-    if (Math.abs(step) < 0 || Math.abs(step) > 1) {
-      throw new VolumeStepOutOfRange(
-        `fader: Step absolute value=${step} must be [0, 1]`
-      );
-    }
-
-    const newVolume =
-      this.volume() + step < 0
-        ? 0
-        : this.volume() + step > 1
-        ? 1
-        : this.volume() + step;
-
-    // Fading duration can't be 0 https://github.com/goldfire/howler.js/issues/1549
-    this.fade(this.volume(), newVolume, fading || this._fadingDuration || 1);
-
-    return newVolume;
+  public fade(step: number, duration: number = 0) {
+    super.fade(this.volume(), this.volume() + step, duration);
+    return this;
   }
 }
 
-class Mixer {
-  private _tracks: Map<string, Channel>;
+export type ChannelInfo = {
+  id: string;
+  url: string;
+  volume: number;
+};
 
-  constructor() {
-    this._tracks = new Map();
-  }
+export const useMixer = (initChannels: Array<ChannelInfo> = []) => {
+  const [channels, setChannels] = useState<Record<string, Channel>>(
+    initChannels.reduce(
+      (acc, chInfo) => ({
+        ...acc,
+        [chInfo.id]: new Channel(chInfo.url, chInfo.volume),
+      }),
+      {}
+    )
+  );
 
-  public channels(): Array<ChannelInfo> {
-    return Array.from(this._tracks.entries()).map(([id, track]) => ({
-      id,
-      url: track.url(),
-      volume: track.volume(),
-    }));
-  }
+  const load = (id: string, url: string, volume: number = 0) =>
+    setChannels({
+      ...channels,
+      [id]: new Channel(url, volume),
+    });
 
-  public channel(id: string): Channel {
-    const t = this._tracks.get(id);
+  const unload = (id: string) => {
+    const { [id]: trackToRemove, ...rest } = channels;
+    trackToRemove.unload();
+    setChannels(rest);
+  };
 
-    if (t) {
-      return t;
-    }
-
-    throw new InvalidTrack(`track: Track with id=${id} was not loaded`);
-  }
-
-  public load(id: string, url: string, volume: number = 0): ChannelInfo {
-    const track = new Channel(url, volume);
-    this._tracks.set(id, track);
-    return {
-      id,
-      url,
-      volume: track.volume(),
-    };
-  }
-
-  public remove(id: string): void {
-    const track = this._tracks.get(id);
-    if (track) {
-      track.unload();
-    }
-  }
-}
-
-export default Mixer;
+  return {
+    load,
+    unload,
+    channels,
+  };
+};

@@ -21,8 +21,8 @@ export const getSources: () => Array<Source> = () => {
 
 export interface SessionRepository<T> {
   is: (item: T) => item is T;
-  persist: (item: T) => Promise<void>;
-  fetch: () => Promise<T>;
+  write: (item: T) => void;
+  read: () => T | undefined;
 }
 
 export class LocalStorageSessionRepository<T> implements SessionRepository<T> {
@@ -34,22 +34,21 @@ export class LocalStorageSessionRepository<T> implements SessionRepository<T> {
     this.is = is;
   }
 
-  public persist(item: T): Promise<void> {
+  public write(item: T) {
     window.localStorage.setItem(this._key, JSON.stringify(item));
-    return Promise.resolve();
   }
 
-  public fetch(): Promise<T> {
+  public read(): T | undefined {
     const obj = window.localStorage.getItem(this._key);
-    if (!obj) {
-      return Promise.reject();
+    if (obj === null) {
+      return undefined;
     }
 
     try {
       const o = JSON.parse(obj);
-      return this.is(o) ? Promise.resolve(o) : Promise.reject();
+      return this.is(o) ? o : undefined;
     } catch (_) {
-      return Promise.reject();
+      return undefined;
     }
   }
 }

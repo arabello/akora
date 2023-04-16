@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SearchSources } from "./search";
-import Mixer from "./mixer";
+import { useMixer } from "./mixer";
 import { isTrack, Source, Track } from "./model";
 import {
   LocalStorageSessionRepository,
@@ -36,15 +36,25 @@ import { KB, useKeyBinding } from "keybinding";
 import "./app.css";
 import { IconButtonModal } from "./components/IconButtonModal";
 
-const mixer = new Mixer();
-
-const searchSources = new SearchSources(getSources());
-const tracksSessionRepo: SessionRepository<Array<Track>> =
-  new LocalStorageSessionRepository<Array<Track>>(
+const sources = getSources();
+const sourcesById = sources.reduce(
+  (acc, s) => ({ ...acc, [s.id]: s }),
+  {}
+) as Record<string, Source>;
+const searchSources = new SearchSources(sources);
+const sessionRepo: SessionRepository<Record<string, Track>> =
+  new LocalStorageSessionRepository<Record<string, Track>>(
     "tracks",
-    (tracks: Array<Track>): tracks is Array<Track> =>
-      (tracks as Array<Track>).every(isTrack)
+    (tracks: Record<string, Track>): tracks is Record<string, Track> =>
+      typeof tracks === "object" &&
+      Object.keys(tracks).every((s) => typeof s === "string") &&
+      Object.values(tracks).every(isTrack)
   );
+
+let firstMount = false;
+if (typeof window !== "undefined") {
+  firstMount = true;
+}
 
 const VOLUME_STEP = 0.05;
 const VOLUME_ADJUST = 0.01;
@@ -70,39 +80,24 @@ const App = () => {
       : searchSources.search(searchQuery);
 
   /**
-   * Tracks
+   * Mixer
    */
-  const [tracks, setTracks] = useState<Array<Track>>([]);
-
-  const loadTrack = (source: Source) => {
-    const chInfo = mixer.load(source.id, source.url);
-    const newTracks = tracks.concat({
-      ...source,
-      ...chInfo,
-    });
-    tracksSessionRepo.persist(newTracks);
-    setTracks(newTracks);
-  };
-
-  const removeTrack = (trackId: string) => {
-    mixer.remove(trackId);
-    const newTracks = tracks.filter((t) => t.id !== trackId);
-    tracksSessionRepo.persist(newTracks);
-    setTracks(newTracks);
-  };
-
-  const fadeTrackVolume = (trackId: string, step: number) => {
-    try {
-      const updatedVolume = mixer.channel(trackId).fader(step);
-      const newTracks = tracks.map((t) =>
-        t.id === trackId ? { ...t, volume: updatedVolume } : t
-      );
-      tracksSessionRepo.persist(newTracks);
-      setTracks(newTracks);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  const session = firstMount ? sessionRepo.read() : undefined;
+  firstMount = false;
+  const mixer = useMixer(Object.values(session || {}));
+  const tracks: Record<string, Track> = Object.entries(mixer.channels).reduce(
+    (acc, [id, ch]) => ({
+      ...acc,
+      [id]: {
+        id,
+        name: sourcesById[id].name,
+        url: ch.url(),
+        volume: ch.volume(),
+      },
+    }),
+    {}
+  );
+  sessionRepo.write(tracks);
 
   /**
    * Info dialog
@@ -117,16 +112,16 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-      currentFocusId?.includes(FID.source.prefix)
+    currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
-  const withFocusedTrackDo = (fn: (trackId: string) => unknown) => {
+  const withFocusedTrackDo = (fn: (tid: string) => unknown) => {
     if (currentFocusId === undefined) {
       return;
     }
-    const track = tracks.find((t) => t.id === FID.track.from(currentFocusId));
-    track && fn(track.id);
+    const track = tracks[FID.track.from(currentFocusId)];
+    track && fn(FID.track.from(currentFocusId));
   };
 
   const withFocusedSourceDo = (fn: (source: Source) => unknown) => {
@@ -159,28 +154,28 @@ const App = () => {
         }),
       [KB.Enter.id]: () =>
         withFocusedSourceDo((source) => {
-          loadTrack(source);
+          mixer.load(source.id, source.url);
           focusNext({
             find: (id) => id.includes(navigationTarget),
             wrap: true,
           });
         }),
       [KB.X.id]: () =>
-        withFocusedTrackDo((trackId) => {
-          removeTrack(trackId);
+        withFocusedTrackDo((tid) => {
+          mixer.unload(tid);
           focusNext({
             find: (id) => id.includes(navigationTarget),
             wrap: true,
           });
         }),
       [KB.ArrowLeft.id]: () =>
-        withFocusedTrackDo((tid) => fadeTrackVolume(tid, -VOLUME_STEP)),
+        withFocusedTrackDo((tid) => mixer.channels[tid].fade(-VOLUME_STEP)),
       [KB.ArrowRight.id]: () =>
-        withFocusedTrackDo((tid) => fadeTrackVolume(tid, VOLUME_STEP)),
+        withFocusedTrackDo((tid) => mixer.channels[tid].fade(VOLUME_STEP)),
       [KB.shift.ArrowLeft.id]: () =>
-        withFocusedTrackDo((tid) => fadeTrackVolume(tid, -VOLUME_ADJUST)),
+        withFocusedTrackDo((tid) => mixer.channels[tid].fade(-VOLUME_ADJUST)),
       [KB.shift.ArrowRight.id]: () =>
-        withFocusedTrackDo((tid) => fadeTrackVolume(tid, VOLUME_ADJUST)),
+        withFocusedTrackDo((tid) => mixer.channels[tid].fade(VOLUME_ADJUST)),
       [KB.shift.Slash.id]: () => setShowKeybindingsModal(!showKeybindingsModal),
     },
     [KB.ArrowDown, KB.ArrowUp],
@@ -188,22 +183,12 @@ const App = () => {
   );
 
   /**
-   * Session storage
-   */
-  useEffect(() => {
-    tracksSessionRepo.fetch().then((x) => {
-      x.forEach((x) => mixer.load(x.id, x.url, x.volume));
-      setTracks(x);
-    });
-  }, []);
-
-  /**
    * Rendering
    */
   const sourcesRender = displayedSource.map((s) => {
     const sourceFID = FID.source.to(s.id);
     const isFocused = currentFocusId === sourceFID;
-    const isLoaded = tracks.map((x) => x.id).includes(s.id);
+    const isLoaded = tracks[s.id] !== undefined;
     return (
       <ListItem
         key={s.id}
@@ -213,7 +198,7 @@ const App = () => {
         data-focus-id={sourceFID}
         status={isLoaded ? "disabled" : isFocused ? "focused" : "default"}
         onClick={() => {
-          loadTrack(s);
+          mixer.load(s.id, s.url);
           focusClear();
         }}
         rightAccessory={isFocused ? <Chip label="⏎" color="grey" /> : undefined}
@@ -223,7 +208,7 @@ const App = () => {
     );
   });
 
-  const tracksRender = tracks.map((track) => {
+  const tracksRender = Object.values(tracks).map((track) => {
     const trackFID = FID.track.to(track.id);
     const isFocused = currentFocusId === trackFID;
     const iconRemove = (
@@ -235,8 +220,8 @@ const App = () => {
           hierarchy="primary"
           label=""
           onPress={() =>
-            withFocusedTrackDo((trackId) => {
-              removeTrack(trackId);
+            withFocusedTrackDo((tid) => {
+              mixer.unload(tid);
               focusClear();
             })
           }
@@ -258,7 +243,7 @@ const App = () => {
                 kind="transparent"
                 hierarchy="primary"
                 label=""
-                onPress={() => fadeTrackVolume(track.id, -VOLUME_STEP)}
+                onPress={() => mixer.channels[track.id].fade(-VOLUME_STEP)}
               />
             </Conceal>
           </Column>
@@ -279,7 +264,7 @@ const App = () => {
                 kind="transparent"
                 hierarchy="primary"
                 label=""
-                onPress={() => fadeTrackVolume(track.id, VOLUME_STEP)}
+                onPress={() => mixer.channels[track.id].fade(VOLUME_STEP)}
               />
             </Conceal>
           </Column>
@@ -291,8 +276,7 @@ const App = () => {
   const wizardInfoRender = (
     <Stack space={8}>
       <Label size="large" color="secondary">
-        Load a track in the pool by clicking on a source from the
-        left panel.
+        Load a track in the pool by clicking on a source from the left panel.
       </Label>
       <Label size="large" color="secondary">
         Hover on a loaded track to see the controls.
@@ -312,7 +296,7 @@ const App = () => {
         .
       </Label>
     </Stack>
-  )
+  );
 
   const infoModalRender = (
     <IconButtonModal
@@ -331,14 +315,13 @@ const App = () => {
           <Body size="large" weight="strong">
             immerse
           </Body>{" "}
-          myself with ambient sounds while studying, coding and
-          reading. I wanted something{" "}
+          myself with ambient sounds while studying, coding and reading. I
+          wanted something{" "}
           <Body size="large" weight="strong">
             tailored
           </Body>{" "}
-          to my picky user experience that I can fine tune at
-          need. Differently from background music, it hugs my
-          mind just enough to{" "}
+          to my picky user experience that I can fine tune at need. Differently
+          from background music, it hugs my mind just enough to{" "}
           <Body size="large" weight="strong">
             focus
           </Body>{" "}
@@ -353,7 +336,7 @@ const App = () => {
         </Body>
       </Stack>
     </IconButtonModal>
-  )
+  );
 
   const keybindingsModalRender = (
     <IconButtonModal
@@ -362,7 +345,8 @@ const App = () => {
       size={16}
       kind="transparent"
       hierarchy="primary"
-    ><Stack space={4}>
+    >
+      <Stack space={4}>
         {[
           {
             keybinding: "⌘ + K",
@@ -406,7 +390,7 @@ const App = () => {
         ))}
       </Stack>
     </IconButtonModal>
-  )
+  );
 
   return (
     <Inset spaceX={32} spaceY={32}>
@@ -433,8 +417,11 @@ const App = () => {
           </Box>
         </Column>
         <Column>
-          {tracksRender.length <= 0 ? wizardInfoRender
-            : <Stack space={4}>{tracksRender}</Stack>}
+          {tracksRender.length <= 0 ? (
+            wizardInfoRender
+          ) : (
+            <Stack space={4}>{tracksRender}</Stack>
+          )}
         </Column>
         <Column width="1/5">
           <Box display="flex" justifyContent="flexEnd">
