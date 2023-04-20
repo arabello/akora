@@ -7,27 +7,32 @@ import {
   Stack,
   Title,
 } from "@buildo/bento-design-system";
-import { Status } from "./types";
+import { useState } from "react";
 
 type Props = React.ComponentPropsWithRef<typeof Box> & {
   title: string;
   progress: number;
   icon?: JSX.Element;
-  status?: Exclude<Status, "disabled">;
 };
 
 export const ProgressBarCard = (props: Props) => {
-  const status = props.status === undefined ? "default" : props.status;
+  const [hover, setHover] = useState(false);
 
   return (
     <Card>
       <Box
         {...props}
-        background={
-          status === "focused" ? "backgroundSecondary" : "backgroundPrimary"
-        }
+        background={hover ? "backgroundSecondary" : "backgroundPrimary"}
         paddingY={16}
         paddingX={32}
+        onMouseEnter={(e) => {
+          props.onMouseEnter && props.onMouseEnter(e);
+          setHover(true);
+        }}
+        onMouseLeave={(e) => {
+          props.onMouseLeave && props.onMouseLeave(e);
+          setHover(false);
+        }}
       >
         <Stack space={8}>
           <Columns space={0} alignY="center">

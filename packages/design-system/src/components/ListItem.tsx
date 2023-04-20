@@ -1,46 +1,45 @@
-import {
-  Bleed,
-  Body,
-  Box,
-  Children,
-  Column,
-  Columns,
-} from "@buildo/bento-design-system";
-import { Status } from "./types";
+import { Bleed, Body, Box, Children } from "@buildo/bento-design-system";
+import { useState } from "react";
 
 type Props = React.ComponentProps<typeof Box> & {
-  status?: Status;
+  disabled?: boolean;
   onClick?: () => void;
+  leftAccessory?: JSX.Element;
   rightAccessory?: JSX.Element;
   children: Children;
 };
 
 export const ListItem = (props: Props) => {
-  const status = props.status === undefined ? "default" : props.status;
+  const [hover, setHover] = useState(false);
+  const disabled = props.disabled || false;
+
   return (
     <Box
       {...props}
-      cursor={status == "disabled" ? "default" : "pointer"}
-      background={
-        status === "focused" ? "backgroundSecondary" : props.background
-      }
+      cursor={disabled ? "default" : "pointer"}
+      background={hover ? "backgroundSecondary" : props.background}
       paddingX={16}
       paddingY={8}
-      onClick={status === "disabled" ? undefined : props.onClick}
+      onClick={disabled ? undefined : props.onClick}
+      onMouseEnter={(e) => {
+        props.onMouseEnter && props.onMouseEnter(e);
+        setHover(true);
+      }}
+      onMouseLeave={(e) => {
+        props.onMouseLeave && props.onMouseLeave(e);
+        setHover(false);
+      }}
+      display="flex"
+      gap={8}
+      alignItems="center"
     >
-      <Columns space={24} alignY="baseline">
-        <Column>
-          <Body
-            size="medium"
-            color={status === "disabled" ? "disabled" : "primary"}
-          >
-            {props.children}
-          </Body>
-        </Column>
-        <Column width="content">
-          <Bleed spaceY={16}>{props.rightAccessory}</Bleed>
-        </Column>
-      </Columns>
+      <Bleed spaceY={16}>{props.leftAccessory}</Bleed>
+      <Box flex={1}>
+        <Body size="medium" color={disabled ? "disabled" : "primary"}>
+          {props.children}
+        </Body>
+      </Box>
+      <Bleed spaceY={16}>{props.rightAccessory}</Bleed>
     </Box>
   );
 };
