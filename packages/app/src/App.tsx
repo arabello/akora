@@ -210,6 +210,7 @@ const App = () => {
           mixer.load(s.id, s.url);
           focusClear();
         }}
+        background={isFocused ? "backgroundSecondary" : undefined}
         rightAccessory={
           isFocused ? (
             <Body size="small" color="secondary">
@@ -268,6 +269,7 @@ const App = () => {
             data-focus-id={trackFID}
             title={track.name}
             progress={track.volume}
+            background={isFocused ? "backgroundSecondary" : undefined}
             icon={iconRemove}
           />
           <Column width="content">

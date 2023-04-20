@@ -22,7 +22,7 @@ export const ProgressBarCard = (props: Props) => {
     <Card>
       <Box
         {...props}
-        background={hover ? "backgroundSecondary" : "backgroundPrimary"}
+        background={hover ? "backgroundSecondary" : props.background}
         paddingY={16}
         paddingX={32}
         onMouseEnter={(e) => {
