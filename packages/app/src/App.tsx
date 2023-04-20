@@ -1,4 +1,5 @@
 import {
+  Body,
   Box,
   Chip,
   Column,
@@ -209,7 +210,13 @@ const App = () => {
           mixer.load(s.id, s.url);
           focusClear();
         }}
-        rightAccessory={isFocused ? <Chip label="⏎" color="grey" /> : undefined}
+        rightAccessory={
+          isFocused ? (
+            <Body size="small" color="secondary">
+              ⏎
+            </Body>
+          ) : undefined
+        }
       >
         {s.name}
       </ListItem>
