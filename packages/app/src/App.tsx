@@ -10,14 +10,16 @@ import {
   IconChevronRight,
   IconClose,
   IconInfo,
+  IconMute,
   IconSliders,
+  IconVolume,
   Inset,
   Label,
   Link,
   ListItem,
   ProgressBarCard,
   SearchBar,
-  Stack
+  Stack,
 } from "@night-focus/design-system";
 import "@night-focus/design-system/lib/index.css";
 import { KB, useKeyBinding } from "keybinding";
@@ -79,14 +81,14 @@ const App = () => {
       return !name
         ? acc
         : {
-          ...acc,
-          [id]: {
-            id,
-            name,
-            url: ch.url(),
-            volume: ch.volume(),
-          },
-        };
+            ...acc,
+            [id]: {
+              id,
+              name,
+              url: ch.url(),
+              volume: ch.volume(),
+            },
+          };
     },
     {}
   );
@@ -117,7 +119,7 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-      currentFocusId?.includes(FID.source.prefix)
+    currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
@@ -321,12 +323,11 @@ const App = () => {
                 <ListItem
                   onClick={() => setAboutModalShow(true)}
                   leftAccessory={(() => (
-                    <IconInfo size={16} />
+                    <IconInfo size={16} color="primaryInverse" />
                   ))()}
                 >
                   About
                 </ListItem>
-
                 <ListItem
                   onClick={() => setShowShortcutsModal(true)}
                   leftAccessory={(() => (
@@ -334,6 +335,17 @@ const App = () => {
                   ))()}
                 >
                   Keybindings
+                </ListItem>
+                <ListItem
+                  onClick={() => setMute(!mute)}
+                  leftAccessory={(() =>
+                    mute ? (
+                      <IconVolume size={16} color="primaryInverse" />
+                    ) : (
+                      <IconMute size={16} color="primaryInverse" />
+                    ))()}
+                >
+                  {mute ? "Unmute" : "Mute"}
                 </ListItem>
               </Stack>
               <SearchBar

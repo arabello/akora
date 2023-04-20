@@ -15,7 +15,6 @@ export {
   IconChevronLeft,
   IconChevronRight,
   IconClose,
-  IconInfo,
   Inset,
   Inline,
   Label,

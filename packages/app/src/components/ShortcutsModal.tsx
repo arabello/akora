@@ -39,6 +39,10 @@ export const ShortcutsModal = (
           desc: "Remove the focused track from pool.",
         },
         {
+          keybinding: "⇧ + M",
+          desc: "Mute/Unmute all tracks.",
+        },
+        {
           keybinding: "?",
           desc: "Toggle this dialog.",
         },
