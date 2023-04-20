@@ -18,8 +18,8 @@ export const ListItem = (props: Props) => {
       {...props}
       cursor={disabled ? "default" : "pointer"}
       background={hover ? "backgroundSecondary" : props.background}
-      paddingX={16}
-      paddingY={8}
+      paddingX={8}
+      paddingY={4}
       onClick={disabled ? undefined : props.onClick}
       onMouseEnter={(e) => {
         props.onMouseEnter && props.onMouseEnter(e);
@@ -32,6 +32,7 @@ export const ListItem = (props: Props) => {
       display="flex"
       gap={8}
       alignItems="center"
+      borderRadius={4}
     >
       <Bleed spaceY={16}>{props.leftAccessory}</Bleed>
       <Box flex={1}>
