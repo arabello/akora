@@ -93,14 +93,14 @@ const App = () => {
       return !name
         ? acc
         : {
-          ...acc,
-          [id]: {
-            id,
-            name,
-            url,
-            volume,
-          },
-        };
+            ...acc,
+            [id]: {
+              id,
+              name,
+              url,
+              volume,
+            },
+          };
     },
     {}
   );
@@ -126,7 +126,7 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-      currentFocusId?.includes(FID.source.prefix)
+    currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
@@ -274,13 +274,17 @@ const App = () => {
 
   const placeholderTracksRange = [...Array(7)];
   const placeholderTracksRender = placeholderTracksRange.flatMap((_, i) => (
-    <Box style={{ position: "relative" }} key={`placeholder-track-container-${i}`}>
+    <Box
+      style={{ position: "relative" }}
+      key={`placeholder-track-container-${i}`}
+    >
       <Box
         style={{
           position: "absolute",
           inset: 0,
-          backgroundColor: `rgba(255, 255, 255, ${i * (1 / placeholderTracksRange.length)
-            })`,
+          backgroundColor: `rgba(255, 255, 255, ${
+            i * (1 / placeholderTracksRange.length)
+          })`,
         }}
       />
       <TrackControls showControls={false}>
