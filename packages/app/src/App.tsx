@@ -15,7 +15,6 @@ import {
   IconSliders,
   IconVolume,
   Inset,
-  Label,
   Link,
   ListItem,
   ProgressBarCard,
@@ -96,11 +95,6 @@ const App = () => {
   sessionRepo.write(tracks);
 
   /**
-   * Info dialog
-   */
-  const [showKeybindingsModal, setShowKeybindingsModal] = useState(false);
-
-  /**
    * Mute
    */
   const [mute, setMute] = useState(false);
@@ -149,7 +143,7 @@ const App = () => {
     [KB.Escape.id]: () => {
       setSearchQuery("");
       focusClear();
-      setShowKeybindingsModal(false);
+      setShowShortcutsModal(false);
     },
     [KB.meta.K.id]: () => focusFirst({ find: (id) => id === "searchbar" }),
     [KB.ArrowUp.id]: () =>
@@ -186,7 +180,7 @@ const App = () => {
       withFocusedTrackDo((tid) => mixer.channels[tid].fade(-VOLUME_ADJUST)),
     [KB.shift.ArrowRight.id]: () =>
       withFocusedTrackDo((tid) => mixer.channels[tid].fade(VOLUME_ADJUST)),
-    [KB.shift.Slash.id]: () => setShowKeybindingsModal(!showKeybindingsModal),
+    [KB.shift.Slash.id]: () => setShowShortcutsModal(!showShortcutsModal),
     [KB.shift.M.id]: () => setMute(!mute),
   };
   useKeyBinding(keyBindingActions);
@@ -289,37 +283,12 @@ const App = () => {
     );
   });
 
-  const wizardInfoRender = (
-    <Stack space={8}>
-      <Label size="large" color="secondary">
-        Load a track in the pool by clicking on a source from the left panel.
-      </Label>
-      <Label size="large" color="secondary">
-        Hover on a loaded track to see the controls.
-      </Label>
-      <Label size="large" color="secondary">
-        Control its volume with the side arrows buttons.
-      </Label>
-      <Label size="large" color="secondary">
-        Check out the{" "}
-        <Link
-          onClick={() => {
-            setShowKeybindingsModal(true);
-          }}
-        >
-          keyboard shortcuts
-        </Link>
-        .
-      </Label>
-    </Stack>
-  );
-
   const [aboutModalShow, setAboutModalShow] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
 
   return (
     <Inset spaceX={32} spaceY={32}>
-      <Columns space={24}>
+      <Columns space={80}>
         <Column width="1/3">
           <Box display="flex" justifyContent="flexEnd">
             <Stack space={16}>
@@ -342,6 +311,11 @@ const App = () => {
                   leftAccessory={(() => (
                     <IconSliders size={16} />
                   ))()}
+                  rightAccessory={
+                    <Body size="small" color="secondary">
+                      ?
+                    </Body>
+                  }
                 >
                   Keybindings
                 </ListItem>
@@ -353,6 +327,11 @@ const App = () => {
                     ) : (
                       <IconMute size={16} color="primaryInverse" />
                     ))()}
+                  rightAccessory={
+                    <Body size="small" color="secondary">
+                      ⇧ + M
+                    </Body>
+                  }
                 >
                   {mute ? "Unmute" : "Mute"}
                 </ListItem>
@@ -371,10 +350,49 @@ const App = () => {
         </Column>
         <Column width="1/3">
           {tracksRender.length <= 0 ? (
-            wizardInfoRender
+            <></>
           ) : (
             <Stack space={4}>{tracksRender}</Stack>
           )}
+        </Column>
+        <Column width="1/5">
+          <Stack space={16}>
+            <Body size="medium" color="secondary" align="justify">
+              To{" "}
+              <Body size="medium" weight="strong">
+                load a track{" "}
+              </Body>
+              into the pool, click on the desired audio source from the left
+              panel.
+            </Body>
+            <Body size="medium" color="secondary" align="justify">
+              Once a track has been successfully loaded, you may
+              <Body size="medium" weight="strong">
+                hover{" "}
+              </Body>{" "}
+              your cursor over the track to reveal the available controls.
+            </Body>
+            <Body size="medium" color="secondary" align="justify">
+              To{" "}
+              <Body size="medium" weight="strong">
+                adjust the volume{" "}
+              </Body>
+              of a selected track, use the side arrow buttons.
+            </Body>
+            <Body size="medium" color="secondary" align="justify">
+              Check out the{" "}
+              <Link
+                onClick={() => {
+                  setShowShortcutsModal(true);
+                }}
+              >
+                <Body size="medium" weight="strong">
+                  keyboard shortcuts
+                </Body>
+              </Link>{" "}
+              to streamline your workflow.
+            </Body>
+          </Stack>
         </Column>
       </Columns>
       {showShortcutsModal && (
