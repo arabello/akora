@@ -1,4 +1,5 @@
 import {
+  Banner,
   Body,
   Box,
   Chip,
@@ -68,6 +69,18 @@ const FID = {
   source: makeFocusIdConversion("source"),
 };
 
+const isMobile = (() => {
+  const userAgent =
+    typeof navigator === "undefined" ? "SSR" : navigator.userAgent;
+  return (
+    Boolean(userAgent.match(/SSR/i)) ||
+    Boolean(userAgent.match(/Android/i)) ||
+    Boolean(userAgent.match(/iPhone|iPad|iPod/i)) ||
+    Boolean(userAgent.match(/Opera Mini/i)) ||
+    Boolean(userAgent.match(/IEMobile/i))
+  );
+})();
+
 const App = () => {
   /**
    * Mixer
@@ -81,14 +94,14 @@ const App = () => {
       return !name
         ? acc
         : {
-            ...acc,
-            [id]: {
-              id,
-              name,
-              url: ch.url(),
-              volume: ch.volume(),
-            },
-          };
+          ...acc,
+          [id]: {
+            id,
+            name,
+            url: ch.url(),
+            volume: ch.volume(),
+          },
+        };
     },
     {}
   );
@@ -114,7 +127,7 @@ const App = () => {
 
   const navigationTarget =
     currentFocusId?.includes("searchbar") ||
-    currentFocusId?.includes(FID.source.prefix)
+      currentFocusId?.includes(FID.source.prefix)
       ? FID.source.prefix
       : FID.track.prefix;
 
@@ -286,7 +299,21 @@ const App = () => {
   const [aboutModalShow, setAboutModalShow] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
 
-  return (
+  return isMobile ? (
+    <Box
+      display="flex"
+      height="full"
+      alignItems="center"
+      flexDirection="column"
+      paddingTop={80}
+    >
+      <Banner
+        title="Mobile devices are not support"
+        description="Please visit Night Focus via a desktop browser"
+        kind="secondary"
+      />
+    </Box>
+  ) : (
     <Inset spaceX={32} spaceY={32}>
       <Columns space={80}>
         <Column width="1/3">
