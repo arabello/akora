@@ -20,11 +20,6 @@ export class Channel extends Howl {
   public url(): string {
     return this._url;
   }
-
-  public fade(step: number, duration: number = 0) {
-    super.fade(this.volume(), this.volume() + step, duration);
-    return this;
-  }
 }
 
 export type ChannelInfo = {
@@ -33,32 +28,77 @@ export type ChannelInfo = {
   volume: number;
 };
 
+const Mixer = new Map<string, Channel>();
+
 export const useMixer = (initChannels: Array<ChannelInfo> = []) => {
-  const [channels, setChannels] = useState<Record<string, Channel>>(
+  const [channels, setChannels] = useState<Record<string, ChannelInfo>>(
     initChannels.reduce(
       (acc, chInfo) => ({
         ...acc,
-        [chInfo.id]: new Channel(chInfo.url, chInfo.volume),
+        [chInfo.id]: chInfo,
       }),
       {}
     )
   );
 
+  Object.values(channels).forEach((chInfo) => {
+    if (!Mixer.has(chInfo.id)) {
+      Mixer.set(chInfo.id, new Channel(chInfo.url, chInfo.volume));
+    }
+  });
+
+  Mixer.forEach((ch, id) => {
+    if (!channels[id]) {
+      ch.unload();
+      Mixer.delete(id);
+    }
+  });
+
   const load = (id: string, url: string, volume: number = 0) =>
     setChannels({
       ...channels,
-      [id]: new Channel(url, volume),
+      [id]: {
+        id,
+        url,
+        volume,
+      },
     });
 
   const unload = (id: string) => {
-    const { [id]: trackToRemove, ...rest } = channels;
-    trackToRemove.unload();
+    const { [id]: chToRemove, ...rest } = channels;
     setChannels(rest);
+  };
+
+  const volume = (id: string, step: number) => {
+    const channel = Mixer.get(id);
+    if (!channel) {
+      return;
+    }
+
+    const newVolume = channel.volume() + step;
+    if (newVolume < 0 || newVolume > 1) {
+      return;
+    }
+    channel.volume(newVolume);
+
+    setChannels({
+      ...channels,
+      [id]: {
+        ...channels[id],
+        volume: channel.volume(),
+      },
+    });
+  };
+
+  const muteAll = (mute: boolean) => {
+    Mixer.forEach((ch) => ch.mute(mute));
   };
 
   return {
     load,
     unload,
+    volume,
+    muteAll,
     channels,
   };
 };

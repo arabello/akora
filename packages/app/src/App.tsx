@@ -89,7 +89,7 @@ const App = () => {
   firstMount = false;
   const mixer = useMixer(Object.values(session));
   const tracks: Record<string, Track> = Object.entries(mixer.channels).reduce(
-    (acc, [id, ch]) => {
+    (acc, [id, { url, volume }]) => {
       const name = sources.find((s) => s.id === id)?.name;
       return !name
         ? acc
@@ -98,8 +98,8 @@ const App = () => {
           [id]: {
             id,
             name,
-            url: ch.url(),
-            volume: ch.volume(),
+            url,
+            volume,
           },
         };
     },
@@ -111,7 +111,7 @@ const App = () => {
    * Mute
    */
   const [mute, setMute] = useState(false);
-  Object.values(mixer.channels).forEach((ch) => ch.mute(mute));
+  mixer.muteAll(mute);
 
   /**
    * Search
@@ -186,13 +186,13 @@ const App = () => {
         });
       }),
     [KB.ArrowLeft.id]: () =>
-      withFocusedTrackDo((tid) => mixer.channels[tid].fade(-VOLUME_STEP)),
+      withFocusedTrackDo((tid) => mixer.volume(tid, -VOLUME_STEP)),
     [KB.ArrowRight.id]: () =>
-      withFocusedTrackDo((tid) => mixer.channels[tid].fade(VOLUME_STEP)),
+      withFocusedTrackDo((tid) => mixer.volume(tid, VOLUME_STEP)),
     [KB.shift.ArrowLeft.id]: () =>
-      withFocusedTrackDo((tid) => mixer.channels[tid].fade(-VOLUME_ADJUST)),
+      withFocusedTrackDo((tid) => mixer.volume(tid, -VOLUME_ADJUST)),
     [KB.shift.ArrowRight.id]: () =>
-      withFocusedTrackDo((tid) => mixer.channels[tid].fade(VOLUME_ADJUST)),
+      withFocusedTrackDo((tid) => mixer.volume(tid, VOLUME_ADJUST)),
     [KB.shift.Slash.id]: () => setShowShortcutsModal(!showShortcutsModal),
     [KB.shift.M.id]: () => setMute(!mute),
   };
@@ -266,7 +266,7 @@ const App = () => {
                 kind="transparent"
                 hierarchy="primary"
                 label=""
-                onPress={() => mixer.channels[track.id].fade(-VOLUME_STEP)}
+                onPress={() => mixer.volume(track.id, -VOLUME_STEP)}
               />
             </Conceal>
           </Column>
@@ -287,7 +287,7 @@ const App = () => {
                 kind="transparent"
                 hierarchy="primary"
                 label=""
-                onPress={() => mixer.channels[track.id].fade(VOLUME_STEP)}
+                onPress={() => mixer.volume(track.id, VOLUME_STEP)}
               />
             </Conceal>
           </Column>
