@@ -8,8 +8,6 @@ import {
   Conceal,
   Headline,
   IconButton,
-  IconChevronLeft,
-  IconChevronRight,
   IconClose,
   IconInfo,
   IconMute,
@@ -28,6 +26,7 @@ import { useState } from "react";
 import "./app.css";
 import { AboutModal } from "./components/AboutModal";
 import { ShortcutsModal } from "./components/ShortcutsModal";
+import { TrackControls } from "./components/TrackControls";
 import { useMixer } from "./mixer";
 import { LocalStorageSessionRepository, SessionRepository } from "./session";
 import { Source, search, sources } from "./sources";
@@ -252,49 +251,47 @@ const App = () => {
       </Conceal>
     );
     return (
-      <Box
+      <TrackControls
         key={`track-container-${track.id}`}
-        onMouseEnter={() => focusFirst({ find: (id) => id === trackFID })}
-        onMouseLeave={() => focusClear()}
+        showControls={isFocused}
+        onEnter={() => focusFirst({ find: (id) => id === trackFID })}
+        onLeave={() => focusClear()}
+        onArrowLeft={() => mixer.volume(track.id, -VOLUME_STEP)}
+        onArrowRight={() => mixer.volume(track.id, VOLUME_STEP)}
       >
-        <Columns space={24} alignY="center">
-          <Column width="content">
-            <Conceal visible={isFocused}>
-              <IconButton
-                icon={IconChevronLeft}
-                size={8}
-                kind="transparent"
-                hierarchy="primary"
-                label=""
-                onPress={() => mixer.volume(track.id, -VOLUME_STEP)}
-              />
-            </Conceal>
-          </Column>
-          <ProgressBarCard
-            key={track.id}
-            tabIndex={0}
-            data-focus-id={trackFID}
-            title={track.name}
-            progress={track.volume}
-            background={isFocused ? "backgroundSecondary" : undefined}
-            icon={iconRemove}
-          />
-          <Column width="content">
-            <Conceal visible={isFocused}>
-              <IconButton
-                icon={IconChevronRight}
-                size={8}
-                kind="transparent"
-                hierarchy="primary"
-                label=""
-                onPress={() => mixer.volume(track.id, VOLUME_STEP)}
-              />
-            </Conceal>
-          </Column>
-        </Columns>
-      </Box>
+        <ProgressBarCard
+          key={track.id}
+          tabIndex={0}
+          data-focus-id={trackFID}
+          title={track.name}
+          progress={track.volume}
+          background={isFocused ? "backgroundSecondary" : undefined}
+          icon={iconRemove}
+        />
+      </TrackControls>
     );
   });
+
+  const placeholderTracksRange = [...Array(7)];
+  const placeholderTracksRender = placeholderTracksRange.flatMap((_, i) => (
+    <Box style={{ position: "relative" }} key={`placeholder-track-container-${i}`}>
+      <Box
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundColor: `rgba(255, 255, 255, ${i * (1 / placeholderTracksRange.length)
+            })`,
+        }}
+      />
+      <TrackControls showControls={false}>
+        <ProgressBarCard
+          key={`placeholder-track-${i}`}
+          title=" " // Use of U+2000 to render an empty block with the same height as a title
+          progress={0}
+        />
+      </TrackControls>
+    </Box>
+  ));
 
   const [aboutModalShow, setAboutModalShow] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
@@ -376,11 +373,14 @@ const App = () => {
           </Box>
         </Column>
         <Column width="1/3">
-          {tracksRender.length <= 0 ? (
-            <></>
-          ) : (
-            <Stack space={4}>{tracksRender}</Stack>
-          )}
+          <Stack space={16}>
+            {tracksRender
+              .concat(placeholderTracksRender)
+              .slice(
+                0,
+                Math.max(placeholderTracksRange.length, tracksRender.length)
+              )}
+          </Stack>
         </Column>
         <Column width="1/5">
           <Stack space={16}>
