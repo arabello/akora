@@ -6,24 +6,22 @@ export const AboutModal = (
   <Modal title="About" {...props}>
     <Stack space={24}>
       <Body size="large">
-        I built Night Focus mostly for my evening sessions.
-      </Body>
-      <Body size="large">
         I love to{" "}
         <Body size="large" weight="strong">
           immerse
         </Body>{" "}
-        myself with ambient sounds while studying, coding and reading. I wanted
+        myself with ambient sounds while studying, coding or reading. I wanted
         something{" "}
         <Body size="large" weight="strong">
           tailored
-        </Body>{" "}
-        to my picky user experience that I can fine tune at need. Differently
-        from background music, it hugs my mind just enough to{" "}
+        </Body>
+        , with a picky user experience to mix and fine-tune a variety of ambient
+        sounds. I sought a customizable auditory experience that would reconcile
+        my{" "}
         <Body size="large" weight="strong">
           focus
         </Body>{" "}
-        with no intrusive distracting peaks.
+        .
       </Body>
       <Body size="large">
         Feel free to{" "}
