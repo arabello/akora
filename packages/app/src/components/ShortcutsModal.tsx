@@ -6,7 +6,7 @@ import {
   Inline,
   Chip,
   Body,
-} from "@night-focus/design-system";
+} from "@buildo/bento-design-system";
 
 export const ShortcutsModal = (
   props: Omit<React.ComponentProps<typeof Modal>, "title" | "children">

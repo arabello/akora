@@ -2,11 +2,11 @@ import {
   Box,
   Column,
   Columns,
-  Conceal,
   IconButton,
   IconChevronLeft,
   IconChevronRight,
-} from "@night-focus/design-system";
+} from "@buildo/bento-design-system";
+import { Conceal } from "./Conceal";
 
 type Props = {
   children: JSX.Element;

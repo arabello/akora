@@ -5,28 +5,29 @@ import {
   Chip,
   Column,
   Columns,
-  Conceal,
   Headline,
   IconButton,
   IconClose,
+  Inset,
+  Link,
+  Stack,
+} from "@buildo/bento-design-system";
+import { KB, useKeyBinding } from "keybinding";
+import { useState } from "react";
+import "./app.css";
+import {
+  AboutModal,
+  Conceal,
   IconInfo,
   IconMute,
   IconSliders,
   IconVolume,
-  Inset,
-  Link,
   ListItem,
   ProgressBarCard,
   SearchBar,
-  Stack,
-} from "@night-focus/design-system";
-import "@night-focus/design-system/lib/index.css";
-import { KB, useKeyBinding } from "keybinding";
-import { useState } from "react";
-import "./app.css";
-import { AboutModal } from "./components/AboutModal";
-import { ShortcutsModal } from "./components/ShortcutsModal";
-import { TrackControls } from "./components/TrackControls";
+  ShortcutsModal,
+  TrackControls,
+} from "./components";
 import { useMixer } from "./mixer";
 import { LocalStorageSessionRepository, SessionRepository } from "./session";
 import { Source, search, sources } from "./sources";
@@ -397,7 +398,7 @@ const App = () => {
               panel.
             </Body>
             <Body size="medium" color="secondary" align="justify">
-              Once a track has been successfully loaded, you may
+              Once a track has been successfully loaded, you may{" "}
               <Body size="medium" weight="strong">
                 hover{" "}
               </Body>{" "}

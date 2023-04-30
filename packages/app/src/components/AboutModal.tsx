@@ -1,4 +1,4 @@
-import { Modal, Stack, Body, Link } from "@night-focus/design-system";
+import { Modal, Stack, Body, Link } from "@buildo/bento-design-system";
 
 export const AboutModal = (
   props: Omit<React.ComponentProps<typeof Modal>, "title" | "children">

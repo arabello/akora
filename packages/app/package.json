@@ -2,9 +2,9 @@
   "name": "@night-focus/app",
   "version": "0.1.0",
   "private": true,
-  "author": "Matteo Pellegrino <matteo.pell.pellegrino@gmail.com> (https://matteopellegrino.dev)",
+  "author": "Matteo Pellegrino <matteo.pelle.pellegrino@gmail.com> (https://matteopellegrino.dev)",
   "dependencies": {
-    "@night-focus/design-system": "*",
+    "@buildo/bento-design-system": "^0.17.2",
     "@react-aria/focus": "^3.11.0",
     "cross-env": "^7.0.3",
     "fuse.js": "^6.6.2",
