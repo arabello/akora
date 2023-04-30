@@ -330,7 +330,7 @@ const App = () => {
                 <ListItem
                   onClick={() => setAboutModalShow(true)}
                   leftAccessory={(() => (
-                    <IconInfo size={16} color="primaryInverse" />
+                    <IconInfo size={16} color="primary" />
                   ))()}
                 >
                   About
@@ -338,13 +338,9 @@ const App = () => {
                 <ListItem
                   onClick={() => setShowShortcutsModal(true)}
                   leftAccessory={(() => (
-                    <IconSliders size={16} />
+                    <IconSliders size={16} color="primary" />
                   ))()}
-                  rightAccessory={
-                    <Body size="small" color="secondary">
-                      ?
-                    </Body>
-                  }
+                  rightAccessory={<Body size="small">?</Body>}
                 >
                   Keybindings
                 </ListItem>
@@ -352,9 +348,9 @@ const App = () => {
                   onClick={() => setMute(!mute)}
                   leftAccessory={(() =>
                     mute ? (
-                      <IconVolume size={16} color="primaryInverse" />
+                      <IconVolume size={16} color="primary" />
                     ) : (
-                      <IconMute size={16} color="primaryInverse" />
+                      <IconMute size={16} color="informative" />
                     ))()}
                   rightAccessory={
                     <Body size="small" color="secondary">
