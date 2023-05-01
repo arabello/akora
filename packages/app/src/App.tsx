@@ -348,9 +348,9 @@ const App = () => {
                   onClick={() => setMute(!mute)}
                   leftAccessory={(() =>
                     mute ? (
-                      <IconVolume size={16} color="primary" />
-                    ) : (
                       <IconMute size={16} color="informative" />
+                    ) : (
+                      <IconVolume size={16} color="primary" />
                     ))()}
                   rightAccessory={
                     <Body size="small" color="secondary">
