@@ -8,5 +8,8 @@
     "build": "turbo run build",
     "prettier-write": "turbo run prettier-write",
     "prettier-check": "turbo run prettier-check"
+  },
+  "devDependencies": {
+    "turbo": "1.2.5"
   }
 }
