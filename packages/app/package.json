@@ -6,6 +6,7 @@
   "dependencies": {
     "@buildo/bento-design-system": "^0.17.2",
     "@react-aria/focus": "^3.11.0",
+    "buffer": "^6.0.3",
     "cross-env": "^7.0.3",
     "fuse.js": "^6.6.2",
     "howler": "^2.2.3",

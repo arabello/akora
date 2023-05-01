@@ -1,4 +1,5 @@
 import { Modal, Stack, Body, Link } from "@buildo/bento-design-system";
+import { Buffer } from "buffer";
 
 export const AboutModal = (
   props: Omit<React.ComponentProps<typeof Modal>, "title" | "children">
@@ -25,10 +26,23 @@ export const AboutModal = (
       </Body>
       <Body size="large">
         Feel free to{" "}
-        <Link href="mailto:matteo.pelle.pellegrino@gmail.com?subject=%5BNight%20Focus%5D">
+        <Link
+          href={`mailto:${Buffer.from(
+            "bWF0dGVvLnBlbGxlLnBlbGxlZ3Jpbm9AZ21haWwuY29t",
+            "base64"
+          )}?subject=%5BNight%20Focus%5D`}
+        >
           reach out to me
         </Link>{" "}
         for any feedback, requests or suggestions.
+      </Body>
+
+      <Body size="large">
+        To report an unexpected behavior, please open an issue on{" "}
+        <Link href="https://github.com/arabello/night-focus/issues">
+          GitHub
+        </Link>
+        .
       </Body>
     </Stack>
   </Modal>
