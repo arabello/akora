@@ -8,6 +8,7 @@ import {
   Headline,
   IconButton,
   IconClose,
+  Inline,
   Inset,
   Link,
   Stack,
@@ -32,6 +33,7 @@ import { useMixer } from "./mixer";
 import { LocalStorageSessionRepository, SessionRepository } from "./session";
 import { Source, search, sources } from "./sources";
 import { useFocus } from "./useFocus";
+import { IconHeart } from "./components/Icons/IconHeart";
 
 type Track = Source & {
   volume: number;
@@ -316,120 +318,146 @@ const App = () => {
       />
     </Box>
   ) : (
-    <Inset spaceX={32} spaceY={32}>
-      <Columns space={80}>
-        <Column width="1/3">
-          <Box display="flex" justifyContent="flexEnd">
-            <Stack space={16}>
-              <Box display="flex" alignItems="baseline">
-                <Box flex={1}>
-                  <Headline size="large">Night Focus</Headline>
-                </Box>
+    <>
+      <Box style={{ minHeight: "100%" }}>
+        <Inset spaceX={32} spaceY={32}>
+          <Columns space={80}>
+            <Column width="1/3">
+              <Box display="flex" justifyContent="flexEnd">
+                <Stack space={16}>
+                  <Box display="flex" alignItems="baseline">
+                    <Box flex={1}>
+                      <Headline size="large">Night Focus</Headline>
+                    </Box>
+                  </Box>
+                  <Stack space={4}>
+                    <ListItem
+                      onClick={() => setAboutModalShow(true)}
+                      leftAccessory={(() => (
+                        <IconInfo size={16} color="primary" />
+                      ))()}
+                    >
+                      About
+                    </ListItem>
+                    <ListItem
+                      onClick={() => setShowShortcutsModal(true)}
+                      leftAccessory={(() => (
+                        <IconSliders size={16} color="primary" />
+                      ))()}
+                      rightAccessory={<Body size="small">?</Body>}
+                    >
+                      Keybindings
+                    </ListItem>
+                    <ListItem
+                      onClick={() => setMute(!mute)}
+                      leftAccessory={(() =>
+                        mute ? (
+                          <IconMute size={16} color="informative" />
+                        ) : (
+                          <IconVolume size={16} color="primary" />
+                        ))()}
+                      rightAccessory={
+                        <Body size="small" color="secondary">
+                          ⇧ + M
+                        </Body>
+                      }
+                    >
+                      {mute ? "Unmute" : "Mute"}
+                    </ListItem>
+                  </Stack>
+                  <SearchBar
+                    data-focus-id="searchbar"
+                    aria-label="Search for sources"
+                    placeholder="Search for sources..."
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    rightAccessory={<Chip label="⌘ + K" color="grey" />}
+                  />
+                  <Stack space={4}>{sourcesRender}</Stack>
+                </Stack>
               </Box>
-              <Stack space={4}>
-                <ListItem
-                  onClick={() => setAboutModalShow(true)}
-                  leftAccessory={(() => (
-                    <IconInfo size={16} color="primary" />
-                  ))()}
-                >
-                  About
-                </ListItem>
-                <ListItem
-                  onClick={() => setShowShortcutsModal(true)}
-                  leftAccessory={(() => (
-                    <IconSliders size={16} color="primary" />
-                  ))()}
-                  rightAccessory={<Body size="small">?</Body>}
-                >
-                  Keybindings
-                </ListItem>
-                <ListItem
-                  onClick={() => setMute(!mute)}
-                  leftAccessory={(() =>
-                    mute ? (
-                      <IconMute size={16} color="informative" />
-                    ) : (
-                      <IconVolume size={16} color="primary" />
-                    ))()}
-                  rightAccessory={
-                    <Body size="small" color="secondary">
-                      ⇧ + M
-                    </Body>
-                  }
-                >
-                  {mute ? "Unmute" : "Mute"}
-                </ListItem>
+            </Column>
+            <Column width="1/3">
+              <Stack space={16}>
+                {tracksRender
+                  .concat(placeholderTracksRender)
+                  .slice(
+                    0,
+                    Math.max(placeholderTracksRange.length, tracksRender.length)
+                  )}
               </Stack>
-              <SearchBar
-                data-focus-id="searchbar"
-                aria-label="Search for sources"
-                placeholder="Search for sources..."
-                value={searchQuery}
-                onChange={setSearchQuery}
-                rightAccessory={<Chip label="⌘ + K" color="grey" />}
-              />
-              <Stack space={4}>{sourcesRender}</Stack>
-            </Stack>
-          </Box>
-        </Column>
-        <Column width="1/3">
-          <Stack space={16}>
-            {tracksRender
-              .concat(placeholderTracksRender)
-              .slice(
-                0,
-                Math.max(placeholderTracksRange.length, tracksRender.length)
-              )}
-          </Stack>
-        </Column>
-        <Column width="1/5">
-          <Stack space={16}>
-            <Body size="medium" color="secondary" align="justify">
-              To{" "}
-              <Body size="medium" weight="strong">
-                load a track{" "}
-              </Body>
-              into the pool, click on the desired audio source from the left
-              panel.
-            </Body>
-            <Body size="medium" color="secondary" align="justify">
-              Once a track has been successfully loaded, you may{" "}
-              <Body size="medium" weight="strong">
-                hover{" "}
-              </Body>{" "}
-              your cursor over the track to reveal the available controls.
-            </Body>
-            <Body size="medium" color="secondary" align="justify">
-              To{" "}
-              <Body size="medium" weight="strong">
-                adjust the volume{" "}
-              </Body>
-              of a selected track, use the side arrow buttons.
-            </Body>
-            <Body size="medium" color="secondary" align="justify">
-              Check out the{" "}
-              <Link
-                onClick={() => {
-                  setShowShortcutsModal(true);
-                }}
-              >
-                <Body size="medium" weight="strong">
-                  keyboard shortcuts
+            </Column>
+            <Column width="1/5">
+              <Stack space={16}>
+                <Body size="medium" color="secondary" align="justify">
+                  To{" "}
+                  <Body size="medium" weight="strong">
+                    load a track{" "}
+                  </Body>
+                  into the pool, click on the desired audio source from the left
+                  panel.
                 </Body>
-              </Link>{" "}
-              to streamline your workflow.
+                <Body size="medium" color="secondary" align="justify">
+                  Once a track has been successfully loaded, you may{" "}
+                  <Body size="medium" weight="strong">
+                    hover{" "}
+                  </Body>{" "}
+                  your cursor over the track to reveal the available controls.
+                </Body>
+                <Body size="medium" color="secondary" align="justify">
+                  To{" "}
+                  <Body size="medium" weight="strong">
+                    adjust the volume{" "}
+                  </Body>
+                  of a selected track, use the side arrow buttons.
+                </Body>
+                <Body size="medium" color="secondary" align="justify">
+                  Check out the{" "}
+                  <Link
+                    onClick={() => {
+                      setShowShortcutsModal(true);
+                    }}
+                  >
+                    <Body size="medium" weight="strong">
+                      keyboard shortcuts
+                    </Body>
+                  </Link>{" "}
+                  to streamline your workflow.
+                </Body>
+              </Stack>
+            </Column>
+          </Columns>
+          {showShortcutsModal && (
+            <ShortcutsModal onClose={() => setShowShortcutsModal(false)} />
+          )}
+          {aboutModalShow && (
+            <AboutModal onClose={() => setAboutModalShow(false)} />
+          )}
+        </Inset>
+      </Box>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        paddingTop={16}
+        paddingBottom={16}
+      >
+        <Inline space={4}>
+          <Body size="small" color="secondary">
+            Made with
+          </Body>
+          <IconHeart size={12} color="secondary" />
+          <Body size="small" color="secondary">
+            by
+          </Body>
+          <Link href="https://www.matteopellegrino.dev" target="blank">
+            <Body size="small" color="secondary">
+              Matteo Pellegrino
             </Body>
-          </Stack>
-        </Column>
-      </Columns>
-      {showShortcutsModal && (
-        <ShortcutsModal onClose={() => setShowShortcutsModal(false)} />
-      )}
-      {aboutModalShow && (
-        <AboutModal onClose={() => setAboutModalShow(false)} />
-      )}
-    </Inset>
+          </Link>
+        </Inline>
+      </Box>
+    </>
   );
 };
 

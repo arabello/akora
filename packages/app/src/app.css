@@ -1,3 +1,7 @@
+#root{
+  height: 100vh;
+}
+
 *[data-focus-id] {
   outline-style: none;
 }
