@@ -1,6 +1,5 @@
 .vscode
 build
-packages/app/public/assets/sources/
 sourcesIndex.json
 lib
 .turbo
