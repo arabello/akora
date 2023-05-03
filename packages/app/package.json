@@ -1,6 +1,7 @@
 {
   "name": "@night-focus/app",
   "version": "0.1.0",
+  "homepage": "https://www.matteopellegrino.dev/night-focus",
   "private": true,
   "author": "Matteo Pellegrino <matteo.pelle.pellegrino@gmail.com> (https://matteopellegrino.dev)",
   "dependencies": {
