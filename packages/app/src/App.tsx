@@ -390,26 +390,25 @@ const App = () => {
             <Column width="1/5">
               <Stack space={16}>
                 <Body size="medium" color="secondary" align="justify">
-                  To{" "}
+                  Click on a source from the left panel to{" "}
                   <Body size="medium" weight="strong">
                     load a track{" "}
                   </Body>
-                  into the pool, click on the desired audio source from the left
-                  panel.
+                  into the pool.
                 </Body>
                 <Body size="medium" color="secondary" align="justify">
-                  Once a track has been successfully loaded, you may{" "}
+                  You may{" "}
                   <Body size="medium" weight="strong">
                     hover{" "}
                   </Body>{" "}
-                  your cursor over the track to reveal the available controls.
+                  over the loaded track to reveal the available controls.
                 </Body>
                 <Body size="medium" color="secondary" align="justify">
-                  To{" "}
+                  Use the side arrow buttons to{" "}
                   <Body size="medium" weight="strong">
                     adjust the volume{" "}
                   </Body>
-                  of a selected track, use the side arrow buttons.
+                  of a selected track.
                 </Body>
                 <Body size="medium" color="secondary" align="justify">
                   Check out the{" "}
@@ -423,6 +422,14 @@ const App = () => {
                     </Body>
                   </Link>{" "}
                   to streamline your workflow.
+                </Body>
+                <Body size="medium" color="secondary" align="justify">
+                  Loaded tracks will be saved if you leave the app. When you
+                  came back, {""}
+                  <Body size="medium" weight="strong">
+                    click{" "}
+                  </Body>{" "}
+                  on anything to resume the audio.
                 </Body>
               </Stack>
             </Column>

@@ -11,7 +11,7 @@ export const AboutModal = (
         <Body size="large" weight="strong">
           immerse
         </Body>{" "}
-        myself with ambient sounds while studying, coding or reading. I wanted
+        myself with ambient sounds while coding or studying at night. I wanted
         something{" "}
         <Body size="large" weight="strong">
           tailored
@@ -21,9 +21,20 @@ export const AboutModal = (
         my{" "}
         <Body size="large" weight="strong">
           focus
-        </Body>{" "}
+        </Body>
         .
       </Body>
+      <Body size="large">
+        Night Focus helps me get into the{" "}
+        <Link
+          href="https://en.wikipedia.org/wiki/Flow_(psychology)"
+          target="_blank"
+        >
+          Flow State
+        </Link>
+        .
+      </Body>
+
       <Body size="large">
         Feel free to{" "}
         <Link
@@ -34,15 +45,14 @@ export const AboutModal = (
         >
           reach out to me
         </Link>{" "}
-        for any feedback, requests or suggestions.
-      </Body>
-
-      <Body size="large">
-        To report an unexpected behavior, please open an issue on{" "}
-        <Link href="https://github.com/arabello/night-focus/issues">
+        for any feedback, request or suggestion. Please open an issue on{" "}
+        <Link
+          href="https://github.com/arabello/night-focus/issues"
+          target="_blank"
+        >
           GitHub
-        </Link>
-        .
+        </Link>{" "}
+        to report any unexpected behavior.
       </Body>
     </Stack>
   </Modal>
