@@ -5,6 +5,7 @@
   "author": "Matteo Pellegrino <matteo.pelle.pellegrino@gmail.com> (https://matteopellegrino.dev)",
   "dependencies": {
     "@buildo/bento-design-system": "^0.17.2",
+    "keybinding": "*",
     "@react-aria/focus": "^3.11.0",
     "buffer": "^6.0.3",
     "cross-env": "^7.0.3",
