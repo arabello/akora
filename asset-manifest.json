@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/night-focus/static/css/main.e6ba1ddb.css",
-    "main.js": "/night-focus/static/js/main.8b2d4d83.js",
+    "main.js": "/night-focus/static/js/main.fb06fc11.js",
     "static/media/ibm-plex-sans-all-600-normal-XJDSQMVI.woff": "/night-focus/static/media/ibm-plex-sans-all-600-normal-XJDSQMVI.10428b83d16ec0dd1c67.woff",
     "static/media/ibm-plex-sans-all-500-normal-EF7FSWFZ.woff": "/night-focus/static/media/ibm-plex-sans-all-500-normal-EF7FSWFZ.dfe890c7aba797c40f35.woff",
     "static/media/ibm-plex-sans-all-400-normal-F3TSKJ4V.woff": "/night-focus/static/media/ibm-plex-sans-all-400-normal-F3TSKJ4V.ac37447d88dc924364ce.woff",
@@ -25,10 +25,10 @@
     "static/media/ibm-plex-sans-vietnamese-400-normal-MBSB5UMM.woff2": "/night-focus/static/media/ibm-plex-sans-vietnamese-400-normal-MBSB5UMM.2e4166a1b8ecf1ee5e45.woff2",
     "index.html": "/night-focus/index.html",
     "main.e6ba1ddb.css.map": "/night-focus/static/css/main.e6ba1ddb.css.map",
-    "main.8b2d4d83.js.map": "/night-focus/static/js/main.8b2d4d83.js.map"
+    "main.fb06fc11.js.map": "/night-focus/static/js/main.fb06fc11.js.map"
   },
   "entrypoints": [
     "static/css/main.e6ba1ddb.css",
-    "static/js/main.8b2d4d83.js"
+    "static/js/main.fb06fc11.js"
   ]
 }
