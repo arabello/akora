@@ -7,7 +7,7 @@ import {
   Columns,
   Headline,
   IconButton,
-  IconClose,
+  IconX,
   Inline,
   Inset,
   Link,
@@ -239,8 +239,8 @@ const App = () => {
     const iconRemove = (
       <Conceal visible={isFocused}>
         <IconButton
-          icon={IconClose}
-          size={8}
+          icon={IconX}
+          size={12}
           kind="transparent"
           hierarchy="primary"
           label=""
@@ -344,9 +344,13 @@ const App = () => {
                       leftAccessory={(() => (
                         <IconSliders size={16} color="primary" />
                       ))()}
-                      rightAccessory={<Body size="small">?</Body>}
+                      rightAccessory={
+                        <Body size="small" color="secondary">
+                          ?
+                        </Body>
+                      }
                     >
-                      Keybindings
+                      Shortcuts
                     </ListItem>
                     <ListItem
                       onClick={() => setMute(!mute)}

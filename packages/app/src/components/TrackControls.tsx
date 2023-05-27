@@ -27,7 +27,7 @@ export const TrackControls = (props: Props) => {
           <Conceal visible={props.showControls}>
             <IconButton
               icon={IconChevronLeft}
-              size={8}
+              size={12}
               kind="transparent"
               hierarchy="primary"
               label=""
@@ -40,7 +40,7 @@ export const TrackControls = (props: Props) => {
           <Conceal visible={props.showControls}>
             <IconButton
               icon={IconChevronRight}
-              size={8}
+              size={12}
               kind="transparent"
               hierarchy="primary"
               label=""
