@@ -34,6 +34,7 @@ import { LocalStorageSessionRepository, SessionRepository } from "./session";
 import { Source, search, sources } from "./sources";
 import { useFocus } from "./useFocus";
 import { IconHeart } from "./components/Icons/IconHeart";
+import { Overlay } from "./components/Overlay";
 
 type Track = Source & {
   volume: number;
@@ -88,7 +89,11 @@ const App = () => {
    * Mixer
    */
   const session = firstMount ? sessionRepo.read() || {} : {};
+  const [showOverlay, setShowOverlay] = useState(
+    firstMount && Object.keys(session).length > 0
+  );
   firstMount = false;
+
   const mixer = useMixer(Object.values(session));
   const tracks: Record<string, Track> = Object.entries(mixer.channels).reduce(
     (acc, [id, { url, volume }]) => {
@@ -306,7 +311,6 @@ const App = () => {
   return isMobile ? (
     <Box
       display="flex"
-      height="full"
       alignItems="center"
       flexDirection="column"
       paddingTop={80}
@@ -318,8 +322,24 @@ const App = () => {
       />
     </Box>
   ) : (
-    <>
-      <Box style={{ minHeight: "100%" }}>
+    <Box>
+      {showOverlay && (
+        <Overlay style={{ height: "110vh" }}>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="full"
+            onClick={() => setShowOverlay(false)}
+          >
+            <Stack space={4} align="center">
+              <Body size="large">Press any key</Body>
+              <Body size="large">to resume</Body>
+            </Stack>
+          </Box>
+        </Overlay>
+      )}
+      <Box style={{ height: "100vh" }}>
         <Inset spaceX={32} spaceY={32}>
           <Columns space={80}>
             <Column width="1/3">
@@ -452,6 +472,7 @@ const App = () => {
         justifyContent="center"
         paddingTop={16}
         paddingBottom={16}
+        style={{ height: "10vh" }}
       >
         <Inline space={4}>
           <Body size="small" color="secondary">
@@ -468,7 +489,7 @@ const App = () => {
           </Link>
         </Inline>
       </Box>
-    </>
+    </Box>
   );
 };
 
