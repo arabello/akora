@@ -13,7 +13,7 @@ import {
   Link,
   Stack,
 } from "@buildo/bento-design-system";
-import { KB, useKeyBinding } from "keybinding";
+import { KB, useKeyBinding, useKeyPress } from "keybinding";
 import { useState } from "react";
 import "./app.css";
 import {
@@ -88,10 +88,9 @@ const App = () => {
   /**
    * Mixer
    */
+  useKeyPress();
   const session = firstMount ? sessionRepo.read() || {} : {};
-  const [showOverlay, setShowOverlay] = useState(
-    firstMount && Object.keys(session).length > 0
-  );
+  const showOverlay = firstMount && Object.keys(session).length > 0;
   firstMount = false;
 
   const mixer = useMixer(Object.values(session));
@@ -330,10 +329,9 @@ const App = () => {
             justifyContent="center"
             alignItems="center"
             height="full"
-            onClick={() => setShowOverlay(false)}
           >
             <Stack space={4} align="center">
-              <Body size="large">Press any key</Body>
+              <Body size="large">Press any letter key</Body>
               <Body size="large">to resume</Body>
             </Stack>
           </Box>
