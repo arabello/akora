@@ -1,34 +1,25 @@
 {
   "files": {
-    "main.css": "/night-focus/static/css/main.e6ba1ddb.css",
-    "main.js": "/night-focus/static/js/main.fb06fc11.js",
-    "static/media/ibm-plex-sans-all-600-normal-XJDSQMVI.woff": "/night-focus/static/media/ibm-plex-sans-all-600-normal-XJDSQMVI.10428b83d16ec0dd1c67.woff",
-    "static/media/ibm-plex-sans-all-500-normal-EF7FSWFZ.woff": "/night-focus/static/media/ibm-plex-sans-all-500-normal-EF7FSWFZ.dfe890c7aba797c40f35.woff",
-    "static/media/ibm-plex-sans-all-400-normal-F3TSKJ4V.woff": "/night-focus/static/media/ibm-plex-sans-all-400-normal-F3TSKJ4V.ac37447d88dc924364ce.woff",
-    "static/media/ibm-plex-sans-latin-600-normal-U6XWZCQO.woff2": "/night-focus/static/media/ibm-plex-sans-latin-600-normal-U6XWZCQO.343ea5304f9ab1a7567b.woff2",
-    "static/media/ibm-plex-sans-latin-500-normal-7AC4LVBP.woff2": "/night-focus/static/media/ibm-plex-sans-latin-500-normal-7AC4LVBP.51f75d450b3474fa5f0e.woff2",
-    "static/media/ibm-plex-sans-latin-400-normal-ZSRYUOWF.woff2": "/night-focus/static/media/ibm-plex-sans-latin-400-normal-ZSRYUOWF.4d32b6c22a800bdf8260.woff2",
-    "static/media/ibm-plex-sans-latin-ext-600-normal-64OJSSDI.woff2": "/night-focus/static/media/ibm-plex-sans-latin-ext-600-normal-64OJSSDI.73090c8b2d71cf4cbe65.woff2",
-    "static/media/ibm-plex-sans-latin-ext-500-normal-3NJR3J7C.woff2": "/night-focus/static/media/ibm-plex-sans-latin-ext-500-normal-3NJR3J7C.4df16cd5d175486b7a6c.woff2",
-    "static/media/ibm-plex-sans-latin-ext-400-normal-GM2V5SYZ.woff2": "/night-focus/static/media/ibm-plex-sans-latin-ext-400-normal-GM2V5SYZ.77bcbc5ecc8f4f2bbe06.woff2",
-    "static/media/ibm-plex-sans-cyrillic-500-normal-ZVVK3J5D.woff2": "/night-focus/static/media/ibm-plex-sans-cyrillic-500-normal-ZVVK3J5D.bc2fa1551a7f6dd6fac1.woff2",
-    "static/media/ibm-plex-sans-cyrillic-600-normal-5KYYWSAI.woff2": "/night-focus/static/media/ibm-plex-sans-cyrillic-600-normal-5KYYWSAI.3705fee7c787a45e9ebe.woff2",
-    "static/media/ibm-plex-sans-cyrillic-400-normal-B2AR4LWB.woff2": "/night-focus/static/media/ibm-plex-sans-cyrillic-400-normal-B2AR4LWB.2f77d85fb008b53d005a.woff2",
-    "static/media/ibm-plex-sans-greek-600-normal-T2YQS6FZ.woff2": "/night-focus/static/media/ibm-plex-sans-greek-600-normal-T2YQS6FZ.636e10e782086ff4b02a.woff2",
-    "static/media/ibm-plex-sans-greek-500-normal-LY7DBBXE.woff2": "/night-focus/static/media/ibm-plex-sans-greek-500-normal-LY7DBBXE.930522bca3ae8f9319b4.woff2",
-    "static/media/ibm-plex-sans-cyrillic-ext-600-normal-JWGWEHD5.woff2": "/night-focus/static/media/ibm-plex-sans-cyrillic-ext-600-normal-JWGWEHD5.7a5e759883b08ebf2bc5.woff2",
-    "static/media/ibm-plex-sans-cyrillic-ext-500-normal-ZUPFDDZC.woff2": "/night-focus/static/media/ibm-plex-sans-cyrillic-ext-500-normal-ZUPFDDZC.17bc5885bfaace64d52f.woff2",
-    "static/media/ibm-plex-sans-greek-400-normal-GVEF64VH.woff2": "/night-focus/static/media/ibm-plex-sans-greek-400-normal-GVEF64VH.3a057227a4ac726b71f5.woff2",
-    "static/media/ibm-plex-sans-cyrillic-ext-400-normal-TEIH3P5J.woff2": "/night-focus/static/media/ibm-plex-sans-cyrillic-ext-400-normal-TEIH3P5J.56b6c5df575156819cfa.woff2",
-    "static/media/ibm-plex-sans-vietnamese-600-normal-YJLZJ3CI.woff2": "/night-focus/static/media/ibm-plex-sans-vietnamese-600-normal-YJLZJ3CI.7876fc64a674fe0c6c4f.woff2",
-    "static/media/ibm-plex-sans-vietnamese-500-normal-FBG4XFER.woff2": "/night-focus/static/media/ibm-plex-sans-vietnamese-500-normal-FBG4XFER.6c8c3310116a9bf473a5.woff2",
-    "static/media/ibm-plex-sans-vietnamese-400-normal-MBSB5UMM.woff2": "/night-focus/static/media/ibm-plex-sans-vietnamese-400-normal-MBSB5UMM.2e4166a1b8ecf1ee5e45.woff2",
+    "main.css": "/night-focus/static/css/main.5b58164b.css",
+    "main.js": "/night-focus/static/js/main.dcfa8feb.js",
+    "static/media/lexend-all-600-normal-LVI6FTND.woff": "/night-focus/static/media/lexend-all-600-normal-LVI6FTND.6151f66c63c85b70f653.woff",
+    "static/media/lexend-all-500-normal-CUHI6DC4.woff": "/night-focus/static/media/lexend-all-500-normal-CUHI6DC4.f10666441dc979dba749.woff",
+    "static/media/lexend-all-400-normal-CQ3RKL3V.woff": "/night-focus/static/media/lexend-all-400-normal-CQ3RKL3V.0fd25d4e2bf62dad3193.woff",
+    "static/media/lexend-latin-600-normal-ECT7A3QM.woff2": "/night-focus/static/media/lexend-latin-600-normal-ECT7A3QM.eaf5c83c8fe14e8c9292.woff2",
+    "static/media/lexend-latin-500-normal-TWHLSJHQ.woff2": "/night-focus/static/media/lexend-latin-500-normal-TWHLSJHQ.68190513eff3ff7dbab7.woff2",
+    "static/media/lexend-latin-400-normal-TXD5HADB.woff2": "/night-focus/static/media/lexend-latin-400-normal-TXD5HADB.66f3898e74813ae23646.woff2",
+    "static/media/lexend-latin-ext-600-normal-W4BHWVG7.woff2": "/night-focus/static/media/lexend-latin-ext-600-normal-W4BHWVG7.5f7ded54fae33f2cfc89.woff2",
+    "static/media/lexend-latin-ext-500-normal-27XMPCTB.woff2": "/night-focus/static/media/lexend-latin-ext-500-normal-27XMPCTB.46d68db79f87c1cbf364.woff2",
+    "static/media/lexend-latin-ext-400-normal-WDIG73YG.woff2": "/night-focus/static/media/lexend-latin-ext-400-normal-WDIG73YG.8798764a2ef5c5762912.woff2",
+    "static/media/lexend-vietnamese-600-normal-V2R6IRK5.woff2": "/night-focus/static/media/lexend-vietnamese-600-normal-V2R6IRK5.7651bcce80dfeea7114e.woff2",
+    "static/media/lexend-vietnamese-500-normal-75ZMUCXS.woff2": "/night-focus/static/media/lexend-vietnamese-500-normal-75ZMUCXS.00c6a7845588b248b1b0.woff2",
+    "static/media/lexend-vietnamese-400-normal-D4Y447LW.woff2": "/night-focus/static/media/lexend-vietnamese-400-normal-D4Y447LW.0c9858ac0202e5eb0c8b.woff2",
     "index.html": "/night-focus/index.html",
-    "main.e6ba1ddb.css.map": "/night-focus/static/css/main.e6ba1ddb.css.map",
-    "main.fb06fc11.js.map": "/night-focus/static/js/main.fb06fc11.js.map"
+    "main.5b58164b.css.map": "/night-focus/static/css/main.5b58164b.css.map",
+    "main.dcfa8feb.js.map": "/night-focus/static/js/main.dcfa8feb.js.map"
   },
   "entrypoints": [
-    "static/css/main.e6ba1ddb.css",
-    "static/js/main.fb06fc11.js"
+    "static/css/main.5b58164b.css",
+    "static/js/main.dcfa8feb.js"
   ]
 }
