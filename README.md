@@ -4,6 +4,7 @@
 
 | Name                                                                              | License                                                   | Edited |
 | --------------------------------------------------------------------------------- | --------------------------------------------------------- | ------ |
+| Amalfi Harbor Morning                                                                    | Recorded                                                 | ✅      |
 | Brownian Noise                                                                    | Generated                                                 | -      |
 | [Coffee Shop](https://signaturesounds.org/)                                       |                                                           | ✅      |
 | Guitar Arpeggio Friend                                                            | Recorded (author [Claudio](https://twitter.com/claudiocaletti))| ✅      |
