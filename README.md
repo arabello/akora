@@ -6,6 +6,7 @@
 | --------------------------------------------------------------------------------- | --------------------------------------------------------- | ------ |
 | Brownian Noise                                                                    | Generated                                                 | -      |
 | [Coffee Shop](https://signaturesounds.org/)                                       |                                                           | ✅      |
+| Guitar Arpeggio Friend                                                            | Recorded (author [Claudio](https://twitter.com/claudiocaletti))| ✅      |
 | Mom Cafe Milan                                                                    | Recorded                                                  | ✅      |
 | [Night Wildlife](https://freesound.org/people/InspectorJ/sounds/352514/)          | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | ✅      |
 | Pink Noise                                                                        | Generated                                                 | -      |
