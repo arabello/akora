@@ -482,7 +482,18 @@ const App = () => {
           </Body>
           <Link href="https://www.matteopellegrino.dev" target="blank">
             <Body size="small" color="secondary">
-              Matteo Pellegrino
+              Matteo Pellegrino.
+            </Body>
+          </Link>
+          <Body size="small" color="secondary">
+            Sounds
+          </Body>
+          <Link
+            href="https://github.com/arabello/night-focus/blob/main/README.md"
+            target="blank"
+          >
+            <Body size="small" color="secondary">
+              credits.
             </Body>
           </Link>
         </Inline>
