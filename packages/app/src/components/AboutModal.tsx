@@ -45,7 +45,8 @@ export const AboutModal = (
         >
           reach out to me
         </Link>{" "}
-        for any feedback, request or suggestion. Please open an issue on{" "}
+        for any feedback, suggestion or to contribute to the sounds collection.
+        Please open an issue on{" "}
         <Link
           href="https://github.com/arabello/night-focus/issues"
           target="_blank"
