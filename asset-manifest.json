@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/night-focus/static/css/main.5b58164b.css",
-    "main.js": "/night-focus/static/js/main.7c31e606.js",
+    "main.js": "/night-focus/static/js/main.4cbf25e9.js",
     "static/media/lexend-all-600-normal-LVI6FTND.woff": "/night-focus/static/media/lexend-all-600-normal-LVI6FTND.6151f66c63c85b70f653.woff",
     "static/media/lexend-all-500-normal-CUHI6DC4.woff": "/night-focus/static/media/lexend-all-500-normal-CUHI6DC4.f10666441dc979dba749.woff",
     "static/media/lexend-all-400-normal-CQ3RKL3V.woff": "/night-focus/static/media/lexend-all-400-normal-CQ3RKL3V.0fd25d4e2bf62dad3193.woff",
@@ -16,10 +16,10 @@
     "static/media/lexend-vietnamese-400-normal-D4Y447LW.woff2": "/night-focus/static/media/lexend-vietnamese-400-normal-D4Y447LW.0c9858ac0202e5eb0c8b.woff2",
     "index.html": "/night-focus/index.html",
     "main.5b58164b.css.map": "/night-focus/static/css/main.5b58164b.css.map",
-    "main.7c31e606.js.map": "/night-focus/static/js/main.7c31e606.js.map"
+    "main.4cbf25e9.js.map": "/night-focus/static/js/main.4cbf25e9.js.map"
   },
   "entrypoints": [
     "static/css/main.5b58164b.css",
-    "static/js/main.7c31e606.js"
+    "static/js/main.4cbf25e9.js"
   ]
 }
