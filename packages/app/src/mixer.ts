@@ -30,7 +30,7 @@ export type ChannelInfo = {
 
 const Mixer = new Map<string, Channel>();
 
-export const useMixer = (initChannels: Array<ChannelInfo> = []) => {
+export const useMixer = (initChannels: Array<ChannelInfo> = [], onStateChange: (e: Event) => void = () => { }) => {
   const [channels, setChannels] = useState<Record<string, ChannelInfo>>(
     initChannels.reduce(
       (acc, chInfo) => ({
@@ -93,6 +93,8 @@ export const useMixer = (initChannels: Array<ChannelInfo> = []) => {
   const muteAll = (mute: boolean) => {
     Mixer.forEach((ch) => ch.mute(mute));
   };
+
+  Howler.ctx != null && (Howler.ctx.onstatechange = onStateChange);
 
   return {
     load,

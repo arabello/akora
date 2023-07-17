@@ -90,10 +90,12 @@ const App = () => {
    */
   useKeyPress();
   const session = firstMount ? sessionRepo.read() || {} : {};
-  const showOverlay = firstMount && Object.keys(session).length > 0;
+  const [showOverlay, setShowOverlay] = useState(
+    firstMount && Object.keys(session).length > 0
+  );
   firstMount = false;
 
-  const mixer = useMixer(Object.values(session));
+  const mixer = useMixer(Object.values(session), () => setShowOverlay(false));
   const tracks: Record<string, Track> = Object.entries(mixer.channels).reduce(
     (acc, [id, { url, volume }]) => {
       const name = sources.find((s) => s.id === id)?.name;
@@ -331,7 +333,7 @@ const App = () => {
             height="full"
           >
             <Stack space={4} align="center">
-              <Body size="large">Press any letter key</Body>
+              <Body size="large">Press any key</Body>
               <Body size="large">to resume</Body>
             </Stack>
           </Box>
