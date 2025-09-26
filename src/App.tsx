@@ -13,7 +13,7 @@ import {
   Link,
   Stack,
 } from "@buildo/bento-design-system";
-import { KB, useKeyBinding, useKeyPress } from "keybinding";
+import { KB, useKeyBinding, useKeyPress } from "./keybinding";
 import { useState } from "react";
 import "./app.css";
 import {
@@ -51,7 +51,7 @@ const sessionRepo: SessionRepository<Record<string, Track>> =
     (tracks: Record<string, Track>): tracks is Record<string, Track> =>
       typeof tracks === "object" &&
       Object.keys(tracks).every((s) => typeof s === "string") &&
-      Object.values(tracks).every(isTrack)
+      Object.values(tracks).every(isTrack),
   );
 
 let firstMount = false;
@@ -91,7 +91,7 @@ const App = () => {
   useKeyPress();
   const session = firstMount ? sessionRepo.read() || {} : {};
   const [showOverlay, setShowOverlay] = useState(
-    firstMount && Object.keys(session).length > 0
+    firstMount && Object.keys(session).length > 0,
   );
   firstMount = false;
 
@@ -111,7 +111,7 @@ const App = () => {
             },
           };
     },
-    {}
+    {},
   );
   sessionRepo.write(tracks);
 
@@ -152,7 +152,7 @@ const App = () => {
       return;
     }
     const source = filteredSources.find(
-      (s) => s.id === FID.source.from(currentFocusId)
+      (s) => s.id === FID.source.from(currentFocusId),
     );
     source && fn(source);
   };
@@ -407,7 +407,10 @@ const App = () => {
                   .concat(placeholderTracksRender)
                   .slice(
                     0,
-                    Math.max(placeholderTracksRange.length, tracksRender.length)
+                    Math.max(
+                      placeholderTracksRange.length,
+                      tracksRender.length,
+                    ),
                   )}
               </Stack>
             </Column>
