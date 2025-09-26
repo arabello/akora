@@ -3,7 +3,7 @@ import { Actions, keyBindingFrom, match } from "./keybinding";
 import { useKeyPress } from "./useKeyPress";
 
 export const useKeyBinding: <R>(initActions: Actions<R>) => void = <R,>(
-  initActions: Actions<R>
+  initActions: Actions<R>,
 ) => {
   const keyPress = useKeyPress();
 

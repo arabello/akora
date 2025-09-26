@@ -30,15 +30,18 @@ export type ChannelInfo = {
 
 const Mixer = new Map<string, Channel>();
 
-export const useMixer = (initChannels: Array<ChannelInfo> = [], onStateChange: (e: Event) => void = () => { }) => {
+export const useMixer = (
+  initChannels: Array<ChannelInfo> = [],
+  onStateChange: (e: Event) => void = () => {},
+) => {
   const [channels, setChannels] = useState<Record<string, ChannelInfo>>(
     initChannels.reduce(
       (acc, chInfo) => ({
         ...acc,
         [chInfo.id]: chInfo,
       }),
-      {}
-    )
+      {},
+    ),
   );
 
   Object.values(channels).forEach((chInfo) => {
