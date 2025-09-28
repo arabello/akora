@@ -6,9 +6,9 @@ import {
   IconChevronLeft,
   IconChevronRight,
 } from "@buildo/bento-design-system";
-import { Conceal } from "./Conceal";
 
-type Props = {
+type Props = React.ComponentProps<typeof Box> & {
+  variant?: "default" | "mobile";
   children: JSX.Element;
   showControls: boolean;
   onArrowLeft?: () => void;
@@ -17,37 +17,48 @@ type Props = {
   onLeave?: () => void;
 };
 
-export const TrackControls = (props: Props) => {
-  const { onArrowLeft = () => {}, onArrowRight = () => {} } = props;
-
+export const TrackControls = ({
+  variant = "default",
+  showControls,
+  onArrowLeft = () => {},
+  onArrowRight = () => {},
+  onEnter,
+  onLeave,
+  children,
+  ...boxProps
+}: Props) => {
   return (
-    <Box onMouseEnter={props.onEnter} onMouseLeave={props.onLeave}>
+    <Box onMouseEnter={onEnter} onMouseLeave={onLeave} {...boxProps}>
       <Columns space={24} alignY="center">
-        <Column width="content">
-          <Conceal visible={props.showControls}>
-            <IconButton
-              icon={IconChevronLeft}
-              size={12}
-              kind="transparent"
-              hierarchy="primary"
-              label=""
-              onPress={onArrowLeft}
-            />
-          </Conceal>
-        </Column>
-        {props.children}
-        <Column width="content">
-          <Conceal visible={props.showControls}>
-            <IconButton
-              icon={IconChevronRight}
-              size={12}
-              kind="transparent"
-              hierarchy="primary"
-              label=""
-              onPress={onArrowRight}
-            />
-          </Conceal>
-        </Column>
+        {variant === "default" ? (
+          <Column width="content">
+            <Box style={{ visibility: showControls ? "visible" : "hidden" }}>
+              <IconButton
+                icon={IconChevronLeft}
+                size={12}
+                kind="transparent"
+                hierarchy="primary"
+                label=""
+                onPress={onArrowLeft}
+              />
+            </Box>
+          </Column>
+        ) : null}
+        <Column width="full">{children}</Column>
+        {variant === "default" ? (
+          <Column width="content">
+            <Box style={{ visibility: showControls ? "visible" : "hidden" }}>
+              <IconButton
+                icon={IconChevronRight}
+                size={12}
+                kind="transparent"
+                hierarchy="primary"
+                label=""
+                onPress={onArrowRight}
+              />
+            </Box>
+          </Column>
+        ) : null}
       </Columns>
     </Box>
   );

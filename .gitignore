@@ -1,18 +1,10 @@
-thoughts
-.vscode
-build
-sourcesIndex.json
-lib
-.turbo
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,node,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,node,react
 
 ### macOS ###
-# General
 .DS_Store
 .AppleDouble
-.LSOverride
 
 # Icon must end with two \r
 Icon

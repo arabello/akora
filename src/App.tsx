@@ -1,40 +1,15 @@
-import {
-  Banner,
-  Body,
-  Box,
-  Chip,
-  Column,
-  Columns,
-  Headline,
-  IconButton,
-  IconX,
-  Inline,
-  Inset,
-  Link,
-  Stack,
-} from "@buildo/bento-design-system";
-import { KB, useKeyBinding, useKeyPress } from "./keybinding";
-import { useState } from "react";
+import { Body, IconButton, IconX } from "@buildo/bento-design-system";
+import { useRef, useState } from "react";
 import "./app.css";
-import {
-  AboutModal,
-  Conceal,
-  IconInfo,
-  IconMute,
-  IconSliders,
-  IconVolume,
-  ListItem,
-  ProgressBarCard,
-  SearchBar,
-  ShortcutsModal,
-  TrackControls,
-} from "./components";
+import { ListItem, ProgressBarCard, TrackControls } from "./components";
+import { KB, useKeyBinding, useKeyPress } from "./keybinding";
+import { MobileLayout } from "./layouts/MobileLayout";
+import { useResponsiveLayout } from "./layouts/useResponsiveLayout";
+import { WebLayout } from "./layouts/WebLayout";
 import { useMixer } from "./mixer";
 import { LocalStorageSessionRepository, SessionRepository } from "./session";
 import { Source, search, sources } from "./sources";
 import { useFocus } from "./useFocus";
-import { IconHeart } from "./components/Icons/IconHeart";
-import { Overlay } from "./components/Overlay";
 
 type Track = Source & {
   volume: number;
@@ -72,17 +47,7 @@ const FID = {
   source: makeFocusIdConversion("source"),
 };
 
-const isMobile = (() => {
-  const userAgent =
-    typeof navigator === "undefined" ? "SSR" : navigator.userAgent;
-  return (
-    Boolean(userAgent.match(/SSR/i)) ||
-    Boolean(userAgent.match(/Android/i)) ||
-    Boolean(userAgent.match(/iPhone|iPad|iPod/i)) ||
-    Boolean(userAgent.match(/Opera Mini/i)) ||
-    Boolean(userAgent.match(/IEMobile/i))
-  );
-})();
+// Responsive layout selected via matchMedia rather than UA sniffing
 
 const App = () => {
   /**
@@ -94,6 +59,9 @@ const App = () => {
     firstMount && Object.keys(session).length > 0,
   );
   firstMount = false;
+  const [aboutModalShow, setAboutModalShow] = useState(false);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const { isMobile } = useResponsiveLayout();
 
   const mixer = useMixer(Object.values(session), () => setShowOverlay(false));
   const tracks: Record<string, Track> = Object.entries(mixer.channels).reduce(
@@ -242,26 +210,25 @@ const App = () => {
   const tracksRender = Object.values(tracks).map((track) => {
     const trackFID = FID.track.to(track.id);
     const isFocused = currentFocusId === trackFID;
-    const iconRemove = (
-      <Conceal visible={isFocused}>
-        <IconButton
-          icon={IconX}
-          size={12}
-          kind="transparent"
-          hierarchy="primary"
-          label=""
-          onPress={() =>
-            withFocusedTrackDo((tid) => {
-              mixer.unload(tid);
-              focusClear();
-            })
-          }
-        />
-      </Conceal>
-    );
+    const iconRemove = isFocused ? (
+      <IconButton
+        icon={IconX}
+        size={12}
+        kind="transparent"
+        hierarchy="primary"
+        label=""
+        onPress={() =>
+          withFocusedTrackDo((tid) => {
+            mixer.unload(tid);
+            focusClear();
+          })
+        }
+      />
+    ) : undefined;
     return (
       <TrackControls
         key={`track-container-${track.id}`}
+        variant="default"
         showControls={isFocused}
         onEnter={() => focusFirst({ find: (id) => id === trackFID })}
         onLeave={() => focusClear()}
@@ -281,230 +248,121 @@ const App = () => {
     );
   });
 
-  const placeholderTracksRange = [...Array(7)];
+  const placeholderTracksRange = [
+    ...Array(Math.max(0, 6 - tracksRender.length)),
+  ];
   const placeholderTracksRender = placeholderTracksRange.flatMap((_, i) => (
-    <Box
-      style={{ position: "relative" }}
+    <TrackControls
       key={`placeholder-track-container-${i}`}
+      variant={isMobile ? "mobile" : "default"}
+      showControls={false}
+      style={{ opacity: 1 - i / placeholderTracksRange.length }}
     >
-      <Box
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundColor: `rgba(255, 255, 255, ${
-            i * (1 / placeholderTracksRange.length)
-          })`,
-        }}
+      <ProgressBarCard
+        key={`placeholder-track-${i}`}
+        title="&#8205;" // Use of U+2000 to render an empty block with the same height as a title
+        progress={0}
       />
-      <TrackControls showControls={false}>
-        <ProgressBarCard
-          key={`placeholder-track-${i}`}
-          title=" " // Use of U+2000 to render an empty block with the same height as a title
-          progress={0}
-        />
-      </TrackControls>
-    </Box>
+    </TrackControls>
   ));
 
-  const [aboutModalShow, setAboutModalShow] = useState(false);
-  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  // Mobile-specific tracks render: full-width cards, volume via horizontal drag
+  // Persist drag state across renders to avoid losing pointer interaction mid-drag
+  const dragStateRef = useRef<
+    Record<string, { x: number; vol: number; active: boolean }>
+  >({});
+  const mobileTracksRender = Object.values(tracks).map((track) => {
+    const sensitivityPx = 200; // horizontal pixels to go from 0 to 1 volume
+
+    // Ensure a state bucket exists for this track
+    if (!dragStateRef.current[track.id]) {
+      dragStateRef.current[track.id] = {
+        x: 0,
+        vol: track.volume,
+        active: false,
+      };
+    }
+    const state = dragStateRef.current[track.id];
+
+    const onPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
+      state.x = e.clientX;
+      state.vol = track.volume;
+      state.active = true;
+      (e.target as Element).setPointerCapture?.(e.pointerId);
+    };
+
+    const onPointerMove: React.PointerEventHandler<HTMLDivElement> = (e) => {
+      if (!state.active) return;
+      const dx = e.clientX - state.x;
+      const delta = dx / sensitivityPx;
+      const next = Math.max(0, Math.min(1, state.vol + delta));
+      mixer.setVolume(track.id, next);
+    };
+
+    const onPointerUp: React.PointerEventHandler<HTMLDivElement> = (e) => {
+      state.active = false;
+      (e.target as Element).releasePointerCapture?.(e.pointerId);
+    };
+
+    return (
+      <ProgressBarCard
+        key={`mtrack-${track.id}`}
+        title={track.name}
+        progress={track.volume}
+        style={{ touchAction: "pan-y" }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        icon={
+          <IconButton
+            icon={IconX}
+            size={12}
+            kind="transparent"
+            hierarchy="primary"
+            label=""
+            onPress={() => {
+              mixer.unload(track.id);
+              focusClear();
+            }}
+          />
+        }
+      />
+    );
+  });
+
+  const mobileTracksWithPlaceholders = mobileTracksRender.concat(
+    placeholderTracksRender,
+  );
 
   return isMobile ? (
-    <Box
-      display="flex"
-      alignItems="center"
-      flexDirection="column"
-      paddingTop={80}
-    >
-      <Banner
-        title="Mobile devices are not support"
-        description="Please visit Night Focus via a desktop browser"
-        kind="secondary"
-      />
-    </Box>
+    <MobileLayout
+      searchQuery={searchQuery}
+      setSearchQuery={setSearchQuery}
+      tracksRender={mobileTracksWithPlaceholders}
+      filteredSources={filteredSources}
+      onSelectSource={(id, url) => {
+        mixer.load(id, url);
+      }}
+      aboutModalShow={aboutModalShow}
+      setAboutModalShow={setAboutModalShow}
+      mute={mute}
+      setMute={setMute}
+    />
   ) : (
-    <Box>
-      {showOverlay && (
-        <Overlay style={{ height: "110vh" }}>
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="full"
-          >
-            <Stack space={4} align="center">
-              <Body size="large">Press any key</Body>
-              <Body size="large">to resume</Body>
-            </Stack>
-          </Box>
-        </Overlay>
-      )}
-      <Box style={{ height: "100vh" }}>
-        <Inset spaceX={32} spaceY={32}>
-          <Columns space={80}>
-            <Column width="1/3">
-              <Box display="flex" justifyContent="flexEnd">
-                <Stack space={16}>
-                  <Box display="flex" alignItems="baseline">
-                    <Box flex={1}>
-                      <Headline size="large">Night Focus</Headline>
-                    </Box>
-                  </Box>
-                  <Stack space={4}>
-                    <ListItem
-                      onClick={() => setAboutModalShow(true)}
-                      leftAccessory={(() => (
-                        <IconInfo size={16} color="primary" />
-                      ))()}
-                    >
-                      About
-                    </ListItem>
-                    <ListItem
-                      onClick={() => setShowShortcutsModal(true)}
-                      leftAccessory={(() => (
-                        <IconSliders size={16} color="primary" />
-                      ))()}
-                      rightAccessory={
-                        <Body size="small" color="secondary">
-                          ?
-                        </Body>
-                      }
-                    >
-                      Shortcuts
-                    </ListItem>
-                    <ListItem
-                      onClick={() => setMute(!mute)}
-                      leftAccessory={(() =>
-                        mute ? (
-                          <IconMute size={16} color="informative" />
-                        ) : (
-                          <IconVolume size={16} color="primary" />
-                        ))()}
-                      rightAccessory={
-                        <Body size="small" color="secondary">
-                          ⇧ + M
-                        </Body>
-                      }
-                    >
-                      {mute ? "Unmute" : "Mute"}
-                    </ListItem>
-                  </Stack>
-                  <SearchBar
-                    data-focus-id="searchbar"
-                    aria-label="Search for sources"
-                    placeholder="Search for sources..."
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                    rightAccessory={<Chip label="⌘ + K" color="grey" />}
-                  />
-                  <Stack space={4}>{sourcesRender}</Stack>
-                </Stack>
-              </Box>
-            </Column>
-            <Column width="1/3">
-              <Stack space={16}>
-                {tracksRender
-                  .concat(placeholderTracksRender)
-                  .slice(
-                    0,
-                    Math.max(
-                      placeholderTracksRange.length,
-                      tracksRender.length,
-                    ),
-                  )}
-              </Stack>
-            </Column>
-            <Column width="1/5">
-              <Stack space={16}>
-                <Body size="medium" color="secondary" align="justify">
-                  Click on a source from the left panel to{" "}
-                  <Body size="medium" weight="strong">
-                    load a track{" "}
-                  </Body>
-                  into the pool.
-                </Body>
-                <Body size="medium" color="secondary" align="justify">
-                  You may{" "}
-                  <Body size="medium" weight="strong">
-                    hover{" "}
-                  </Body>{" "}
-                  over the loaded track to reveal the available controls.
-                </Body>
-                <Body size="medium" color="secondary" align="justify">
-                  Use the side arrow buttons to{" "}
-                  <Body size="medium" weight="strong">
-                    adjust the volume{" "}
-                  </Body>
-                  of a selected track.
-                </Body>
-                <Body size="medium" color="secondary" align="justify">
-                  Check out the{" "}
-                  <Link
-                    onClick={() => {
-                      setShowShortcutsModal(true);
-                    }}
-                  >
-                    <Body size="medium" weight="strong">
-                      keyboard shortcuts
-                    </Body>
-                  </Link>{" "}
-                  to streamline your workflow.
-                </Body>
-                <Body size="medium" color="secondary" align="justify">
-                  Loaded tracks will be saved if you leave the app. When you
-                  came back, {""}
-                  <Body size="medium" weight="strong">
-                    click{" "}
-                  </Body>{" "}
-                  on anything to resume the audio.
-                </Body>
-              </Stack>
-            </Column>
-          </Columns>
-          {showShortcutsModal && (
-            <ShortcutsModal onClose={() => setShowShortcutsModal(false)} />
-          )}
-          {aboutModalShow && (
-            <AboutModal onClose={() => setAboutModalShow(false)} />
-          )}
-        </Inset>
-      </Box>
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        paddingTop={16}
-        paddingBottom={16}
-        style={{ height: "10vh" }}
-      >
-        <Inline space={4}>
-          <Body size="small" color="secondary">
-            Made with
-          </Body>
-          <IconHeart size={12} color="secondary" />
-          <Body size="small" color="secondary">
-            by
-          </Body>
-          <Link href="https://www.matteopellegrino.dev" target="blank">
-            <Body size="small" color="secondary">
-              Matteo Pellegrino.
-            </Body>
-          </Link>
-          <Body size="small" color="secondary">
-            Sounds
-          </Body>
-          <Link
-            href="https://github.com/arabello/night-focus/blob/main/README.md"
-            target="blank"
-          >
-            <Body size="small" color="secondary">
-              credits.
-            </Body>
-          </Link>
-        </Inline>
-      </Box>
-    </Box>
+    <WebLayout
+      showOverlay={showOverlay}
+      searchQuery={searchQuery}
+      setSearchQuery={setSearchQuery}
+      mute={mute}
+      setMute={setMute}
+      aboutModalShow={aboutModalShow}
+      setAboutModalShow={setAboutModalShow}
+      showShortcutsModal={showShortcutsModal}
+      setShowShortcutsModal={setShowShortcutsModal}
+      sourcesRender={sourcesRender}
+      tracksRender={tracksRender}
+      placeholderTracksRender={placeholderTracksRender}
+    />
   );
 };
-
 export default App;
