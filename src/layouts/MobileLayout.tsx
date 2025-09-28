@@ -1,17 +1,15 @@
 import {
   Box,
   Button,
-  Column,
-  Columns,
   Headline,
-  IconButton,
-  IconInfoCircle,
   Inset,
   Stack,
+  Toast,
 } from "@buildo/bento-design-system";
 import { JSX, useEffect, useMemo, useRef, useState } from "react";
 import {
   AboutModal,
+  IconInfo,
   IconMute,
   IconVolume,
   ListItem,
@@ -44,6 +42,7 @@ export const MobileLayout = (props: MobileLayoutProps) => {
     setMute,
   } = props;
   const [overlayOpen, setOverlayOpen] = useState(false);
+  const [showAudioHint, setShowAudioHint] = useState(true);
   const headerRef = useRef<HTMLDivElement | null>(null);
   const [overlayTop, setOverlayTop] = useState<number>(0);
 
@@ -69,6 +68,13 @@ export const MobileLayout = (props: MobileLayoutProps) => {
       document.body.style.overflow = original;
     };
   }, [overlayOpen]);
+
+  // Auto-hide toast after a few seconds
+  useEffect(() => {
+    if (!showAudioHint) return;
+    const t = setTimeout(() => setShowAudioHint(false), 10000);
+    return () => clearTimeout(t);
+  }, [showAudioHint]);
 
   const sourcesList = useMemo(
     () =>
@@ -109,7 +115,7 @@ export const MobileLayout = (props: MobileLayoutProps) => {
               }}
             >
               <Button
-                icon={IconInfoCircle}
+                icon={IconInfo}
                 size="small"
                 kind="transparent"
                 hierarchy="secondary"
@@ -168,6 +174,21 @@ export const MobileLayout = (props: MobileLayoutProps) => {
               <Stack space={8}>{sourcesList}</Stack>
             </Inset>
           </Box>
+        </Box>
+      )}
+      {showAudioHint && (
+        <Box
+          position="fixed"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={{ left: 0, right: 0, bottom: 16, zIndex: 1000 }}
+        >
+          <Toast
+            // Non-dismissible: omit any close handler/UI
+            message="Turn off silent mode."
+            kind="informative"
+          />
         </Box>
       )}
       {aboutModalShow && (
