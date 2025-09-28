@@ -9,7 +9,7 @@ import {
 } from "@buildo/bento-design-system";
 
 export const ShortcutsModal = (
-  props: Omit<React.ComponentProps<typeof Modal>, "title" | "children">
+  props: Omit<React.ComponentProps<typeof Modal>, "title" | "children">,
 ) => (
   <Modal title="Shortcuts" {...props}>
     <Stack space={4}>

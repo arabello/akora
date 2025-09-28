@@ -2,7 +2,7 @@ import { Modal, Stack, Body, Link } from "@buildo/bento-design-system";
 import { Buffer } from "buffer";
 
 export const AboutModal = (
-  props: Omit<React.ComponentProps<typeof Modal>, "title" | "children">
+  props: Omit<React.ComponentProps<typeof Modal>, "title" | "children">,
 ) => (
   <Modal title="About" {...props}>
     <Stack space={24}>
@@ -40,7 +40,7 @@ export const AboutModal = (
         <Link
           href={`mailto:${Buffer.from(
             "bWF0dGVvLnBlbGxlLnBlbGxlZ3Jpbm9AZ21haWwuY29t",
-            "base64"
+            "base64",
           )}?subject=%5BNight%20Focus%5D`}
         >
           reach out to me

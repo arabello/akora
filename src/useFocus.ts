@@ -20,10 +20,10 @@ export interface FocusManager {
  * @returns
  */
 export const useFocus: (dataAttrName?: string) => FocusManager = (
-  dataAttrName = "data-focus-id"
+  dataAttrName = "data-focus-id",
 ) => {
   const overrideAccept: (
-    f: (focusId: string) => boolean
+    f: (focusId: string) => boolean,
   ) => (n: Element) => boolean = (f) => (n) => {
     const attr = n.getAttribute(dataAttrName);
     return attr ? f(attr) : false;
