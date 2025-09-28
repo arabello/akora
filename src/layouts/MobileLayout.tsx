@@ -16,6 +16,7 @@ import {
   SearchBar,
 } from "../components";
 import { Source } from "../sources";
+import { isAudioSuspended, resumeAudio } from "../mixer";
 
 export type MobileLayoutProps = {
   searchQuery: string;
@@ -43,8 +44,27 @@ export const MobileLayout = (props: MobileLayoutProps) => {
   } = props;
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [showAudioHint, setShowAudioHint] = useState(true);
+  const [showDragControlHint, setShowDragControlHint] = useState<
+    boolean | undefined
+  >(undefined);
   const headerRef = useRef<HTMLDivElement | null>(null);
   const [overlayTop, setOverlayTop] = useState<number>(0);
+  useEffect(() => {
+    const t = setInterval(() => {
+      if (isAudioSuspended()) {
+        resumeAudio();
+      }
+    }, 500);
+    return () => clearInterval(t);
+  }, []);
+
+  const handleOnSelectSource = (id: string, url: string) => {
+    onSelectSource(id, url);
+    if (showDragControlHint === undefined) {
+      setShowDragControlHint(true);
+      setTimeout(() => setShowDragControlHint(false), 5000);
+    }
+  };
 
   // Measure header height to place overlay under the search bar
   useEffect(() => {
@@ -82,7 +102,7 @@ export const MobileLayout = (props: MobileLayoutProps) => {
         <ListItem
           key={s.id}
           onClick={() => {
-            onSelectSource(s.id, s.url);
+            handleOnSelectSource(s.id, s.url);
             setSearchQuery("");
             setOverlayOpen(false);
           }}
@@ -90,7 +110,7 @@ export const MobileLayout = (props: MobileLayoutProps) => {
           {s.name}
         </ListItem>
       )),
-    [filteredSources, onSelectSource],
+    [filteredSources, handleOnSelectSource],
   );
 
   return (
@@ -187,6 +207,21 @@ export const MobileLayout = (props: MobileLayoutProps) => {
           <Toast
             // Non-dismissible: omit any close handler/UI
             message="Turn off silent mode."
+            kind="warning"
+          />
+        </Box>
+      )}
+      {showDragControlHint && (
+        <Box
+          position="fixed"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={{ left: 0, right: 0, bottom: 16, zIndex: 1000 }}
+        >
+          <Toast
+            // Non-dismissible: omit any close handler/UI
+            message="Scroll horizontally to adjust the volume."
             kind="informative"
           />
         </Box>

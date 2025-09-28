@@ -30,6 +30,29 @@ export type ChannelInfo = {
 
 const Mixer = new Map<string, Channel>();
 
+// Helpers to deal with iOS background suspend/resume
+export const isAudioSuspended = () =>
+  // @ts-ignore
+  (typeof Howler !== "undefined" &&
+    (Howler as any)?.ctx?.state === "suspended") ||
+  false;
+
+export const resumeAudio = async () => {
+  try {
+    // @ts-ignore
+    const ctx = (Howler as any)?.ctx;
+    if (ctx && ctx.state === "suspended") {
+      await ctx.resume();
+    }
+  } catch {}
+  // Ensure all channels are playing
+  Mixer.forEach((ch) => {
+    try {
+      ch.play();
+    } catch {}
+  });
+};
+
 export const useMixer = (
   initChannels: Array<ChannelInfo> = [],
   onStateChange: (e: Event) => void = () => {},
