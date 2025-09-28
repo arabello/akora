@@ -72,6 +72,22 @@ export const useMixer = (
     setChannels(rest);
   };
 
+  const setVolume = (id: string, value: number) => {
+    const channel = Mixer.get(id);
+    if (!channel) {
+      return;
+    }
+    const clamped = value < 0 ? 0 : value > 1 ? 1 : value;
+    channel.volume(clamped);
+    setChannels({
+      ...channels,
+      [id]: {
+        ...channels[id],
+        volume: channel.volume(),
+      },
+    });
+  };
+
   const volume = (id: string, step: number) => {
     const channel = Mixer.get(id);
     if (!channel) {
@@ -103,6 +119,7 @@ export const useMixer = (
     load,
     unload,
     volume,
+    setVolume,
     muteAll,
     channels,
   };
