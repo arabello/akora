@@ -1,8 +1,8 @@
 {
-  "name": "night-focus",
+  "name": "akora",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://www.matteopellegrino.dev/night-focus",
+  "homepage": "https://www.matteopellegrino.dev/akora",
   "author": "Matteo Pellegrino <matteo.pelle.pellegrino@gmail.com> (https://matteopellegrino.dev)",
   "type": "module",
   "scripts": {

@@ -124,7 +124,7 @@ export const MobileLayout = (props: MobileLayoutProps) => {
             alignItems="center"
             gap={16}
           >
-            <Headline size="large">Night Focus</Headline>
+            <Headline size="large">Akora</Headline>
             <Box
               width="full"
               style={{

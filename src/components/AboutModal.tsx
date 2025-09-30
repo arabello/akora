@@ -25,7 +25,7 @@ export const AboutModal = (
         .
       </Body>
       <Body size="large">
-        Night Focus helps me get into the{" "}
+        Akora helps me get into the{" "}
         <Link
           href="https://en.wikipedia.org/wiki/Flow_(psychology)"
           target="_blank"
@@ -41,16 +41,13 @@ export const AboutModal = (
           href={`mailto:${Buffer.from(
             "bWF0dGVvLnBlbGxlLnBlbGxlZ3Jpbm9AZ21haWwuY29t",
             "base64",
-          )}?subject=%5BNight%20Focus%5D`}
+          )}?subject=%5BAkora%5D`}
         >
           reach out to me
         </Link>{" "}
         for any feedback, suggestion or to contribute to the sounds collection.
         Please open an issue on{" "}
-        <Link
-          href="https://github.com/arabello/night-focus/issues"
-          target="_blank"
-        >
+        <Link href="https://github.com/arabello/akora/issues" target="_blank">
           GitHub
         </Link>{" "}
         to report any unexpected behavior.
