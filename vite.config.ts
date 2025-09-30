@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/night-focus/',
+  base: '/akora/',
   build: {
     outDir: 'dist',
     sourcemap: true,

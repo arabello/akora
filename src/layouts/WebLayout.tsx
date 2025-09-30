@@ -81,7 +81,7 @@ export const WebLayout = (props: WebLayoutProps) => {
                 <Stack space={16}>
                   <Box display="flex" alignItems="baseline">
                     <Box flex={1}>
-                      <Headline size="large">Night Focus</Headline>
+                      <Headline size="large">Akora</Headline>
                     </Box>
                   </Box>
                   <Stack space={4}>

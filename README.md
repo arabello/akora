@@ -1,4 +1,4 @@
-# Night Focus
+# Akora
 
 ## Sounds Credits
 
